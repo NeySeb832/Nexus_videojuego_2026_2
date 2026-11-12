@@ -1,0 +1,46 @@
+# ===== Proyecto de Unity (carpeta Nexus/) =====
+# Carpetas que Unity regenera al abrir el proyecto
+Nexus/[Ll]ibrary/
+Nexus/[Tt]emp/
+Nexus/[Oo]bj/
+Nexus/[Ll]ogs/
+Nexus/[Uu]ser[Ss]ettings/
+Nexus/[Bb]uild/
+Nexus/[Bb]uilds/
+Nexus/Data/
+Nexus/.utmp/
+Nexus/[Mm]emoryCaptures/
+Nexus/[Rr]ecordings/
+
+# Archivos del IDE generados por Unity
+Nexus/.vs/
+Nexus/.vscode/
+Nexus/.idea/
+Nexus/*.csproj
+Nexus/*.sln
+Nexus/*.slnx
+Nexus/*.suo
+Nexus/*.user
+Nexus/*.userprefs
+Nexus/*.pidb
+Nexus/*.booproj
+Nexus/*.svd
+Nexus/*.pdb
+Nexus/*.mdb
+Nexus/*.opendb
+Nexus/*.VC.db
+Nexus/sysinfo.txt
+Nexus/crashlytics-build.properties
+
+# ===== Fuera del proyecto =====
+# Compilaciones (Windows, WebGL, APK): se publican aparte, p. ej. en GitHub Releases
+Builds/
+# Descargas originales de Mixamo: ya están importadas dentro de Nexus/Assets
+Descargas_Nixamo/
+# Configuración local de herramientas
+.claude/
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store

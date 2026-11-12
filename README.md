@@ -1,0 +1,57 @@
+# NEXUS — Protocolo de emergencia
+
+Videojuego de terror y sigilo en tercera persona hecho en **Unity 6** para el trabajo final de
+**Modelado 3D y Videojuegos** (2026). El técnico de guardia queda atrapado en el centro de datos de
+Nexus Corp.: la refrigeración falló, la actualización CERBERUS 7.1 volvió hostiles a los androides
+de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del colapso térmico.
+
+**Equipo:** Neyder y Deisy. Sus avatares 3D son los dos personajes jugables.
+
+## Características
+
+- Cámaras fijas al estilo *survival horror* clásico, con control relativo a la cámara.
+- Selector de personaje con avatares **Humanoid**, cada uno con una habilidad propia:
+  - **Neyder:** *Señuelo de red*, atrae a los androides cercanos.
+  - **Deisy:** *KILLSWITCH.exe*, apaga un androide durante 10 s.
+- **IA** de los androides con NavMesh: patrulla, cono de visión con línea de vista, oído,
+  persecución, búsqueda y reacción a ruidos y señuelos.
+- Inventario de terminal portátil (objetos, archivo de notas y mapa), curación con Speedmax y
+  Chocorramo, y guardado en terminales con memoria USB.
+- Temporizador de refrigeración, salud, coleccionables, diálogos de sistema y pantallas animadas de
+  Game Over y Victoria.
+- Escenarios generados desde mapas de texto, con decoración automática de empresa abandonada:
+  oficinas, cafetería con máquinas expendedoras, almacén, basura, polvo y luces que fallan.
+- Plataformas: **Windows, WebGL y Android**.
+
+## Estructura del repositorio
+
+| Carpeta | Contenido |
+|---|---|
+| `Nexus/` | Proyecto de Unity (abrir esta carpeta con Unity Hub) |
+| `Nexus/Assets/Nexus/Scripts/` | Código del juego (jugador, IA, interacción, UI, partida) |
+| `Nexus/Assets/Nexus/Editor/` | Herramientas que construyen modelos, texturas, niveles y UI por código (menú **Nexus** del editor) |
+| `Evidencias/` | Bitácora de desarrollo paso a paso, capturas numeradas y lista de requisitos |
+| `Avatares/` | Archivos originales de los avatares de los integrantes |
+
+## Cómo abrir el proyecto
+
+1. Instala **Unity 6000.6.3f1** desde Unity Hub, con los módulos de Android y WebGL si vas a compilar.
+2. En Unity Hub: *Add project from disk* → selecciona la carpeta `Nexus`.
+3. La primera apertura tarda varios minutos (Unity regenera la carpeta `Library`).
+4. Escena inicial: `Assets/Nexus/Escenas/00_Menu.unity`.
+
+**Controles (teclado):**
+
+| Acción | Tecla |
+|---|---|
+| Moverse | WASD |
+| Correr | Shift |
+| Interactuar | E |
+| Habilidad | Q |
+| Inventario | TAB / I |
+
+## Documentación
+
+- [Bitácora de desarrollo](Evidencias/Bitacora.md)
+- [Requisitos del curso y su estado](Evidencias/Requisitos.md)
+- [Diseño de niveles](Evidencias/Diseno_Niveles.md)
