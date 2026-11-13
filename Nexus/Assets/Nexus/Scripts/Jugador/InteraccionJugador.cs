@@ -27,6 +27,9 @@ namespace Nexus
             accionInteractuar = InputSystem.actions.FindAction("Player/Interact");
         }
 
+        // Igual que en ControladorJugador: la acción del proyecto hay que habilitarla a mano
+        void OnEnable() => accionInteractuar?.Enable();
+
         public void Entrar(Interactuable i) { if (!cercanos.Contains(i)) cercanos.Add(i); }
         public void Salir(Interactuable i) => cercanos.Remove(i);
 

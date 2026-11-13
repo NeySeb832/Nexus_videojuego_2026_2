@@ -51,7 +51,15 @@ namespace Nexus
             accionCorrer = InputSystem.actions.FindAction("Player/Sprint");
         }
 
-        void OnEnable() => GestorCamaras.AlCambiarCamara += CambioDeCamara;
+        void OnEnable()
+        {
+            GestorCamaras.AlCambiarCamara += CambioDeCamara;
+            // Las acciones del proyecto no se habilitan solas en esta versión del Input System
+            // (ni en el editor sin recarga de dominio ni en las compilaciones): sin esto,
+            // ReadValue devuelve siempre (0,0) y el personaje no camina.
+            accionMover?.Enable();
+            accionCorrer?.Enable();
+        }
         void OnDisable() => GestorCamaras.AlCambiarCamara -= CambioDeCamara;
 
         void Start()

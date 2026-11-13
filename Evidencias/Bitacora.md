@@ -1270,3 +1270,43 @@ ruido.
 ![Oficina de seguridad: consola de CCTV, isla de escritorios y casilleros](capturas/064_oficina-seguridad-decorada.png)
 
 ![Almacén con estanterías y cajas](capturas/065_almacen-decorado.png)
+
+---
+
+## Fase 3 (continuación) — Corrección de los controles
+
+### 3.8 El personaje no respondía al teclado — 13/11/2026 · [Programación] · [Dificultad superada]
+
+**Problema reportado en la prueba del equipo:** desde el menú se llegaba al Nivel 1, pero el
+técnico no caminaba con WASD, no corría con Shift y la tecla E no usaba las terminales.
+
+**Diagnóstico:**
+
+1. El registro del editor (`Logs/Editor.log`) no mostraba errores.
+2. Al revisar el estado del Input System durante el juego se vio que el archivo de acciones del
+   proyecto (`InputSystem_Actions`, que contiene *Move*, *Sprint* e *Interact*) estaba
+   **deshabilitado**. Una acción deshabilitada siempre devuelve 0, así que el personaje recibía
+   "ninguna tecla" aunque se presionara.
+3. Esta versión del Input System (1.19), con la recarga de dominio desactivada en el editor, no
+   habilita esas acciones por su cuenta.
+4. El menú, los diálogos, el inventario (TAB) y la habilidad (Q) sí funcionaban porque leen el
+   teclado directamente, sin pasar por esas acciones.
+5. Las pruebas automáticas anteriores no lo detectaron porque movían al jugador con una entrada
+   simulada que no pasa por el Input System.
+
+**Solución:** `ControladorJugador` e `InteraccionJugador` habilitan sus acciones (`Enable()`) al
+activarse. Funciona igual en el editor y en las compilaciones de Windows, WebGL y Android.
+
+**Ajuste adicional:** en el mando, la habilidad pasó al botón X/cuadrado, porque Y/triángulo ya
+era "Interactuar" y las dos acciones chocaban.
+
+**Verificación:** esta vez se probó con eventos de teclado reales enviados al Input System, no con
+la entrada simulada:
+
+| Tecla | Resultado |
+|---|---|
+| W | El técnico camina a 1,8 m/s |
+| W + Shift | Corre a 5 m/s |
+| E frente a la terminal | Se abre el diálogo |
+
+![Con la tecla E se abre la terminal de mantenimiento](capturas/066_controles-tecla-e-terminal.png)

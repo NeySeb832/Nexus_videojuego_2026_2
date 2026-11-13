@@ -8,7 +8,7 @@ namespace Nexus
     public enum TipoHabilidad { SenueloRed, Killswitch }
 
     /// <summary>
-    /// Habilidad especial de cada técnico (tecla Q, botón Y/triángulo del mando o botón táctil).
+    /// Habilidad especial de cada técnico (tecla Q, botón X/cuadrado del mando o botón táctil).
     /// Le da a cada personaje una forma distinta de resolver los encuentros con los androides:
     ///
     ///  - Neyder (técnico de redes) — SEÑUELO DE RED: lanza un repetidor de red que emite una
@@ -72,7 +72,8 @@ namespace Nexus
         {
             var k = Keyboard.current;
             var g = Gamepad.current;
-            bool pulsado = PulsacionSimulada || (k != null && k.qKey.wasPressedThisFrame) || (g != null && g.buttonNorth.wasPressedThisFrame);
+            // En el mando: X / cuadrado (Y / triángulo ya es "Interactuar")
+            bool pulsado = PulsacionSimulada || (k != null && k.qKey.wasPressedThisFrame) || (g != null && g.buttonWest.wasPressedThisFrame);
             PulsacionSimulada = false;
             ActualizarHUD(false);
 
