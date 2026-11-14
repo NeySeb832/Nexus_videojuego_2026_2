@@ -30,6 +30,90 @@ namespace Nexus.Herramientas
         static readonly List<PuntoInteres> PuntosInteres = new List<PuntoInteres>();
         const int MascaraSolidos = ~(1 << 2);
 
+        /// <summary>Ángulos alternativos posibles de cada sala (zona, posición, punto al que mira, FOV).</summary>
+        static readonly List<(char zona, Vector3 pos, Vector3 objetivo, float fov)> Candidatos = new List<(char, Vector3, Vector3, float)>();
+
+        static Camera NuevaCamara(Transform gestor, string nombre, Vector3 pos, Vector3 mirar, float fov, string sala)
+        {
+            var go = new GameObject(nombre) { tag = "MainCamera" };
+            go.transform.SetParent(gestor, false);
+            go.transform.position = pos;
+            go.transform.LookAt(mirar);
+            var cam = go.AddComponent<Camera>();
+            cam.fieldOfView = fov; cam.nearClipPlane = 0.1f; cam.farClipPlane = 45f;
+            cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = Color.black;
+            cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+            cam.enabled = false;
+            go.AddComponent<CamaraFija>().Sala = sala;
+            return cam;
+        }
+
+        /// <summary>Puntos del suelo libre de una sala (centro y 4 cerca de los bordes de cada celda, sin puertas).</summary>
+        static List<Vector3> PuntosDeSala(char zona)
+        {
+            var lista = new List<Vector3>();
+            foreach (var c in CeldasDeZona(zona))
+            {
+                if ("RBXL".Contains(En(c))) continue;
+                foreach (var o in new[] { Vector3.zero, new Vector3(0.9f, 0, 0.9f), new Vector3(-0.9f, 0, 0.9f), new Vector3(0.9f, 0, -0.9f), new Vector3(-0.9f, 0, -0.9f) })
+                {
+                    Vector3 p = Centro(c) + o;
+                    if (!Physics.CheckCapsule(p + Vector3.up * 0.4f, p + Vector3.up * 1.5f, 0.28f, MascaraSolidos, QueryTriggerInteraction.Ignore)) lista.Add(p);
+                }
+            }
+            return lista;
+        }
+
+        /// <summary>
+        /// Elige, de los ángulos candidatos de cada sala, solo los necesarios: empezando por la cámara
+        /// principal, agrega uno a uno el candidato que cubre más puntos que nadie ve todavía, hasta
+        /// que no quede ninguno (o los que queden sean sueltos, de eso se encarga el relleno).
+        /// Así una sala pequeña que la principal ve entera se queda con una sola cámara.
+        /// </summary>
+        static void ElegirAngulos(Transform gestor)
+        {
+            if (gestor == null) return;
+            Physics.SyncTransforms();
+            var temporal = new GameObject("tmp_cam").AddComponent<Camera>();
+            temporal.enabled = false; temporal.aspect = 16f / 9f; temporal.nearClipPlane = 0.1f;
+            int elegidos = 0, descartados = 0;
+            try
+            {
+                foreach (var kv in def.Salas)
+                {
+                    string sala = kv.Value.Nombre;
+                    var propias = gestor.GetComponentsInChildren<CamaraFija>(true).Where(c => c.Sala == sala).Select(c => c.Camara).ToList();
+                    foreach (var cam in propias) cam.aspect = 16f / 9f;
+                    var pendientes = PuntosDeSala(kv.Key).Where(p => !propias.Any(cam => { var (d, v, _) = GestorCamaras.Evaluar(cam, p); return d && v; })).ToList();
+                    var libres = Candidatos.Where(c => c.zona == kv.Key).ToList();
+                    int n = 0;
+                    while (pendientes.Count > 0 && libres.Count > 0)
+                    {
+                        int mejor = -1, mejorCubre = 0;
+                        for (int i = 0; i < libres.Count; i++)
+                        {
+                            temporal.transform.position = libres[i].pos;
+                            temporal.transform.LookAt(libres[i].objetivo);
+                            temporal.fieldOfView = libres[i].fov;
+                            int cubre = pendientes.Count(p => { var (d, v, _) = GestorCamaras.Evaluar(temporal, p); return d && v; });
+                            if (cubre > mejorCubre) { mejorCubre = cubre; mejor = i; }
+                        }
+                        if (mejor < 0 || mejorCubre < 2) break;
+                        var c = libres[mejor];
+                        libres.RemoveAt(mejor);
+                        var cam = NuevaCamara(gestor, $"Cam_{sala}_Alt{++n}", c.pos, c.objetivo, c.fov, sala);
+                        cam.aspect = 16f / 9f;
+                        pendientes.RemoveAll(p => { var (d, v, _) = GestorCamaras.Evaluar(cam, p); return d && v; });
+                        elegidos++;
+                    }
+                    descartados += libres.Count;
+                }
+            }
+            finally { Object.DestroyImmediate(temporal.gameObject); }
+            foreach (var c in gestor.GetComponentsInChildren<Camera>(true)) c.ResetAspect();
+            Debug.Log($"[Nexus] Ángulos alternativos: {elegidos} necesarios, {descartados} candidatos descartados por sobrar.");
+        }
+
         /// <param name="normal">Dirección desde el objeto hacia donde se para el jugador (cero si se rodea)</param>
         static void RegistrarInteres(Vector3 pos, Vector3 normal, Vector2Int celda, GameObject obj, float alturaMirar, float radio)
         {
@@ -143,10 +227,13 @@ namespace Nexus.Herramientas
                         foreach (var q in celdas)
                         {
                             float dq = (Centro(q) - objetivo).magnitude;
-                            if (dq < 2.5f || dq > 12f) continue;
-                            foreach (var o in new[] { new Vector3(1.05f, 0, 1.05f), new Vector3(-1.05f, 0, 1.05f), new Vector3(1.05f, 0, -1.05f), new Vector3(-1.05f, 0, -1.05f), Vector3.zero })
+                            if (dq > 12f) continue;
+                            foreach (var o in new[] { new Vector3(1.05f, 0, 1.05f), new Vector3(-1.05f, 0, 1.05f), new Vector3(1.05f, 0, -1.05f), new Vector3(-1.05f, 0, -1.05f), Vector3.zero,
+                                                      new Vector3(1.1f, 0, 0), new Vector3(-1.1f, 0, 0), new Vector3(0, 0, 1.1f), new Vector3(0, 0, -1.1f) })
                             {
                                 Vector3 pos = Centro(q) + o + Vector3.up * kv.Value.AlturaCamara;
+                                var plano = pos - objetivo; plano.y = 0f;
+                                if (plano.magnitude < 2.2f) continue;   // demasiado encima del punto
                                 if (!PosicionCamaraValida(pos)) continue;
                                 temporal.transform.position = pos;
                                 temporal.transform.LookAt(objetivo + Vector3.up * 0.8f);

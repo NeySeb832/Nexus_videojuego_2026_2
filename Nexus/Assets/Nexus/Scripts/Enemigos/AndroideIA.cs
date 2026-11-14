@@ -67,6 +67,10 @@ namespace Nexus
         int indiceRuta;
         float esperaHasta, ultimaVezVisto, finBusqueda, finRecalibrar, proximaVista, proximoDestino;
         float finApagado, atraidoHasta;
+        // Unidad en reposo (se activa con la alarma o con su sensor de cercanía)
+        float despertarEn = -1f;
+        bool perseguirAlDespertar;
+        Vector3 destinoAlDespertar;
         Vector3 ultimaPosicion;
         bool visto;
         static float ultimoAvisoDeteccion = -10f;
@@ -158,20 +162,66 @@ namespace Nexus
             agente.Warp(transform.position);
             CambiarEstado(activarConAlarma ? Estado.Inactivo : Estado.Patrulla);
             if (estado == Estado.Patrulla) IrAlPunto(0);
+            else Brillo(0.04f);   // en reposo: visor y juntas casi apagados
         }
 
         void AlRecogerObjeto(Coleccionable c)
         {
             if (c.Tipo != TipoColeccionable.DiscoDuro || estado != Estado.Inactivo) return;
             // La alarma despierta al androide y lo manda a donde está el jugador
-            Investigar(jugador != null ? jugador.position : transform.position);
+            Despertar(false, 0.9f);
+        }
+
+        /// <summary>Secuencia de encendido de una unidad en reposo: el visor parpadea y luego actúa.</summary>
+        void Despertar(bool perseguir, float segundos)
+        {
+            if (despertarEn > 0f) return;
+            despertarEn = Time.time + segundos;
+            perseguirAlDespertar = perseguir;
+            destinoAlDespertar = jugador != null ? jugador.position : transform.position;
+        }
+
+        /// <summary>
+        /// Unidad en reposo: casi apagada, con un pulso tenue cada pocos segundos. Su sensor de
+        /// cercanía la reactiva si el jugador pasa pegado a ella, corre cerca o se le planta enfrente.
+        /// </summary>
+        void EnReposo()
+        {
+            if (despertarEn > 0f)
+            {
+                Brillo(Mathf.Repeat(Time.time, 0.2f) < 0.1f ? 1f : 0.1f);
+                if (Time.time < despertarEn) return;
+                despertarEn = -1f;
+                Brillo(1f);
+                if (perseguirAlDespertar) Perseguir();
+                else Investigar(destinoAlDespertar);
+                return;
+            }
+            float fase = Mathf.Repeat(Time.time + transform.position.x, 3.5f);
+            Brillo(fase < 0.35f ? 0.04f + 0.25f * Mathf.Sin(fase / 0.35f * Mathf.PI) : 0.04f);
+
+            if (vida != null && vida.Muerto) return;
+            float d = Vector3.Distance(transform.position, jugador.position);
+            bool pegado = d < 2.2f;
+            bool corriendoCerca = Oye(d);
+            bool deFrente = false;
+            if (d < 4.5f && JugadorEnCono && Time.time >= proximaVista)
+            {
+                proximaVista = Time.time + 0.2f;
+                deFrente = PuedeVerAlJugador();
+            }
+            if (pegado || corriendoCerca || deFrente)
+            {
+                HUDNexus.Aviso("¡Una unidad SENTINEL en reposo se reactivó!");
+                Despertar(true, 1.1f);
+            }
         }
 
         void Update()
         {
             if (jugador == null || !agente.isOnNavMesh) return;
             if (animator != null) animator.SetFloat(ParamVelocidad, agente.velocity.magnitude, 0.1f, Time.deltaTime);
-            if (estado == Estado.Inactivo) return;
+            if (estado == Estado.Inactivo) { EnReposo(); return; }
             if (estado == Estado.Apagado) { Reiniciando(); return; }
 
             if (Time.time >= proximaVista)

@@ -1439,3 +1439,83 @@ puerta roja, el panel de fusibles, el fusible y el Disco Maestro.
 ![Plano de interés de la máquina expendedora](capturas/071_plano-interes-maquina.png)
 
 ![Plano de interés de la puerta roja](capturas/072_plano-interes-puerta-roja.png)
+
+---
+
+### 3.11 Cámaras más tranquilas y androide de alarma más claro — 13/11/2026 · [Diseño] · [Programación] · [Dificultad superada]
+
+**Observaciones de la prueba del equipo:**
+
+1. Algunas cámaras se pisaban: en un cuarto cerrado había unas 4 y cambiaban rápido, lo que
+   resultaba incómodo.
+2. El segundo androide no hacía nada: se quedaba parado.
+
+**Diagnóstico de las cámaras:** había tres causas.
+
+- **Ángulos de sobra.** El constructor ponía ángulos en todas las esquinas de cada sala, aunque la
+  cámara principal ya la viera completa.
+- **Cambios por encuadre.** El gestor cambiaba de ángulo no solo cuando el jugador salía del
+  cuadro, sino también cuando otro ángulo lo encuadraba "mejor".
+- **Planos de interés demasiado sensibles.** Entraban con solo pasar cerca de un objeto. Al cruzar
+  una puerta, la cámara saltaba entre el plano de la puerta y la sala siguiente (4 cortes en
+  menos de 2 s).
+
+**Solución de las cámaras:**
+
+- **Solo los ángulos necesarios.** Las esquinas son ahora *candidatas*. Después de decorar la sala,
+  el constructor empieza con la cámara principal y agrega uno a uno el candidato que cubre más
+  puntos que nadie ve, hasta cubrir la sala. El Nivel 1 pasó de 42 a 26 cámaras de sala:
+  - las salas cerradas quedaron con 2 (la de mantenimiento con 3);
+  - el pasillo de racks, que es un laberinto, conserva 7.
+- **Cambios solo cuando hace falta.** Mientras el jugador siga en cuadro, la cámara no cambia.
+  Cambia si sale del cuadro, o si algo lo tapa por más de 0,6 s. El ángulo nuevo debe tenerlo
+  bien adentro de la imagen (no al borde), para no volver a perderlo enseguida.
+- **Planos de interés selectivos:**
+  - solo entran si el técnico se dirige al objeto (lo mira);
+  - no entran si la cámara de la sala ya está a menos de 5,5 m del objeto;
+  - solo valen los objetos de la sala en la que está el jugador;
+  - entre un corte y otro pasan al menos 1,2 s;
+  - las puertas libres ya no tienen plano cercano; solo las que tienen cerradura (roja, azul,
+    sin energía), porque ahí sí hay que ver el lector.
+- **Distintos tamaños de pantalla.** Los encuadres están pensados para 16:9. En pantallas más
+  estrechas (4:3) el gestor abre el ángulo vertical para conservar el mismo campo horizontal. La
+  cobertura quedó completa (404 de 404 puntos) en 16:9, 4:3 y en la proporción de un celular
+  (19,5:9).
+
+**Dificultad superada — el editor no reiniciaba la escena:** durante las pruebas apareció que, al
+entrar en modo Play, el gestor de cámaras a veces no tenía cámaras registradas. El proyecto tenía
+activadas las opciones de entrada rápida a Play **sin recargar el dominio ni la escena**. Sin
+recarga de escena, los objetos conservan estado viejo de la ejecución anterior y no siempre se
+inicializan bien. Eso explica en parte que en las pruebas del equipo la cámara a veces no
+cambiara. Se activó la **recarga de escena**, así que cada Play arranca el nivel desde cero, igual
+que en el juego compilado. La recarga de dominio sigue desactivada para que entrar a Play sea
+rápido; el código ya reinicia sus datos estáticos.
+
+**Prueba con recorridos automáticos** (pulsaciones reales enviadas al Input System; se cuentan los
+cortes y el tiempo fuera de cuadro):
+
+| Recorrido | Cortes | Tiempo fuera de cuadro |
+|---|---|---|
+| Sala de mantenimiento de lado a lado y hasta la terminal | 0 | 0 s |
+| Cruzar a la cafetería y recorrerla | 2 (al llegar a la puerta y al entrar), sin ir y volver | 0 s |
+| Laberinto del pasillo de racks | 1 | 0 s |
+
+**El androide de alarma:** no estaba roto. Está diseñado para encenderse cuando el jugador extrae
+el Disco Maestro y suena la alarma, pero se veía exactamente igual que un androide activo, así que
+parecía un error. Cambios:
+
+- **En reposo se ve apagado:** el visor y las juntas casi a oscuras, sin linterna, y un pulso tenue
+  cada pocos segundos, como un equipo en espera.
+- **Sensor de cercanía:** se reactiva antes de la alarma si el técnico pasa pegado a él (a menos
+  de 2,2 m), si corre cerca o si se le planta enfrente a menos de 4,5 m. Aparece el aviso
+  "¡Una unidad SENTINEL en reposo se reactivó!".
+- **Secuencia de encendido:** al despertar, el visor parpadea durante un segundo antes de que el
+  androide actúe.
+
+**Prueba del androide:**
+
+- **Acercamiento:** al acercarse a 1,8 m, el androide se reactivó y persiguió al técnico.
+- **Alarma:** en una partida nueva, al tomar el disco y cerrar el mensaje de alarma, el androide
+  se encendió y fue en estado de búsqueda hacia donde estaba el técnico.
+
+![Androide de alarma en reposo: visor casi apagado](capturas/073_androide-en-reposo.png)

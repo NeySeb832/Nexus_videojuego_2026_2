@@ -170,7 +170,8 @@ namespace Nexus.Herramientas
                             string pf = ch == 'R' ? "Puerta_Seguridad_Roja" : ch == 'B' ? "Puerta_Seguridad_Azul" : "Puerta_Seguridad_Libre";
                             var puerta = Poner("Interactivos/" + pf, p, rot, objetos);
                             foreach (var dv in ejeX ? new[] { Vector2Int.up, Vector2Int.down } : new[] { Vector2Int.left, Vector2Int.right })
-                                if (Caminable(En(c + dv)) && !"RBXL".Contains(En(c + dv))) RegistrarInteres(p, Dir3(dv), c + dv, puerta, 1.3f, 3.2f);
+                                // Plano cercano solo en puertas con cerradura (hay que ver el lector); las libres se ven bien
+                                if (ch != 'L' && Caminable(En(c + dv)) && !"RBXL".Contains(En(c + dv))) RegistrarInteres(p, Dir3(dv), c + dv, puerta, 1.3f, 3.2f);
                             if (ch == 'X')
                             {
                                 var ps = puerta.GetComponent<PuertaSeguridad>();
@@ -299,6 +300,7 @@ namespace Nexus.Herramientas
 
             ConstruirCamaras(raiz.transform, zonas);
             Decorar(raiz.transform);
+            ElegirAngulos(raiz.transform.Find("Camaras"));
             CamarasDeInteres(raiz.transform.Find("Camaras"));
             RellenarCobertura(raiz.transform.Find("Camaras"));
             Ambiente();
@@ -407,6 +409,7 @@ namespace Nexus.Herramientas
             gestorGo.transform.SetParent(raiz, false);
             PosicionesCamaras.Clear();
             CamaraDeZona.Clear();
+            Candidatos.Clear();
             var gestor = gestorGo.AddComponent<GestorCamaras>();
             Camera primera = null;
             Vector3 inicio = Vector3.zero;
@@ -457,8 +460,9 @@ namespace Nexus.Herramientas
                 var cam = CrearCamara("Cam_" + kv.Value.Nombre, pos, mirar, true);
                 CamaraDeZona[kv.Key] = (pos, cam.transform.forward);
 
-                // Ángulos alternativos: esquinas de la sala y, si es larga, el centro de sus lados.
-                // El gestor cambia a ellos cuando el jugador se sale del cuadro de la cámara activa.
+                // Ángulos alternativos CANDIDATOS: esquinas de la sala y, si es larga, el centro de sus
+                // lados. No se crean todavía: después de decorar se eligen solo los que hagan falta
+                // para cubrir lo que la principal no ve (ver ElegirAngulos).
                 int anchoCeldas = celdas.Max(c => c.x) - celdas.Min(c => c.x) + 1;
                 int largoCeldas = celdas.Max(c => c.y) - celdas.Min(c => c.y) + 1;
                 var puntos = new List<Vector3>
@@ -479,7 +483,10 @@ namespace Nexus.Herramientas
                     if (colocadas.Any(q => (q - p).sqrMagnitude < 3.5f * 3.5f)) continue;
                     // Mira hacia el lado opuesto de la sala (el centro, un poco más allá)
                     Vector3 objetivo = centroide + (centroide - new Vector3(p.x, 0f, p.z)) * 0.15f + Vector3.up * 0.6f;
-                    CrearCamara($"Cam_{kv.Value.Nombre}_Alt{++n}", p, objetivo, false);
+                    Candidatos.Add((kv.Key, p, objetivo, fov));
+                    colocadas.Add(p);
+                    PosicionesCamaras.Add(p);   // el decorador deja libre ese rincón por si se usa
+                    n++;
                 }
 
                 foreach (var c in celdas)

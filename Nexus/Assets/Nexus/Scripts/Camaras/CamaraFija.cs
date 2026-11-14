@@ -25,6 +25,9 @@ namespace Nexus
         Camera camara;
         public Camera Camara => camara != null ? camara : (camara = GetComponent<Camera>());
 
+        /// <summary>Campo de visión con el que se diseñó el encuadre (para pantallas 16:9).</summary>
+        [System.NonSerialized] public float FovDiseno = -1f;
+
         /// <summary>El objeto sigue en el nivel (no se recogió).</summary>
         public bool InteresVigente => Interes && Objetivo != null && Objetivo.activeInHierarchy;
     }
