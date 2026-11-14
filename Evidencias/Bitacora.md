@@ -1310,3 +1310,132 @@ la entrada simulada:
 | E frente a la terminal | Se abre el diálogo |
 
 ![Con la tecla E se abre la terminal de mantenimiento](capturas/066_controles-tecla-e-terminal.png)
+
+---
+
+### 3.9 Controles tipo tanque y cámaras que siguen al jugador — 13/11/2026 · [Diseño] · [Programación] · [Dificultad superada]
+
+**Problema reportado en la prueba del equipo:** al inicio, si el técnico caminaba hacia la
+izquierda o la derecha, se salía de la imagen y la cámara no cambiaba. Además, el equipo había
+pedido controles tipo tanque, como los survival horror clásicos.
+
+**Causa de lo de las cámaras:** cada sala tenía una sola cámara fija, y el cambio de cámara solo
+ocurría al pisar otra sala. En una sala ancha como Mantenimiento (21 m), la cámara montada en la
+pared sur no alcanza a ver los rincones que tiene cerca, así que el personaje salía del cuadro sin
+haber cambiado de sala.
+
+**Solución — cámaras:**
+
+1. **Más ángulos por sala.** El constructor de niveles ahora pone en cada sala su cámara principal
+   y además cámaras en las esquinas y, en las salas largas, en la mitad de los lados. Cada una
+   lleva el componente `CamaraFija` con su sala. El Nivel 1 pasó de 9 a 40 cámaras. Solo una
+   está encendida a la vez, así que no cuesta rendimiento.
+2. **Cambio cuando el jugador sale del cuadro.** `GestorCamaras` revisa unas 16 veces por segundo
+   si el personaje, de los pies a la cabeza, sigue dentro de la imagen de la cámara activa y si
+   algo lo tapa (un rayo desde la cámara).
+   - Si se sale del cuadro, cambia de inmediato al ángulo de la sala que mejor lo encuadra (más
+     centrado y a una distancia cómoda).
+   - Si algo lo tapa, por ejemplo una fila de racks, espera 0,3 s antes de cambiar.
+   - Si sigue en cuadro pero quedó lejos y otro ángulo lo muestra claramente mejor, también cambia.
+     Para que la imagen no salte de un lado a otro, espera al menos un segundo entre cambios y
+     exige que el otro ángulo sea bastante mejor.
+3. **Al entrar a otra sala**, se usa el mejor ángulo de esa sala.
+
+**Prueba de cobertura:** una herramienta revisó 464 puntos del suelo del Nivel 1 (5 por celda) y
+en todos hay al menos una cámara de la propia sala que ve al jugador completo y sin obstáculos.
+
+**Solución — controles tipo tanque** (`ControladorJugador`):
+
+| Acción | Teclado | Mando |
+|---|---|---|
+| Avanzar / retroceder | W / S | Stick arriba / abajo |
+| Girar sobre sí mismo | A / D | Stick a los lados |
+| Correr | Shift | Presionar el stick |
+| Media vuelta rápida | Shift + S | — |
+
+- La dirección no depende de la cámara: aunque el ángulo cambie, el personaje sigue caminando hacia
+  donde mira. Por eso este control encaja tan bien con las cámaras fijas.
+- Al retroceder se reproduce la animación de caminar **en reversa**. Para eso se añadió al
+  controlador de animación un multiplicador de velocidad, sin recrearlo.
+- Al empezar el nivel aparece un recordatorio con los controles.
+- El control relativo a la cámara sigue disponible como opción en el componente.
+
+**Prueba en modo Play** (con pulsaciones enviadas al Input System):
+
+- **Girar y caminar:** girar con A y caminar con W llevó al técnico hacia el borde sur de la sala.
+  La cámara principal lo perdió y pasó sola al ángulo de la esquina.
+- **Ir al este:** caminando hacia el este por el mismo borde pasó lo mismo con el otro ángulo.
+- **Media vuelta:** Shift + S giró al técnico exactamente 180°.
+- **Correr y retroceder:** corrió a 5 m/s; con S retrocedió a 1,2 m/s con la animación en reversa.
+- **Recorrido completo:** al pasar por las demás salas, la cámara activa siempre tuvo al jugador
+  en cuadro.
+
+![Recordatorio de los controles al empezar](capturas/067_aviso-controles-tanque.png)
+
+![Ángulo alternativo al ir al oeste de la sala de inicio](capturas/068_camara-alternativa-oeste.png)
+
+![Ángulo alternativo al ir al este de la sala de inicio](capturas/069_camara-alternativa-este.png)
+
+---
+
+### 3.10 La cámara como guía: planos cercanos de los objetos importantes — 13/11/2026 · [Diseño] · [Programación] · [Dificultad superada]
+
+**Observación del equipo:** los puntos de interacción no se distinguían bien porque las cámaras
+quedaban demasiado lejos. En los survival horror la cámara también **guía**: al acercarse a algo
+importante corta a un plano que lo muestra con claridad.
+
+**Solución — cámaras de interés** (`ConstructorNiveles_CamarasInteres.cs`, `CamaraFija`, `GestorCamaras`):
+
+- **Qué objetos tienen plano propio:** al construir el nivel se registra cada objeto importante:
+  terminales, terminal de respaldo, panel de fusibles, notas, máquinas expendedoras, montacargas,
+  Disco Maestro, objetos para recoger y puertas (una cámara de cada lado).
+- **Cómo se elige la posición:** para cada uno el constructor busca la posición del plano:
+  - delante del objeto, por donde llega el jugador, girada unos 35° para un encuadre en 3/4;
+  - a unos 3,8 m y a 2,35 m de altura;
+  - dentro de una celda caminable y sin chocar con muebles;
+  - con vista libre al objeto y al lugar donde se para el técnico.
+
+  Si esa posición falla, prueba otros ángulos y distancias. Las 26 de este nivel encontraron
+  posición.
+- **El encuadre:** la cámara apunta entre el objeto y el cuerpo del técnico, para que se vean los
+  dos.
+- **Cuándo se activa:** al acercarse a menos de unos 3 m del objeto, la cámara corta a ese plano.
+  Al alejarse vuelve al mejor ángulo de la sala; el radio de salida es un poco mayor para que no
+  parpadee en el borde.
+- **Objetos recogidos:** cuando un objeto se recoge (tarjeta, fusible, disco...), su plano deja de
+  usarse.
+- **Cámaras normales más cercanas:** su "distancia cómoda" bajó de 11 a 9 m, así que cambian antes
+  a un ángulo más cercano cuando el técnico queda lejos.
+
+**Dificultad superada — el técnico se salía por abajo:** en la primera versión, los planos de la
+máquina expendedora, la puerta roja y el panel no se activaban. La cámara apuntaba al objeto y los
+pies del técnico quedaban justo en el borde inferior, así que no contaba como "en cuadro". Se
+corrigió apuntando más abajo, alejando un poco la cámara y, en los planos cercanos, exigiendo ver
+al técnico solo de las rodillas a la cabeza, como en los primeros planos del género.
+
+**Corrección de la prueba de cobertura de la entrada 3.9:** la primera prueba se hizo sin
+sincronizar la física, y por eso sobreestimaba: algunos muebles todavía no estaban registrados en su
+posición. Repetida correctamente, aparecieron rincones sin cámara de su sala, por ejemplo detrás de
+una fila de racks o el fondo de un pasillo justo debajo de su cámara.
+
+Por eso el constructor tiene ahora un paso de **relleno de cobertura**: busca los puntos del suelo
+que ninguna cámara de su sala ve y crea una cámara extra desde donde se vean (en este nivel, 2).
+
+**Resultado en el Nivel 1:**
+
+| Elemento | Cantidad |
+|---|---|
+| Cámaras de sala | 42 (principales, alternativas y de relleno) |
+| Planos de interés | 26 |
+| Puntos de suelo cubiertos por una cámara de su sala | 404 de 404 (sin contar celdas de puerta, que se abren al pasar) |
+| Planos de interés que encuadran bien al técnico frente al objeto | 26 de 26 |
+
+**Prueba en modo Play:** el técnico caminó con W hacia la terminal de mantenimiento. A unos 2 m,
+la cámara cortó sola al plano de la terminal. También se activaron los planos de la máquina, la
+puerta roja, el panel de fusibles, el fusible y el Disco Maestro.
+
+![Plano de interés de la terminal](capturas/070_plano-interes-terminal.png)
+
+![Plano de interés de la máquina expendedora](capturas/071_plano-interes-maquina.png)
+
+![Plano de interés de la puerta roja](capturas/072_plano-interes-puerta-roja.png)

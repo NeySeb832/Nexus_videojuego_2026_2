@@ -11,11 +11,19 @@ namespace Nexus
     public class ZonaCamara : MonoBehaviour
     {
         [SerializeField] Camera camara;
+        [Tooltip("Sala a la que pertenece esta celda; el gestor elige el mejor ángulo de esa sala")]
+        [SerializeField] string sala;
 
         public Camera Camara
         {
             get => camara;
             set => camara = value;
+        }
+
+        public string Sala
+        {
+            get => sala;
+            set => sala = value;
         }
 
         void Reset()
@@ -26,7 +34,7 @@ namespace Nexus
         void OnTriggerEnter(Collider otro)
         {
             if (otro.CompareTag("Player") && GestorCamaras.Instancia != null)
-                GestorCamaras.Instancia.Activar(camara);
+                GestorCamaras.Instancia.EntrarSala(sala, camara);
         }
 
         void OnDrawGizmos()

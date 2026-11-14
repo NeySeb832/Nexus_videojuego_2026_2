@@ -9,7 +9,8 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
 
 ## Características
 
-- Cámaras fijas al estilo *survival horror* clásico, con control relativo a la cámara.
+- Cámaras fijas al estilo *survival horror* clásico con **controles tipo tanque**; cada sala tiene
+  varios ángulos y la cámara cambia sola cuando el personaje se sale del cuadro.
 - Selector de personaje con avatares **Humanoid**, cada uno con una habilidad propia:
   - **Neyder:** *Señuelo de red*, atrae a los androides cercanos.
   - **Deisy:** *KILLSWITCH.exe*, apaga un androide durante 10 s.
@@ -40,15 +41,19 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
 3. La primera apertura tarda varios minutos (Unity regenera la carpeta `Library`).
 4. Escena inicial: `Assets/Nexus/Escenas/00_Menu.unity`.
 
-**Controles (teclado):**
+**Controles tipo tanque (teclado / mando):**
 
-| Acción | Tecla |
-|---|---|
-| Moverse | WASD |
-| Correr | Shift |
-| Interactuar | E |
-| Habilidad | Q |
-| Inventario | TAB / I |
+| Acción | Teclado | Mando |
+|---|---|---|
+| Avanzar / retroceder | W / S | Stick izquierdo arriba / abajo |
+| Girar | A / D | Stick izquierdo a los lados |
+| Correr | Shift | Presionar el stick |
+| Media vuelta rápida | Shift + S | — |
+| Interactuar | E | Y / triángulo |
+| Habilidad | Q | X / cuadrado |
+| Inventario | TAB / I | Start |
+
+Las cámaras son fijas y cambian solas cuando el personaje sale del cuadro.
 
 ## Documentación
 

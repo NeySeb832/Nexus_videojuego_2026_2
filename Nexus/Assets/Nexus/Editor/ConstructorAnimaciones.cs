@@ -131,6 +131,7 @@ namespace Nexus.Herramientas
             aMorir.AddCondition(AnimatorConditionMode.If, 0f, "Muerto");
 
             AgregarReinicio(ac);
+            AgregarMultiplicador(ac);
             EditorUtility.SetDirty(ac);
             AssetDatabase.SaveAssets();
         }
@@ -140,14 +141,33 @@ namespace Nexus.Herramientas
         /// KILLSWITCH se reincorpora. Se agrega sobre el controlador existente (sin recrearlo, para
         /// no cambiar su GUID y romper las referencias de los prefabs y escenas).
         /// </summary>
-        [MenuItem("Nexus/Personajes/Agregar reinicio (Morir → Locomoción)")]
+        [MenuItem("Nexus/Personajes/Actualizar controlador (reinicio y retroceso)")]
         public static void AgregarReinicioExistente()
         {
             var ac = AssetDatabase.LoadAssetAtPath<AnimatorController>(RutaController);
             if (ac == null) { Debug.LogError("[Nexus] Falta " + RutaController); return; }
             AgregarReinicio(ac);
+            AgregarMultiplicador(ac);
             EditorUtility.SetDirty(ac);
             AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>
+        /// Parámetro "MultiplicadorVel" (por defecto 1) como multiplicador de velocidad de los
+        /// estados de locomoción: con -1 la animación de caminar se reproduce en reversa, que es
+        /// como el control tipo tanque muestra al técnico retrocediendo.
+        /// </summary>
+        static void AgregarMultiplicador(AnimatorController ac)
+        {
+            if (!ac.parameters.Any(p => p.name == "MultiplicadorVel"))
+                ac.AddParameter(new AnimatorControllerParameter { name = "MultiplicadorVel", type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
+            foreach (var s in ac.layers[0].stateMachine.states.Select(x => x.state))
+                if (s.name == "Locomocion" || s.name == "Locomocion_Herido")
+                {
+                    s.speedParameter = "MultiplicadorVel";
+                    s.speedParameterActive = true;
+                }
+            Debug.Log("[Nexus] Multiplicador de velocidad de la locomoción listo.");
         }
 
         static void AgregarReinicio(AnimatorController ac)

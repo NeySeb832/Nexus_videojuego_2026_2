@@ -122,6 +122,7 @@ namespace Nexus.Herramientas
             alto = def.Mapa.Length;
             ancho = def.Mapa[0].Length;
             SpawnsAndroides.Clear();
+            PuntosInteres.Clear();
 
             var escena = EditorSceneManager.OpenScene($"Assets/Nexus/Escenas/{def.Escena}.unity", OpenSceneMode.Single);
             foreach (var go in escena.GetRootGameObjects()) Object.DestroyImmediate(go);
@@ -168,6 +169,8 @@ namespace Nexus.Herramientas
                             float rot = ejeX ? 0f : 90f;
                             string pf = ch == 'R' ? "Puerta_Seguridad_Roja" : ch == 'B' ? "Puerta_Seguridad_Azul" : "Puerta_Seguridad_Libre";
                             var puerta = Poner("Interactivos/" + pf, p, rot, objetos);
+                            foreach (var dv in ejeX ? new[] { Vector2Int.up, Vector2Int.down } : new[] { Vector2Int.left, Vector2Int.right })
+                                if (Caminable(En(c + dv)) && !"RBXL".Contains(En(c + dv))) RegistrarInteres(p, Dir3(dv), c + dv, puerta, 1.3f, 3.2f);
                             if (ch == 'X')
                             {
                                 var ps = puerta.GetComponent<PuertaSeguridad>();
@@ -194,6 +197,7 @@ namespace Nexus.Herramientas
                         {
                             var d = MuroVecino(c) ?? Vector2Int.up;
                             var t = Poner("Interactivos/Terminal_Nexus", p + Dir3(d) * (Celda / 2f - 0.45f), Yaw(d), objetos);
+                            RegistrarInteres(t.transform.position, -Dir3(d), c, t, 1.1f, 2.9f);
                             if (iTerminal < def.Terminales.Count)
                             {
                                 var (titulo, mensajes, objetivo) = def.Terminales[iTerminal++];
@@ -206,7 +210,8 @@ namespace Nexus.Herramientas
                         case 'G':
                         {
                             var d = MuroVecino(c) ?? Vector2Int.up;
-                            Poner("Interactivos/Terminal_Respaldo", p + Dir3(d) * (Celda / 2f - 0.35f), Yaw(d), objetos);
+                            var tr = Poner("Interactivos/Terminal_Respaldo", p + Dir3(d) * (Celda / 2f - 0.35f), Yaw(d), objetos);
+                            RegistrarInteres(tr.transform.position, -Dir3(d), c, tr, 1.1f, 2.9f);
                             break;
                         }
                         case 'P':
@@ -214,12 +219,14 @@ namespace Nexus.Herramientas
                             var d = MuroVecino(c) ?? Vector2Int.up;
                             var panel = Poner("Interactivos/Panel_Fusibles", p + Dir3(d) * (Celda / 2f - 0.1f), Yaw(d), objetos);
                             paneles.Add(panel.GetComponent<PanelFusibles>());
+                            RegistrarInteres(panel.transform.position, -Dir3(d), c, panel, 1.3f, 2.9f);
                             break;
                         }
                         case 'E':
                         {
                             var d = MuroVecino(c) ?? Vector2Int.up;
                             var salida = Poner("Interactivos/Montacargas_Salida", p + Dir3(d) * (Celda / 2f - 0.12f), Yaw(d), objetos);
+                            RegistrarInteres(salida.transform.position, -Dir3(d), c, salida, 1.3f, 3.2f);
                             var s = salida.GetComponent<SalidaNivel>();
                             s.Configurar(def.TextoSalida, "No responde. Primero extrae el Disco Duro Maestro de este nivel.");
                             EditorUtility.SetDirty(s);
@@ -230,6 +237,7 @@ namespace Nexus.Herramientas
                             var d = MuroVecino(c);
                             Vector3 pos = d.HasValue ? p + Dir3(d.Value) * 0.9f : p;
                             var nota = Poner("Interactivos/Nota_Mesa", pos, d.HasValue ? Yaw(d.Value) : 0f, objetos);
+                            RegistrarInteres(pos, d.HasValue ? -Dir3(d.Value) : Vector3.zero, c, nota, 0.8f, 2.7f);
                             if (iNota < def.Notas.Count)
                             {
                                 var (titulo, texto, objetivo) = def.Notas[iNota++];
@@ -248,6 +256,7 @@ namespace Nexus.Herramientas
                             ped.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
                             ped.GetComponent<MeshRenderer>().sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Nexus/Materiales/Entorno/M_Rack_Cuerpo.mat");
                             var disco = Poner("Coleccionables/Disco_Duro_Maestro", p + Vector3.up * 1.25f, 0f, objetos);
+                            RegistrarInteres(p, Vector3.zero, c, disco, 1.1f, 3.0f);
                             var col = disco.GetComponent<Coleccionable>();
                             col.Configurar(TipoColeccionable.DiscoDuro, "Disco Duro Maestro", ObjetivoDe('D'), def.DialogoDisco);
                             EditorUtility.SetDirty(col);
@@ -256,7 +265,8 @@ namespace Nexus.Herramientas
                         case 'V': case 'Y':
                         {
                             var d = MuroVecino(c) ?? Vector2Int.up;
-                            Poner(ch == 'V' ? "Utileria/Maquina_Bebidas" : "Utileria/Maquina_Snacks", p + Dir3(d) * (Celda / 2f - 0.1f), Yaw(d), objetos);
+                            var maquina = Poner(ch == 'V' ? "Utileria/Maquina_Bebidas" : "Utileria/Maquina_Snacks", p + Dir3(d) * (Celda / 2f - 0.1f), Yaw(d), objetos);
+                            RegistrarInteres(maquina.transform.position, -Dir3(d), c, maquina, 1.2f, 3.0f);
                             break;
                         }
                         case 'M':
@@ -289,6 +299,8 @@ namespace Nexus.Herramientas
 
             ConstruirCamaras(raiz.transform, zonas);
             Decorar(raiz.transform);
+            CamarasDeInteres(raiz.transform.Find("Camaras"));
+            RellenarCobertura(raiz.transform.Find("Camaras"));
             Ambiente();
             GenerarMapa(raiz);
 
@@ -338,6 +350,7 @@ namespace Nexus.Herramientas
             };
             if (item == null) return;
             var go = Poner(item.Value.prefab, p + Vector3.up * 1.0f, 0f, padre);
+            RegistrarInteres(p, Vector3.zero, c, go, 0.9f, 2.6f);
             var col = go.GetComponent<Coleccionable>();
             col.Configurar(item.Value.tipo, item.Value.nombre, ObjetivoDe(ch));
             EditorUtility.SetDirty(col);
@@ -418,19 +431,56 @@ namespace Nexus.Herramientas
                 if (kv.Value.Camara.HasValue) pos = DesdeTexto(kv.Value.Camara.Value) + Vector3.up * kv.Value.AlturaCamara;
                 if (kv.Value.Mirar.HasValue) mirar = DesdeTexto(kv.Value.Mirar.Value) + Vector3.up * 0.6f;
 
-                var go = new GameObject("Cam_" + kv.Value.Nombre) { tag = "MainCamera" };
-                go.transform.SetParent(gestorGo.transform, false);
-                go.transform.position = pos;
-                PosicionesCamaras.Add(pos);
-                go.transform.LookAt(mirar);
-                CamaraDeZona[kv.Key] = (pos, go.transform.forward);
-                var cam = go.AddComponent<Camera>();
                 float diag = new Vector2(xMax - xMin, zMax - zMin).magnitude;
-                cam.fieldOfView = diag > 20f ? 72f : diag > 12f ? 66f : 60f;
-                cam.nearClipPlane = 0.1f; cam.farClipPlane = 45f;
-                cam.clearFlags = CameraClearFlags.SolidColor;
-                cam.backgroundColor = Color.black;
-                cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+                float fov = diag > 20f ? 72f : diag > 12f ? 66f : 60f;
+                var colocadas = new List<Vector3>();
+                Camera CrearCamara(string nombre, Vector3 p, Vector3 objetivo, bool principal)
+                {
+                    var go = new GameObject(nombre) { tag = "MainCamera" };
+                    go.transform.SetParent(gestorGo.transform, false);
+                    go.transform.position = p;
+                    go.transform.LookAt(objetivo);
+                    var c = go.AddComponent<Camera>();
+                    c.fieldOfView = fov;
+                    c.nearClipPlane = 0.1f; c.farClipPlane = 45f;
+                    c.clearFlags = CameraClearFlags.SolidColor;
+                    c.backgroundColor = Color.black;
+                    c.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+                    var cf = go.AddComponent<CamaraFija>();
+                    cf.Sala = kv.Value.Nombre; cf.Principal = principal;
+                    PosicionesCamaras.Add(p);
+                    colocadas.Add(p);
+                    return c;
+                }
+
+                // Cámara principal de la sala (la que se usa al entrar)
+                var cam = CrearCamara("Cam_" + kv.Value.Nombre, pos, mirar, true);
+                CamaraDeZona[kv.Key] = (pos, cam.transform.forward);
+
+                // Ángulos alternativos: esquinas de la sala y, si es larga, el centro de sus lados.
+                // El gestor cambia a ellos cuando el jugador se sale del cuadro de la cámara activa.
+                int anchoCeldas = celdas.Max(c => c.x) - celdas.Min(c => c.x) + 1;
+                int largoCeldas = celdas.Max(c => c.y) - celdas.Min(c => c.y) + 1;
+                var puntos = new List<Vector3>
+                {
+                    new Vector3(xMin, 0f, zMin), new Vector3(xMax, 0f, zMin), new Vector3(xMin, 0f, zMax), new Vector3(xMax, 0f, zMax)
+                };
+                if (anchoCeldas >= 5) { puntos.Add(new Vector3((xMin + xMax) / 2f, 0f, zMin)); puntos.Add(new Vector3((xMin + xMax) / 2f, 0f, zMax)); }
+                if (largoCeldas >= 5) { puntos.Add(new Vector3(xMin, 0f, (zMin + zMax) / 2f)); puntos.Add(new Vector3(xMax, 0f, (zMin + zMax) / 2f)); }
+                var celdasCamara = celdas.Where(c => !"RBXL".Contains(En(c))).ToList();
+                int n = 0;
+                foreach (var punto in puntos)
+                {
+                    if (celdasCamara.Count == 0) break;
+                    var cel = celdasCamara.OrderBy(c => (Centro(c) - punto).sqrMagnitude).First();
+                    Vector3 hacia = punto - Centro(cel);
+                    Vector3 off = new Vector3(Mathf.Abs(hacia.x) > 0.5f ? Mathf.Sign(hacia.x) : 0f, 0f, Mathf.Abs(hacia.z) > 0.5f ? Mathf.Sign(hacia.z) : 0f) * (Celda / 2f - 0.35f);
+                    Vector3 p = Centro(cel) + off + Vector3.up * kv.Value.AlturaCamara;
+                    if (colocadas.Any(q => (q - p).sqrMagnitude < 3.5f * 3.5f)) continue;
+                    // Mira hacia el lado opuesto de la sala (el centro, un poco más allá)
+                    Vector3 objetivo = centroide + (centroide - new Vector3(p.x, 0f, p.z)) * 0.15f + Vector3.up * 0.6f;
+                    CrearCamara($"Cam_{kv.Value.Nombre}_Alt{++n}", p, objetivo, false);
+                }
 
                 foreach (var c in celdas)
                 {
@@ -439,7 +489,9 @@ namespace Nexus.Herramientas
                     z.transform.position = Centro(c) + Vector3.up * 1.5f;
                     var caja = z.AddComponent<BoxCollider>();
                     caja.isTrigger = true; caja.size = new Vector3(Celda, 3f, Celda);
-                    z.AddComponent<ZonaCamara>().Camara = cam;
+                    var zc = z.AddComponent<ZonaCamara>();
+                    zc.Camara = cam;
+                    zc.Sala = kv.Value.Nombre;
                     if ((Centro(c) - inicio).sqrMagnitude < 0.01f) primera = cam;
                 }
             }

@@ -64,7 +64,7 @@ namespace Nexus
         {
             Tipo = EstadoPartida.PersonajeElegido == 1 ? TipoHabilidad.Killswitch : TipoHabilidad.SenueloRed;
             ActualizarHUD(true);
-            yield return new WaitForSeconds(2.5f);
+            yield return new WaitForSeconds(4.5f);   // después del recordatorio de controles
             HUDNexus.Aviso($"Habilidad disponible: {Nombre}  [Q]");
         }
 
