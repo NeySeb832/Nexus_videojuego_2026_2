@@ -108,8 +108,12 @@ namespace Nexus
             if (controlTanque) Invoke(nameof(RecordarControles), 0.6f);
         }
 
-        void RecordarControles() =>
+        void RecordarControles()
+        {
+            // Durante la cinemática de entrada se espera a que termine
+            if (Cinematica.EnCurso) { Invoke(nameof(RecordarControles), 0.8f); return; }
             HUDNexus.Aviso("W / S  avanzar · retroceder     A / D  girar     SHIFT  correr     SHIFT + S  media vuelta");
+        }
 
         void CambioDeCamara(Camera nueva)
         {

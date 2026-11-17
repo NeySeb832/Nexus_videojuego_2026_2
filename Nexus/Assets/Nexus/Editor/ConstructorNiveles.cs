@@ -51,6 +51,9 @@ namespace Nexus.Herramientas
         public string TextoSalida = "Usar montacargas";
         public float Niebla = 0.03f;
         public Color Ambiente = new Color(0.15f, 0.16f, 0.2f);
+        public List<DefCadaver> Cadaveres = new List<DefCadaver>();   // 'K' del mapa, en orden de lectura
+        public bool Intro;                                             // cinemática de entrada por la puerta 'I'
+        public float VelAlarma = 3.6f;                                 // velocidad de caza de los androides de las estaciones 'Q'
     }
 
     /// <summary>
@@ -66,6 +69,9 @@ namespace Nexus.Herramientas
     ///        V  máquina de bebidas (Speedmax)    Y  máquina de snacks (Chocorramo)
     ///        M  mesa de cafetería con sillas     W  isla de escritorios     b  estiba de cajas
     ///        C  cuchillo   H  pistola   Z  escopeta   h  balas de pistola (12)   z  cartuchos (4)
+    ///        K  cadáver que se registra (ver DefNivel.Cadaveres: lleva un arma o munición y una nota)
+    ///        Q  estación de carga con un androide anclado que despierta con la alarma del disco
+    ///        I  puerta de servicio por la que entran los técnicos (cinemática de entrada; luego se sella)
     /// Zonas: cada letra agrupa celdas en una sala con su cámara fija y sus luces.
     /// El resto de muebles, basura y efectos los pone el decorador según el tema de cada sala
     /// (ver ConstructorNiveles_Decoracion.cs).
@@ -124,6 +130,9 @@ namespace Nexus.Herramientas
             ancho = def.Mapa[0].Length;
             SpawnsAndroides.Clear();
             PuntosInteres.Clear();
+            ReiniciarHistoria();
+            // Si hay androides que despierta la alarma, la extracción del disco se cuenta con una cinemática
+            conCinematicaAlarma = def.Mapa.Any(f => f.Contains('Q')) || def.Androides.Any(a => a.ConAlarma);
 
             var escena = EditorSceneManager.OpenScene($"Assets/Nexus/Escenas/{def.Escena}.unity", OpenSceneMode.Single);
             foreach (var go in escena.GetRootGameObjects()) Object.DestroyImmediate(go);
@@ -260,7 +269,7 @@ namespace Nexus.Herramientas
                             var disco = Poner("Coleccionables/Disco_Duro_Maestro", p + Vector3.up * 1.25f, 0f, objetos);
                             RegistrarInteres(p, Vector3.zero, c, disco, 1.1f, 3.0f);
                             var col = disco.GetComponent<Coleccionable>();
-                            col.Configurar(TipoColeccionable.DiscoDuro, "Disco Duro Maestro", ObjetivoDe('D'), def.DialogoDisco);
+                            col.Configurar(TipoColeccionable.DiscoDuro, "Disco Duro Maestro", conCinematicaAlarma ? null : ObjetivoDe('D'), conCinematicaAlarma ? null : def.DialogoDisco);
                             EditorUtility.SetDirty(col);
                             break;
                         }
@@ -285,11 +294,17 @@ namespace Nexus.Herramientas
                             break;
                         }
                         case 'A': SpawnsAndroides.Add(p); break;
+                        case 'K': CeldasCadaver.Add((c, p)); break;
+                        case 'Q': CeldasEstacion.Add((c, p)); break;
+                        case 'I': PonerEntrada(c, p, objetos, geo); break;
                         default:
                             PonerItem(ch, c, p, objetos);
                             break;
                     }
                 }
+
+            ColocarCadaveres(objetos);
+            ColocarEstaciones(objetos);
 
             foreach (var panel in paneles)
             {
@@ -325,6 +340,8 @@ namespace Nexus.Herramientas
 
             CrearJugador(inicio, rotInicio);
             ColocarAndroides();
+            ColocarAndroidesEstacion();
+            CrearCinematicas(raiz.transform, null);
             PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Nexus/Prefabs/UI/UI_Nivel.prefab"));
 
             // Triggers en la capa "Ignore Raycast" para que no bloqueen la visión de los androides
@@ -337,6 +354,7 @@ namespace Nexus.Herramientas
         }
 
         static string ObjetivoDe(char ch) => def.ObjetivoAlRecoger.TryGetValue(ch, out var o) ? o : null;
+        static bool conCinematicaAlarma;
 
         static void PonerItem(char ch, Vector2Int c, Vector3 p, Transform padre)
         {
@@ -523,7 +541,7 @@ namespace Nexus.Herramientas
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Nexus/Prefabs/Enemigos/Androide_Sentinel.prefab");
             if (prefab == null || def.Androides.Count == 0) return;
-            var grupo = new GameObject("Androides").transform;
+            var grupo = (GameObject.Find("Androides") ?? new GameObject("Androides")).transform;
             int n = 0;
             foreach (var a in def.Androides)
             {

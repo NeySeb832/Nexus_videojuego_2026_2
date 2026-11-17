@@ -33,6 +33,9 @@ namespace Nexus.Herramientas
         /// <summary>Ángulos alternativos posibles de cada sala (zona, posición, punto al que mira, FOV).</summary>
         static readonly List<(char zona, Vector3 pos, Vector3 objetivo, float fov)> Candidatos = new List<(char, Vector3, Vector3, float)>();
 
+        /// <summary>Cobertura: el punto se ve completo, sin obstáculos y con el técnico de buen tamaño (no demasiado lejos).</summary>
+        static (bool dentro, bool visible, float puntaje) Ev(Camera c, Vector3 p) => GestorCamaras.Evaluar(c, p, 0.05f, 0.15f, GestorCamaras.TamanoEntrada);
+
         static Camera NuevaCamara(Transform gestor, string nombre, Vector3 pos, Vector3 mirar, float fov, string sala)
         {
             var go = new GameObject(nombre) { tag = "MainCamera" };
@@ -84,7 +87,7 @@ namespace Nexus.Herramientas
                     string sala = kv.Value.Nombre;
                     var propias = gestor.GetComponentsInChildren<CamaraFija>(true).Where(c => c.Sala == sala).Select(c => c.Camara).ToList();
                     foreach (var cam in propias) cam.aspect = 16f / 9f;
-                    var pendientes = PuntosDeSala(kv.Key).Where(p => !propias.Any(cam => { var (d, v, _) = GestorCamaras.Evaluar(cam, p); return d && v; })).ToList();
+                    var pendientes = PuntosDeSala(kv.Key).Where(p => !propias.Any(cam => { var (d, v, _) = Ev(cam, p); return d && v; })).ToList();
                     var libres = Candidatos.Where(c => c.zona == kv.Key).ToList();
                     int n = 0;
                     while (pendientes.Count > 0 && libres.Count > 0)
@@ -95,7 +98,7 @@ namespace Nexus.Herramientas
                             temporal.transform.position = libres[i].pos;
                             temporal.transform.LookAt(libres[i].objetivo);
                             temporal.fieldOfView = libres[i].fov;
-                            int cubre = pendientes.Count(p => { var (d, v, _) = GestorCamaras.Evaluar(temporal, p); return d && v; });
+                            int cubre = pendientes.Count(p => { var (d, v, _) = Ev(temporal, p); return d && v; });
                             if (cubre > mejorCubre) { mejorCubre = cubre; mejor = i; }
                         }
                         if (mejor < 0 || mejorCubre < 2) break;
@@ -103,7 +106,7 @@ namespace Nexus.Herramientas
                         libres.RemoveAt(mejor);
                         var cam = NuevaCamara(gestor, $"Cam_{sala}_Alt{++n}", c.pos, c.objetivo, c.fov, sala);
                         cam.aspect = 16f / 9f;
-                        pendientes.RemoveAll(p => { var (d, v, _) = GestorCamaras.Evaluar(cam, p); return d && v; });
+                        pendientes.RemoveAll(p => { var (d, v, _) = Ev(cam, p); return d && v; });
                         elegidos++;
                     }
                     descartados += libres.Count;
@@ -182,6 +185,7 @@ namespace Nexus.Herramientas
                 var cf = go.AddComponent<CamaraFija>();
                 cf.Sala = sala.Nombre; cf.Principal = false;
                 cf.Interes = true; cf.Objetivo = pi.Obj; cf.Punto = pi.Pos; cf.Radio = pi.Radio;
+                cf.Prioritario = pi.Obj.GetComponent<Cadaver>() != null;
                 PosicionesCamaras.Add(elegida);
                 creadas++;
             }
@@ -209,7 +213,7 @@ namespace Nexus.Herramientas
                     var propias = gestor.GetComponentsInChildren<CamaraFija>(true).Where(c => c.Sala == sala && !c.Interes).Select(c => c.Camara).ToList();
                     foreach (var cam in propias) cam.aspect = 16f / 9f;
 
-                    bool Cubierto(Vector3 p) => propias.Any(cam => { var (d, v, _) = GestorCamaras.Evaluar(cam, p); return d && v; });
+                    bool Cubierto(Vector3 p) => propias.Any(cam => { var (d, v, _) = Ev(cam, p); return d && v; });
                     var pendientes = new List<Vector3>();
                     foreach (var c in celdas)
                         foreach (var o in new[] { Vector3.zero, new Vector3(0.9f, 0, 0.9f), new Vector3(-0.9f, 0, 0.9f), new Vector3(0.9f, 0, -0.9f), new Vector3(-0.9f, 0, -0.9f) })
@@ -220,7 +224,7 @@ namespace Nexus.Herramientas
                         }
 
                     int extra = 0;
-                    while (pendientes.Count > 0 && extra < 4)
+                    while (pendientes.Count > 0 && extra < 8)
                     {
                         Vector3 objetivo = pendientes[0];
                         Vector3 mejorPos = default; float mejorPuntaje = float.MinValue; int mejorCubre = 0;
@@ -237,10 +241,10 @@ namespace Nexus.Herramientas
                                 if (!PosicionCamaraValida(pos)) continue;
                                 temporal.transform.position = pos;
                                 temporal.transform.LookAt(objetivo + Vector3.up * 0.8f);
-                                var (d, v, puntaje) = GestorCamaras.Evaluar(temporal, objetivo);
+                                var (d, v, puntaje) = Ev(temporal, objetivo);
                                 if (!d || !v) continue;
                                 // Se prefiere el ángulo que además cubra más puntos pendientes
-                                int cubre = pendientes.Count(p2 => { var (d2, v2, _) = GestorCamaras.Evaluar(temporal, p2); return d2 && v2; });
+                                int cubre = pendientes.Count(p2 => { var (d2, v2, _) = Ev(temporal, p2); return d2 && v2; });
                                 float total = puntaje + cubre * 0.15f;
                                 if (total > mejorPuntaje) { mejorPuntaje = total; mejorPos = pos; mejorCubre = cubre; }
                             }

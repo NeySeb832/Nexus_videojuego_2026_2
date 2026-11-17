@@ -70,6 +70,7 @@ namespace Nexus
 
         void Update()
         {
+            if (Cinematica.EnCurso) return;
             var k = Keyboard.current;
             var g = Gamepad.current;
             // En el mando: X / cuadrado (Y / triángulo ya es "Interactuar")

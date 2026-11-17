@@ -21,6 +21,8 @@ namespace Nexus
         public GameObject Objetivo;
         public Vector3 Punto;
         public float Radio = 3f;
+        [Tooltip("Plano importante para la historia (un cadáver): se usa aunque la cámara de la sala esté cerca")]
+        public bool Prioritario;
 
         Camera camara;
         public Camera Camara => camara != null ? camara : (camara = GetComponent<Camera>());

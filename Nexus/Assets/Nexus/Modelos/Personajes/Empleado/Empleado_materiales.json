@@ -1,0 +1,13 @@
+{
+ "Ch17_body": {
+  "base": "T_Empleado_Ch17_body_Base.png",
+  "normal": "T_Empleado_Ch17_body_Normal.png",
+  "metalSuave": "T_Empleado_Ch17_body_MetalSuave.png"
+ },
+ "Ch17_hair": {
+  "recorte": true,
+  "base": "T_Empleado_Ch17_hair_Base.png",
+  "normal": "T_Empleado_Ch17_hair_Normal.png",
+  "metalSuave": "T_Empleado_Ch17_hair_MetalSuave.png"
+ }
+}

@@ -68,7 +68,14 @@ namespace Nexus
         void OnTriggerEnter(Collider otro)
         {
             if (abierta || !otro.CompareTag("Player")) return;
+            if (Cinematica.EnCurso) return;
 
+            if (sellada)
+            {
+                HUDNexus.Aviso("PUERTA SELLADA. El protocolo CERBERUS bloqueó la salida.");
+                AlIntentarAbrir?.Invoke(this, false);
+                return;
+            }
             if (requiereEnergia)
             {
                 HUDNexus.Aviso("SIN ENERGÍA. Restablece el suministro en el Cuarto Eléctrico.");
@@ -103,23 +110,47 @@ namespace Nexus
             StartCoroutine(Deslizar());
         }
 
-        IEnumerator Deslizar()
+        bool sellada;
+
+        /// <summary>
+        /// Cierra la puerta (la de servicio, al entrar los técnicos). Si se sella, ya no se abre:
+        /// el protocolo CERBERUS bloqueó la salida.
+        /// </summary>
+        public void Cerrar(bool sellar)
+        {
+            sellada = sellar;
+            if (sellar) { llave = LlaveRequerida.Roja; requiereEnergia = true; }
+            if (!abierta) { ActualizarLuz(); return; }
+            abierta = false;
+            ActualizarLuz();
+            if (bloqueoNavegacion != null) bloqueoNavegacion.enabled = true;
+            if (audioPuerta != null) audioPuerta.Play();
+            StopAllCoroutines();
+            StartCoroutine(Deslizar(1f, 0f));
+        }
+
+        public bool Sellada => sellada;
+
+        IEnumerator Deslizar() => Deslizar(0f, 1f);
+
+        IEnumerator Deslizar(float desde, float hasta)
         {
             for (float t = 0f; t < 1f; t += Time.deltaTime / duracion)
             {
-                float k = Mathf.SmoothStep(0f, 1f, t);
+                float k = Mathf.Lerp(desde, hasta, Mathf.SmoothStep(0f, 1f, t));
                 hojaIzquierda.localPosition = izquierdaCerrada + Vector3.left * (recorrido * k);
                 hojaDerecha.localPosition = derechaCerrada + Vector3.right * (recorrido * k);
                 yield return null;
             }
-            hojaIzquierda.localPosition = izquierdaCerrada + Vector3.left * recorrido;
-            hojaDerecha.localPosition = derechaCerrada + Vector3.right * recorrido;
+            hojaIzquierda.localPosition = izquierdaCerrada + Vector3.left * (recorrido * hasta);
+            hojaDerecha.localPosition = derechaCerrada + Vector3.right * (recorrido * hasta);
         }
 
         void ActualizarLuz()
         {
             if (luzLector == null || bloque == null) return;
-            Color color = requiereEnergia ? new Color(0.02f, 0.02f, 0.02f)
+            Color color = sellada ? new Color(1f, 0.02f, 0.02f)
+                : requiereEnergia ? new Color(0.02f, 0.02f, 0.02f)
                 : abierta ? new Color(0.1f, 1f, 0.25f)
                 : llave == LlaveRequerida.Roja ? new Color(1f, 0.08f, 0.05f)
                 : llave == LlaveRequerida.Azul ? new Color(0.15f, 0.45f, 1f)

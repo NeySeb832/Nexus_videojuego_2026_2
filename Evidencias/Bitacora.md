@@ -1657,3 +1657,239 @@ sin tener otra equipada, el técnico la equipa solo.
 **Pendiente:** animaciones propias de rifle para la escopeta (por ahora usa las de pistola), munición
 en los Niveles 2 y 3, botones táctiles para apuntar, disparar y recargar, y los créditos de los
 autores de los modelos.
+
+---
+
+## Fase 2 (continuación) — Personajes secundarios
+
+### 2.7 Operadores SWAT y empleado de Nexus — 17/11/2026 · [Arte] · [Dificultad superada]
+
+**Qué se hizo:** el equipo descargó de Mixamo dos operadores tácticos (SWAT) y un empleado con casco y
+chaleco. En el juego no se controlan: aparecen como cadáveres de quienes entraron antes que los
+técnicos.
+
+**Dificultad superada — archivos demasiado pesados:** los FBX traían las texturas de 4096 px
+incrustadas. Uno de los operadores pesaba **115 MB**, más que el límite de 100 MB por archivo de
+GitHub, así que no se podía subir al repositorio. Se escribió un script de Blender
+(`Evidencias/herramientas/exportar_personaje.py`, en modo consola) que:
+
+1. Importa el FBX y recorre los materiales para saber qué imagen va en cada canal (color, normal,
+   rugosidad, emisión, transparencia del pelo).
+2. Reduce cada textura a 1024 px como máximo y la guarda aparte por canal.
+3. Combina la rugosidad en el canal alfa de un mapa "metal-suavidad" (el formato del material URP Lit).
+4. Exporta un FBX solo con la malla y el esqueleto.
+
+| Modelo | Antes | Después (FBX + texturas) |
+|---|---|---|
+| Operador A (`Swat.fbx`) | 5,7 MB | 7,7 MB (sus texturas ya eran pequeñas; ahora van como PNG aparte) |
+| Operador B (`Ch15_nonPBR.fbx`) | 115 MB | 11 MB |
+| Empleado (`Empleado.fbx`) | 65 MB | 9,9 MB |
+
+En Unity, el menú *Nexus → Personajes → Importar SWAT y empleado* configura el rig como **Humanoid**
+(los tres quedaron con avatar válido) y crea los materiales URP; el pelo usa recorte por alfa.
+
+---
+
+## Fase 3 (continuación) — Cadáveres, historia y animaciones
+
+### 3.13 Cadáveres que se registran: armas, munición y lo que pasó antes — 17/11/2026 · [Diseño] · [Programación] · [Arte]
+
+**Pedido del equipo:** que las armas no floten en el nivel. Como en los survival horror clásicos,
+se obtienen al registrar a alguien que cayó antes: un trabajador muerto por un androide tiene el
+cuchillo, los operadores SWAT tienen la pistola y la escopeta, y otros cuerpos tienen munición.
+Cada uno lleva una nota que cuenta qué pasó antes de que llegaran los técnicos.
+
+**Poses de cadáver** (menú *Nexus → Personajes → Crear cadáveres*): las poses se describen con los
+**músculos del sistema Humanoid** de Unity (de -1 a 1), así que sirven para cualquier modelo:
+
+- **Tendido:** el último cuadro de la animación de muerte de Mixamo.
+- **Sentado contra la pared:** creada músculo por músculo (piernas al frente, una rodilla doblada,
+  torso caído, cabeza ladeada, brazos sueltos). Primero salió de pie: en Unity "Front-Back"
+  positivo es hacia atrás y "Nod Down-Up" positivo es hacia arriba, así que las piernas al frente y
+  la cabeza caída llevan valores negativos.
+
+La pose se escribe en los huesos y el prefab ya no necesita Animator. Cada cadáver tiene un charco
+de sangre (textura generada por código), un bloque bajo de colisión (el jugador no camina encima y
+los androides lo rodean) y una luz tenue de emergencia para que se distinga en las salas oscuras.
+
+![Poses tendidas: operador A, operador B y empleado](capturas/082_cadaveres-tendidos.png)
+
+![Pose sentada contra la pared, creada con los músculos del avatar](capturas/083_cadaveres-sentados-pared.png)
+
+**Interacción** (`Cadaver.cs`): al pulsar E aparece "Registrar el cuerpo". El técnico describe lo
+que ve, recibe lo que llevaba la víctima ("Obtuviste: Pistola M9 y balas x9") y lee su nota, que
+queda en el ARCHIVO del inventario. El arma o la munición se ven en el suelo o **en la mano del
+cadáver** y desaparecen al tomarlas. Un cuerpo ya registrado no vuelve a dar nada, tampoco al
+cargar la partida (la lista de cuerpos registrados se guarda con la USB). Los cadáveres tienen un
+plano cercano de cámara que siempre se usa al acercarse.
+
+| Nivel | Cuerpo | Lleva | Nota |
+|---|---|---|---|
+| 1 | Mendoza, técnico (sentado frente al disco) | — | Avisa que sacar el disco despierta a las unidades y que la salida es el montacargas de la cafetería |
+| 1 | J. Ramírez, técnico (cafetería) | **Bayoneta M9** | Mensaje sin enviar: los SENTINEL los encerraron; Mendoza fue por el disco |
+| 2 | Sgto. Ortiz (frente al Núcleo) | **Escopeta** + 3 cartuchos | Orden de misión: Nexus Corp sabía desde el día 14 |
+| 2 | Operador Castro (laberinto) | 9 balas | Su última transmisión por radio |
+| 2 | Operador Vargas (Sala de Inicio, pistola en la mano) | **Pistola M9** + 9 balas | Registro de la Unidad Táctica: "medio cargador en el pecho" |
+| 2 | Operador Ruiz (almacén) | 2 cartuchos | Mensaje a su madre: al sonar la alarma salen todos |
+| 2 | Guía del equipo (cafetería) | 8 balas | Dónde están el disco y la salida |
+
+![Ramírez en la cafetería, con la bayoneta junto a la mano](capturas/084_cadaver-cafeteria-bayoneta.png)
+
+![Al registrarlo: "Obtuviste: Bayoneta M9"](capturas/085_registro-obtuviste-bayoneta.png)
+
+![Nivel 2: el sargento Ortiz con su escopeta en el suelo](capturas/086_nivel2-sargento-escopeta.png)
+
+![Nota del operador Vargas](capturas/087_nivel2-nota-vargas.png)
+
+**Prueba en modo Play:** al registrar a Ramírez el técnico recibió la bayoneta y la equipó; al
+registrar a Vargas quedó con `PISTOLA 9 / 0`; Ruiz dio 2 cartuchos y Ortiz la escopeta con 3 más
+(5 en total). Las tres notas quedaron en el archivo y los tres cuerpos en la lista de registrados.
+
+**Dificultad superada — notas largas:** el texto de algunas notas no cabía en el cuadro de diálogo
+y la última línea quedaba tapada. Ahora cada párrafo de la nota se muestra en una pantalla aparte.
+
+### 3.14 Animaciones de la escopeta creadas para el proyecto — 17/11/2026 · [Arte] · [Programación] · [Dificultad superada]
+
+**Problema:** el equipo no encontró animaciones de escopeta de corredera compatibles; la escopeta
+usaba las de la pistola y se veía sostenida con una mano.
+
+**Referencias de técnica usadas** (manejo de una escopeta de corredera tipo Remington 870):
+
+- **Agarre:** culata en el "bolsillo" del hombro, mejilla sobre la culata, mano fuerte en la
+  empuñadura y mano de apoyo en el guardamanos (la corredera).
+- **Posición de listo** (*low ready*): culata en el hombro y cañón hacia abajo, para ver por encima.
+- **Disparo:** el retroceso empuja el arma hacia el hombro y levanta el cañón. Después viene el
+  **bombeo**: la mano de apoyo lleva la corredera atrás y adelante para expulsar la vaina y cargar
+  el cartucho siguiente.
+- **Recarga:** el arma baja a la cadera girada, y la mano de apoyo toma los cartuchos del cinturón
+  y los empuja **uno por uno** por la ventana de carga inferior.
+
+**Cómo se hicieron** (menú *Nexus → Personajes → Animaciones de escopeta (crear)*):
+
+1. **Tres clips Humanoid escritos por código**, músculo por músculo: `Escopeta_Listo` (agarre de las
+   dos manos y respiración), `Escopeta_Apuntar` (cabeza hacia la culata, dedo en el gatillo) y
+   `Escopeta_Recarga` (cabeza agachada, mano izquierda que se abre y se cierra en cada cartucho).
+2. **Una capa nueva en el Animator** ("Escopeta") con una máscara de brazos, manos y cabeza: las
+   piernas siguen caminando y corriendo con la capa base.
+3. **Cinemática inversa (IK)** en `IKTecnico.cs`: el arma se coloca respecto al hombro según la
+   pose (listo, apuntar, recargar), y las manos van a la empuñadura y al guardamanos. El retroceso
+   (0,05 s), el bombeo (de 0,32 a 0,68 s después del disparo) y el ciclo de recarga de cada
+   cartucho se calculan con curvas en el código.
+4. **La recarga cuesta tiempo real:** 0,5 s por cartucho, más 0,3 s al empezar.
+
+**Dificultad superada:** en la primera versión el arma colgaba de la mano y apuntaba al suelo. La
+causa: el giro que espera el IK humanoide para la mano no es el del hueso. La diferencia entre los
+dos se midió comparando dos poses distintas, así que salió mal. Se cambió el enfoque: el arma se
+coloca directamente en su pose después de la animación, las manos van hacia ella, y la diferencia
+de giro se mide con la capa ya activa y tres cuadros sin IK, para comparar la misma pose. También
+se corrigió la inclinación de la cabeza al apuntar, que iba hacia el lado contrario a la culata.
+
+![Escopeta en posición de listo](capturas/088_escopeta-listo.png)
+
+![Apuntando: culata al hombro, mano izquierda en el guardamanos](capturas/089_escopeta-apuntar-derecha.png)
+
+![Apuntando, visto del otro lado](capturas/090_escopeta-apuntar-izquierda.png)
+
+![Recarga: el arma baja a la cadera y la mano izquierda va al cinturón por cada cartucho](capturas/091_escopeta-recarga.png)
+
+### 3.15 Cámaras: el técnico nunca demasiado lejos — 17/11/2026 · [Diseño] · [Programación] · [Dificultad superada]
+
+**Observación del equipo:** en algunas zonas del Nivel 1 y en los pasillos del Nivel 2 (de casi
+60 m) el personaje se alejaba tanto de la cámara que apenas se veía y costaba controlarlo.
+
+**Solución:** se agregó un **tamaño mínimo del técnico en pantalla** (de los pies a la cabeza, como
+fracción del alto de la imagen):
+
+- **Al construir el nivel:** un punto del suelo solo cuenta como "cubierto" si alguna cámara ve
+  completo al técnico parado ahí y ocupando al menos el **11 %** de la altura de la pantalla (unos
+  12 m de distancia). Si no, el constructor agrega ángulos.
+- **Durante el juego:** si el técnico baja del **9 %**, el gestor cambia a un ángulo que lo muestre
+  más grande. Que el umbral para salir sea menor que el de entrar evita el ir y venir entre dos
+  cámaras.
+
+Un primer intento con 16 % llenó el Nivel 2 de cámaras (hasta 7 en una sala pequeña); con 11 % y
+9 % el equilibrio quedó bien.
+
+**Prueba con recorridos automáticos** (`Evidencias/herramientas/recorrido_camaras.cs`: el técnico
+camina a 1,8 m/s por una ruta fija; se compara la escena anterior con la nueva):
+
+| Recorrido | Tiempo con el técnico en menos del 9 % de la pantalla | Tamaño mínimo | Cortes de cámara |
+|---|---|---|---|
+| Nivel 1, 40 s (mantenimiento → racks → cruce → cuarto eléctrico) | 5,1 s → **0 s** | 6 % → 9 % | 14 → 12 |
+| Nivel 2, 70 s (pasillos sur, central y norte) | 18,4 s → **1,0 s** | 4 % → 8 % | 20 → 25 |
+
+En el Nivel 2 hay algunos cortes más porque sus pasillos son largos, pero el técnico se ve siempre.
+
+---
+
+## Fase 6 (continuación) — Cinemáticas y huida
+
+### 6.7 Cinemáticas con el motor del juego — 17/11/2026 · [Diseño] · [Programación]
+
+**Qué se hizo:** un sistema de cinemáticas (`Cinematica.cs`) que toma la cámara y el personaje,
+muestra barras negras y subtítulos, oculta el HUD y pausa el temporizador y a los androides. Se
+puede saltar con Enter, Esc, Start o tocando la pantalla; al saltarla queda todo como habría
+quedado al final (puerta sellada, alarma encendida...). Cada plano dice dónde empieza y termina la
+cámara (se mueve suave entre los dos puntos, relativa al mundo, al jugador o a un androide), qué
+subtítulo aparece y qué pasa en escena: caminar, mirar alrededor, abrir o cerrar una puerta,
+encender la alarma o despertar a un androide. El constructor de niveles arma las dos cinemáticas
+solo, a partir del mapa. Los subtítulos usan el nombre del técnico elegido (Neyder o Deisy).
+
+**1. Entrada (Nivel 1):** el técnico entra por una puerta de servicio (nueva letra `I` del mapa)
+y se pregunta "¿Qué pasó aquí...?" mientras mira a su alrededor. La mirada se hace con IK de
+cabeza y torso. La puerta se cierra detrás y queda sellada por CERBERUS. La entrada no se repite
+al reintentar ni al cargar la partida.
+
+![El técnico entra por la puerta de servicio](capturas/092_intro-puerta-servicio.png)
+
+![¿Qué pasó aquí...?](capturas/093_intro-que-paso-aqui.png)
+
+![Mirando la sala de mantenimiento](capturas/094_intro-mirar-alrededor.png)
+
+![La puerta queda sellada detrás](capturas/095_intro-puerta-sellada.png)
+
+**2. Alarma al extraer el disco:** todas las luces del nivel pasan a rojo y laten. La cámara
+muestra a las unidades encendiéndose una por una en sus **estaciones de carga** (nueva letra `Q`:
+panel, base con luz y un androide anclado que solo despierta con la alarma). Al terminar, todos
+los androides del nivel salen a cazar al técnico: durante 22 s el sistema les pasa su posición
+aunque no lo vean.
+
+![La alarma: luces rojas](capturas/096_alarma-luces-rojas.png)
+
+![Una unidad SENTINEL se enciende en su estación de carga](capturas/097_alarma-androide-se-enciende.png)
+
+![Estación de carga en el Nivel 2](capturas/098_nivel2-estacion-de-carga.png)
+
+### 6.8 Rediseño del Nivel 1 (huida) y balance del Nivel 2 — 17/11/2026 · [Diseño]
+
+**Nivel 1 — solo cuchillo y huida:** se quitaron la pistola, la escopeta y la munición. La única
+arma es la bayoneta de Ramírez. El montacargas pasó de estar junto a la sala del disco (la huida no
+existía) a la **cafetería, al otro lado del nivel**. Cuatro estaciones de carga (los dos extremos
+del cruce, el cuarto eléctrico y la sala de mantenimiento) más el androide que patrulla dan cinco
+perseguidores. Con un cuchillo que necesita 5 tajos por androide, la única opción es correr.
+
+**Prueba de la huida** (`Evidencias/herramientas/huida_n1.cs`: el técnico corre a 5 m/s por la ruta
+más corta, del disco al montacargas, unos 43 m):
+
+| Reacción del jugador después de la alarma | Resultado |
+|---|---|
+| 0,4 s | Llega sin que lo toquen. El androide más cercano pasó a 1,8 m |
+| 1,2 s | Lo atrapan una vez (pierde 1 de sus 3 oportunidades) y llega igual |
+
+Es tensa pero justa: los androides persiguen a 3,5 m/s y el técnico corre a 5 m/s.
+
+**Nivel 2 — más enemigos y munición contada:** se agregaron tres estaciones de carga: 7 androides
+en total, 84 puntos de vida entre todos.
+
+| Munición del nivel | Daño posible |
+|---|---|
+| 26 balas (9 + 9 + 8), a 2 de daño | 52 |
+| 5 cartuchos (3 + 2), unos 9 de daño cada uno de cerca | ~45 |
+| **Total** | **~97 (≈ 15 % más que lo necesario)** |
+
+Alcanza para acabar con todos si no se desperdicia, pero cada disparo fallado se nota. La nota de
+Vargas lo avisa ("nada de disparos a lo loco") y el cuchillo sirve para ahorrar balas. La munición
+que sobre pasa al Nivel 3.
+
+**Pendiente:** el Nivel 3, el audio (incluida una sirena para la alarma) y los botones táctiles
+de apuntar, disparar y recargar.

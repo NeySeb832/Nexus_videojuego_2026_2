@@ -32,6 +32,19 @@ namespace Nexus
             Todos.Clear();
             AlDetectar = null;
             ultimoAvisoDeteccion = -10f;
+            Pausados = false;
+        }
+
+        /// <summary>Durante una cinemática los androides no se mueven ni atacan (sí se encienden).</summary>
+        public static bool Pausados { get; set; }
+
+        /// <summary>
+        /// Alarma general (al extraer el Disco Maestro): todas las unidades se encienden y van tras el
+        /// técnico. Durante "segundos" el sistema les transmite su posición aunque no lo vean.
+        /// </summary>
+        public static void AlarmaGeneral(float segundos)
+        {
+            foreach (var a in new List<AndroideIA>(Todos)) a.Cazar(segundos);
         }
 
         [Header("Ruta y velocidad")]
@@ -40,6 +53,8 @@ namespace Nexus
         [SerializeField] float velocidadPersecucion = 4.0f;
         [SerializeField] float esperaEnPunto = 1.2f;
         [SerializeField] bool activarConAlarma;
+        [Tooltip("Anclado en su estación de carga: solo la alarma lo enciende (sin sensor de cercanía)")]
+        [SerializeField] bool enEstacion;
 
         [Header("Sentidos")]
         [SerializeField] Transform ojos;
@@ -94,9 +109,33 @@ namespace Nexus
         public bool PuedeApagarse => agente != null && agente.enabled && estado != Estado.Inactivo && estado != Estado.Apagado;
         public float SegundosApagado => estado == Estado.Apagado ? Mathf.Max(0f, finApagado - Time.time) : 0f;
 
-        public void Configurar(Vector3[] puntos, float vPatrulla, float vPersecucion, bool conAlarma)
+        public void Configurar(Vector3[] puntos, float vPatrulla, float vPersecucion, bool conAlarma, bool estacion = false)
         {
-            ruta = puntos; velocidadPatrulla = vPatrulla; velocidadPersecucion = vPersecucion; activarConAlarma = conAlarma;
+            ruta = puntos; velocidadPatrulla = vPatrulla; velocidadPersecucion = vPersecucion; activarConAlarma = conAlarma || estacion;
+            enEstacion = estacion;
+        }
+
+        float cazarHasta;
+        bool enPausa;
+
+        void Cazar(float segundos)
+        {
+            if (Destruido || jugador == null) return;
+            cazarHasta = Time.time + segundos;
+            if (estado == Estado.Inactivo)
+            {
+                Despertar(true, UnityEngine.Random.Range(0.1f, 0.6f));
+                perseguirAlDespertar = true;
+            }
+            else if (estado != Estado.Apagado) Perseguir();
+        }
+
+        /// <summary>Plano de la cinemática de alarma: el visor parpadea y el androide se enciende.</summary>
+        public void DespertarEnCinematica()
+        {
+            if (estado != Estado.Inactivo) return;
+            Despertar(true, 1.1f);
+            perseguirAlDespertar = true;
         }
 
         void Awake()
@@ -244,6 +283,7 @@ namespace Nexus
             float fase = Mathf.Repeat(Time.time + transform.position.x, 3.5f);
             Brillo(fase < 0.35f ? 0.04f + 0.25f * Mathf.Sin(fase / 0.35f * Mathf.PI) : 0.04f);
 
+            if (enEstacion) return;   // anclado: solo la alarma lo despierta
             if (vida != null && vida.Muerto) return;
             float d = Vector3.Distance(transform.position, jugador.position);
             bool pegado = d < 2.2f;
@@ -265,6 +305,21 @@ namespace Nexus
         {
             if (Destruido) return;
             if (jugador == null || !agente.isOnNavMesh) return;
+            if (Pausados)
+            {
+                // Cinemática: quieto, pero la secuencia de encendido del visor sí se ve
+                enPausa = true;
+                agente.isStopped = true;
+                if (animator != null) animator.SetFloat(ParamVelocidad, 0f, 0.1f, Time.deltaTime);
+                if (estado == Estado.Inactivo && despertarEn > 0f)
+                    Brillo(Time.time < despertarEn ? (Mathf.Repeat(Time.time, 0.2f) < 0.1f ? 1f : 0.1f) : 1f);
+                return;
+            }
+            if (enPausa)
+            {
+                enPausa = false;
+                agente.isStopped = estado == Estado.Inactivo || estado == Estado.Recalibrando || estado == Estado.Apagado;
+            }
             if (animator != null) animator.SetFloat(ParamVelocidad, agente.velocity.magnitude, 0.1f, Time.deltaTime);
 
             // Impacto reciente: el visor destella y el androide se frena un instante
@@ -292,7 +347,7 @@ namespace Nexus
             switch (estado)
             {
                 case Estado.Patrulla:
-                    if (visto) { Perseguir(); break; }
+                    if (visto || Time.time < cazarHasta) { Perseguir(); break; }
                     if (Oye(distancia)) { Investigar(jugador.position); break; }
                     if (!agente.pathPending && agente.remainingDistance < 0.3f)
                     {
@@ -302,14 +357,15 @@ namespace Nexus
                     break;
 
                 case Estado.Persecucion:
-                    if (visto) { ultimaVezVisto = Time.time; ultimaPosicion = jugador.position; }
+                    // Con la alarma, el sistema le pasa la posición del técnico aunque no lo vea
+                    if (visto || Time.time < cazarHasta) { ultimaVezVisto = Time.time; ultimaPosicion = jugador.position; }
                     if (Time.time >= proximoDestino) { proximoDestino = Time.time + 0.2f; agente.SetDestination(ultimaPosicion); }
                     if (distancia < distanciaAtrapar) { Atrapar(); break; }
                     if (Time.time - ultimaVezVisto > tiempoOlvido) Investigar(ultimaPosicion);
                     break;
 
                 case Estado.Busqueda:
-                    if (visto) { Perseguir(); break; }
+                    if (visto || Time.time < cazarHasta) { Perseguir(); break; }
                     if (!agente.pathPending && agente.remainingDistance < 0.4f)
                     {
                         transform.Rotate(0f, 90f * Time.deltaTime, 0f);   // mira alrededor

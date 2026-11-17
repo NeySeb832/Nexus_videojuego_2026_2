@@ -21,29 +21,32 @@ namespace Nexus.Herramientas
                 TemperaturaInicial = 80f,
                 ObjetivoInicial = "Revisa la terminal de mantenimiento",
                 EscenaSiguiente = "02_Almacenamiento",
+                // El Nivel 1 no tiene armas de fuego: solo la bayoneta que lleva el cadáver de Ramírez en
+                // la cafetería. Al sacar el disco, la alarma despierta a las 4 unidades de las estaciones
+                // de carga (Q) y hay que huir hasta el montacargas de la cafetería, al otro lado del nivel.
                 Mapa = new[]
                 {
                     "###############",
-                    "#######E#######",   // montacargas (salida)
+                    "###############",
                     "#n.k#|...|#####",   // oficina de seguridad | sala de servidores
-                    "#hWH#|.D.|#####",   // pistola y balas en la oficina de seguridad
-                    "#...#|...|#####",
+                    "#.W.#|.D.|#####",
+                    "#...#|K..|#####",   // Mendoza, muerto frente al disco
                     "##X####R#######",   // puerta sin energía | puerta roja
-                    "#...........###",   // cruce de pasillos
+                    "#Q.........Q###",   // cruce de pasillos: una estación de carga en cada extremo
                     "##L##...##L####",
-                    "#f.z#.|.#uhP###",   // almacén (cartuchos) | pasillo de racks | cuarto eléctrico (balas)
-                    "#mgZ#...#.G.###",   // escopeta en el almacén
+                    "#f..#.|.#u.P###",   // almacén | pasillo de racks | cuarto eléctrico
+                    "#mg.#...#.GQ###",   // estación de carga junto a la terminal de respaldo
                     "#####.|.#######",
                     "#####...###V.Y#",   // cafetería: máquinas expendedoras en la pared norte
-                    "###.T...n.#.M.#",   // sala de mantenimiento (inicio): terminal y nota en la pared norte
-                    "###.b.S...L..n#",   // puerta a la cafetería y nota sobre las máquinas
-                    "###.m.C.b.#.M.#",   // cuchillo en la sala de inicio
+                    "###.T...n.#.ME#",   // sala de mantenimiento: terminal y nota | montacargas (salida)
+                    "##I.b.S...L..n#",   // puerta de servicio por la que entran los técnicos
+                    "###Qm...b.#KM.#",   // estación de carga | Ramírez, con la bayoneta, en la cafetería
                     "###############",
                 },
                 Zonas = new[]
                 {
                     "...............",
-                    ".......s.......",
+                    "...............",
                     ".ooo..sss......",
                     ".ooo..sss......",
                     ".ooo..sss......",
@@ -98,7 +101,38 @@ namespace Nexus.Herramientas
 
             n.ObjetivoAlRecoger['f'] = "Instala el fusible en el panel del Cuarto Eléctrico";
             n.ObjetivoAlRecoger['k'] = "Abre la puerta roja de la Sala de Servidores";
-            n.ObjetivoAlRecoger['D'] = "Escapa por el montacargas";
+            n.ObjetivoAlRecoger['D'] = "¡Huye al montacargas de la cafetería!";
+            n.Intro = true;
+            n.VelAlarma = 3.5f;   // el técnico corriendo (5 m/s) puede dejarlos atrás
+
+            // Cadáveres (en orden de lectura del mapa): lo que pasó antes de que llegaran los técnicos
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Empleado", Pose = "Pared", Quien = "Técnico del turno de noche",
+                Lineas = new[]
+                {
+                    "Otro técnico del turno de noche. Murió sentado contra la pared, mirando el pedestal del disco.",
+                    "La placa del uniforme dice MENDOZA. Tiene una tableta rota sobre las piernas."
+                },
+                TituloNota = "Tableta de Mendoza",
+                TextoNota = "02:58. Llegué a la sala B-1. El Disco Maestro 1 sigue en su bahía.\n" +
+                            "Si lo saco, CERBERUS dispara la alarma general y despierta a todas las unidades ancladas en las estaciones de carga del sector.\n" +
+                            "La única salida que el sistema no controla es el montacargas de servicio de la cafetería. Si alguien termina esto por mí: tome el disco y corra. No se detenga."
+            });
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Empleado", Pose = "Tendido", Quien = "Técnico de mantenimiento",
+                Lineas = new[]
+                {
+                    "Es un técnico de mantenimiento. Tiene el pecho quemado, como si lo hubiera atravesado un soldador.",
+                    "Junto a su mano hay una bayoneta del kit de emergencia. Intentó defenderse."
+                },
+                Objeto = TipoColeccionable.Cuchillo, NombreObjeto = "Bayoneta M9",
+                TituloNota = "Mensaje sin enviar de J. Ramírez",
+                TextoNota = "Día 14, 02:40. Los SENTINEL nos encerraron en la cafetería. Dicen que es un fallo de permisos de CERBERUS, pero el panel central ya no le responde a nadie.\n" +
+                            "Mendoza se fue a la sala de servidores a sacar el disco maestro para forzar el reinicio. No ha vuelto.\n" +
+                            "Tomé la bayoneta del kit de emergencia. Si alguien lee esto: no corran cerca de ellos, escuchan los pasos. Y el cuchillo solo sirve si los toman por sorpresa."
+            });
             n.ObjetivoPanel = "Entra a la Oficina de Seguridad y toma la tarjeta roja";
             n.DialogoDisco = new[]
             {
@@ -108,16 +142,11 @@ namespace Nexus.Herramientas
             n.TextoSalida = "Usar montacargas";
 
             // Androides (columna, fila del mapa). Tutorial: uno lento y predecible rodeando los racks
-            // del pasillo, y otro apagado en el cruce que se activa con la alarma del disco.
+            // del pasillo. Los otros cuatro están anclados en sus estaciones de carga ('Q') hasta la alarma.
             n.Androides.Add(new DefAndroide
             {
                 Ruta = new[] { new Vector2Int(5, 11), new Vector2Int(5, 7), new Vector2Int(7, 7), new Vector2Int(7, 11) },
                 VelPatrulla = 1.3f, VelPersecucion = 3.6f
-            });
-            n.Androides.Add(new DefAndroide
-            {
-                Ruta = new[] { new Vector2Int(10, 6), new Vector2Int(2, 6) },
-                VelPatrulla = 1.8f, VelPersecucion = 4.0f, ConAlarma = true
             });
 
             ConstructorNiveles.Construir(n);

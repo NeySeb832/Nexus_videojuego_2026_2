@@ -68,7 +68,7 @@ namespace Nexus
 
         void Update()
         {
-            if (Terminado) return;
+            if (Terminado || Cinematica.EnCurso) return;
             TiempoRestante -= Time.deltaTime;
             if (TiempoRestante <= 0f)
             {

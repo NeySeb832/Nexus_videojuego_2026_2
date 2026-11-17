@@ -1,0 +1,13 @@
+{
+ "Ch15_body": {
+  "base": "T_Swat_B_Ch15_body_Base.png",
+  "normal": "T_Swat_B_Ch15_body_Normal.png",
+  "metalSuave": "T_Swat_B_Ch15_body_MetalSuave.png"
+ },
+ "Ch15_body1": {
+  "base": "T_Swat_B_Ch15_body1_Base.png",
+  "normal": "T_Swat_B_Ch15_body1_Normal.png",
+  "metalSuave": "T_Swat_B_Ch15_body1_MetalSuave.png",
+  "emision": "T_Swat_B_Ch15_body1_Emision.png"
+ }
+}

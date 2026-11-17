@@ -35,6 +35,13 @@ namespace Nexus
         const int MascaraVista = ~(1 << 2);   // ignora triggers ("Ignore Raycast")
         const float MargenSalida = 0.02f;      // se considera fuera de cuadro al cruzar este borde
         const float MargenEntrada = 0.10f;     // el ángulo nuevo debe tenerlo así de adentro
+        /// <summary>
+        /// Altura mínima del técnico en pantalla (fracción del alto de la imagen, de los pies a la
+        /// cabeza). Por debajo de esto se ve demasiado lejos y cuesta controlarlo: se busca otro
+        /// ángulo. El nuevo debe mostrarlo más grande (TamanoEntrada) para no ir y volver.
+        /// El constructor de niveles usa TamanoEntrada para decidir cuántas cámaras pone.
+        /// </summary>
+        public const float TamanoSalida = 0.09f, TamanoEntrada = 0.11f;
 
         readonly List<CamaraFija> camaras = new List<CamaraFija>();
         CamaraFija activa;
@@ -81,6 +88,30 @@ namespace Nexus
             salaActual = sala;
             var mejor = Mejor(sala);
             Activar(mejor != null ? mejor.Camara : principal);
+        }
+
+        /// <summary>Una cinemática toma el control de la cámara.</summary>
+        public void Pausar()
+        {
+            enabled = false;
+            if (Activa != null) Activa.enabled = false;
+        }
+
+        /// <summary>Vuelve a las cámaras fijas al terminar la cinemática, con el mejor ángulo para donde quedó el jugador.</summary>
+        public void Reanudar()
+        {
+            enabled = true;
+            if (Activa != null) Activa.enabled = true;
+            if (jugador == null) return;
+            // Sala en la que quedó el jugador (las zonas de cámara son triggers de 3 x 3 m)
+            foreach (var z in Physics.OverlapSphere(jugador.position + Vector3.up, 0.2f, 1 << 2, QueryTriggerInteraction.Collide))
+            {
+                var zc = z.GetComponent<ZonaCamara>();
+                if (zc != null && !string.IsNullOrEmpty(zc.Sala)) { salaActual = zc.Sala; break; }
+            }
+            var mejor = Mejor(salaActual) ?? Mejor(null);
+            if (mejor != null) Activar(mejor.Camara);
+            Revisar(true);
         }
 
         public void Activar(Camera camara)
@@ -144,7 +175,7 @@ namespace Nexus
                 return;
             }
 
-            var (dentro, visible, _) = Evaluar(Activa, jugador.position, MargenSalida);
+            var (dentro, visible, _) = Evaluar(Activa, jugador.position, MargenSalida, 0.15f, activa != null && activa.Interes ? 0f : TamanoSalida);
             if (activa != null && activa.Interes)
             {
                 // Se alejó del objeto: espera el tiempo mínimo (si aún se ve) y vuelve a la sala
@@ -168,11 +199,12 @@ namespace Nexus
         /// <summary>La cámara de sala (de la sala dada, o cualquiera cercana si es null) que mejor encuadra al jugador.</summary>
         CamaraFija Mejor(string sala)
         {
-            // Primero se buscan ángulos que lo tengan bien adentro; si no hay, cualquiera que lo vea
-            return MejorConMargen(sala, MargenEntrada) ?? MejorConMargen(sala, MargenSalida);
+            // Primero ángulos que lo tengan bien adentro y de buen tamaño; si no hay, cualquiera que lo vea
+            return MejorConMargen(sala, MargenEntrada, TamanoEntrada) ?? MejorConMargen(sala, MargenSalida, TamanoSalida)
+                   ?? MejorConMargen(sala, MargenSalida, 0f);
         }
 
-        CamaraFija MejorConMargen(string sala, float margen)
+        CamaraFija MejorConMargen(string sala, float margen, float tamano)
         {
             CamaraFija mejor = null;
             float mejorPuntaje = float.MinValue;
@@ -181,7 +213,7 @@ namespace Nexus
                 if (c.Interes) continue;   // los planos de interés solo se usan cerca de su objeto
                 if (sala != null && c.Sala != sala) continue;
                 if (sala == null && (c.transform.position - jugador.position).sqrMagnitude > 20f * 20f) continue;
-                var (dentro, visible, puntaje) = Evaluar(c.Camara, jugador.position, margen);
+                var (dentro, visible, puntaje) = Evaluar(c.Camara, jugador.position, margen, 0.15f, tamano);
                 if (!dentro || !visible) continue;
                 if (c.Principal) puntaje += 0.25f;        // a igualdad, el ángulo principal de la sala
                 if (c == activa) puntaje += 0.3f;          // continuidad: no cambiar sin necesidad
@@ -213,7 +245,7 @@ namespace Nexus
                     // Solo si el técnico se dirige al objeto (no al pasar de largo)
                     if (dist > 0.6f && Vector3.Angle(adelante, haciaObjeto) > 70f) continue;
                     // Si la cámara de la sala ya está cerca del objeto, se ve bien sin cortar
-                    if (activa != null && !activa.Interes && Vector3.Distance(activa.transform.position, c.Punto + Vector3.up) < distanciaYaCercana) continue;
+                    if (!c.Prioritario && activa != null && !activa.Interes && Vector3.Distance(activa.transform.position, c.Punto + Vector3.up) < distanciaYaCercana) continue;
                 }
                 // En un plano cercano basta con ver al técnico de las rodillas a la cabeza
                 var (dentro, visible, _) = Evaluar(c.Camara, jugador.position, 0.02f, 0.5f);
@@ -227,7 +259,7 @@ namespace Nexus
         /// ¿El jugador (de los pies —o la altura indicada— a la cabeza) entra en el cuadro de la cámara
         /// con el margen dado, y nada lo tapa? El puntaje premia que quede centrado y a distancia cómoda.
         /// </summary>
-        public static (bool dentro, bool visible, float puntaje) Evaluar(Camera cam, Vector3 posJugador, float margen = 0.05f, float alturaInferior = 0.15f)
+        public static (bool dentro, bool visible, float puntaje) Evaluar(Camera cam, Vector3 posJugador, float margen = 0.05f, float alturaInferior = 0.15f, float tamanoMinimo = 0f)
         {
             Vector3 pies = posJugador + Vector3.up * alturaInferior, pecho = posJugador + Vector3.up * 1.1f, cabeza = posJugador + Vector3.up * 1.7f;
             foreach (var p in new[] { pies, cabeza })
@@ -236,6 +268,8 @@ namespace Nexus
                 if (v.z < cam.nearClipPlane || v.x < margen || v.x > 1f - margen || v.y < margen || v.y > 1f - margen)
                     return (false, false, 0f);
             }
+            // Demasiado lejos: el técnico ocuparía muy poco de la pantalla
+            if (tamanoMinimo > 0f && TamanoEnPantalla(cam, posJugador) < tamanoMinimo) return (false, false, 0f);
             Vector3 origen = cam.transform.position, dir = pecho - origen;
             bool visible = !Physics.Raycast(origen, dir.normalized, out RaycastHit hit, dir.magnitude - 0.35f, MascaraVista, QueryTriggerInteraction.Ignore)
                            || hit.collider.CompareTag("Player");
@@ -245,6 +279,14 @@ namespace Nexus
             // Distancia cómoda: entre 2,5 y 9 m; más lejos el personaje se ve cada vez más pequeño
             float porDistancia = d < 2.5f ? -0.6f : d > 9f ? -(d - 9f) * 0.12f : 0f;
             return (true, visible, centrado + porDistancia);
+        }
+
+        /// <summary>Altura del técnico en la imagen (fracción del alto), de los pies a la cabeza.</summary>
+        public static float TamanoEnPantalla(Camera cam, Vector3 posJugador)
+        {
+            var a = cam.WorldToViewportPoint(posJugador + Vector3.up * 0.05f);
+            var b = cam.WorldToViewportPoint(posJugador + Vector3.up * 1.75f);
+            return Mathf.Abs(b.y - a.y);
         }
     }
 }

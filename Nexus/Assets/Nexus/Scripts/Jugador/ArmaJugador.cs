@@ -56,6 +56,16 @@ namespace Nexus
         public TipoArma Equipada { get; private set; }
         public bool Apuntando { get; private set; }
         public bool Recargando => finRecarga > 0f;
+        // Para las animaciones de la escopeta (IKTecnico): retroceso, bombeo y recarga cartucho a cartucho
+        public float UltimoDisparo { get; private set; } = -10f;
+        public float InicioRecarga { get; private set; }
+        public int CartuchosARecargar { get; private set; }
+        public Transform ArmaEnMano => enMano != null ? enMano.transform : null;
+        public DatosArmas Datos => datos;
+        public const float SegundosPorCartucho = 0.5f;
+        static readonly int ParamRecargando = Animator.StringToHash("Recargando");
+        int capaEscopeta = -1;
+        bool tieneParamRecarga;
 
         // Para el botón táctil y las pruebas automáticas
         public bool ApuntarSimulado { get; set; }
@@ -99,6 +109,13 @@ namespace Nexus
         {
             animator = GetComponentInChildren<Animator>();
             mano = animator != null ? animator.GetBoneTransform(HumanBodyBones.RightHand) : null;
+            if (animator != null)
+            {
+                // Manos sobre la escopeta, mirada en las cinemáticas (cinemática inversa)
+                if (animator.GetComponent<IKTecnico>() == null) animator.gameObject.AddComponent<IKTecnico>();
+                capaEscopeta = animator.GetLayerIndex("Escopeta");
+                foreach (var p in animator.parameters) if (p.nameHash == ParamRecargando) tieneParamRecarga = true;
+            }
             var tipo = (TipoArma)EstadoPartida.ArmaEquipada;
             if (tipo != TipoArma.Ninguna && !TieneArma(tipo)) tipo = TipoArma.Ninguna;
             Equipar(tipo, true);
@@ -148,7 +165,7 @@ namespace Nexus
         // ======================= Ciclo =======================
         void Update()
         {
-            bool pausa = Time.timeScale <= 0f || HUDNexus.DialogoAbierto || (vida != null && vida.Muerto);
+            bool pausa = Time.timeScale <= 0f || HUDNexus.DialogoAbierto || (vida != null && vida.Muerto) || Cinematica.EnCurso;
             var k = Keyboard.current; var m = Mouse.current; var g = Gamepad.current;
 
             if (!pausa)
@@ -173,7 +190,14 @@ namespace Nexus
             if (nuevoApuntando && !Apuntando) { objetivo = BuscarObjetivo(); girandoAMano = false; }
             Apuntando = nuevoApuntando;
             if (control != null) control.Apuntando = Apuntando || Time.time < atacandoHasta || Recargando;
-            if (animator != null) animator.SetBool(ParamApuntando, Apuntando);
+            if (animator != null)
+            {
+                animator.SetBool(ParamApuntando, Apuntando);
+                if (tieneParamRecarga) animator.SetBool(ParamRecargando, Recargando);
+                // Capa de la escopeta (brazos y cabeza): entra suave al equiparla
+                if (capaEscopeta >= 0)
+                    animator.SetLayerWeight(capaEscopeta, Mathf.MoveTowards(animator.GetLayerWeight(capaEscopeta), Equipada == TipoArma.Escopeta ? 1f : 0f, Time.deltaTime * 6f));
+            }
 
             if (Apuntando) Apuntar();
             ActualizarLaser();
@@ -272,6 +296,7 @@ namespace Nexus
                 return;
             }
             Cargador--;
+            UltimoDisparo = Time.time;
             proximoAtaque = Time.time + st.cadencia;
             if (animator != null) animator.SetTrigger(ParamDisparo);
 
@@ -356,7 +381,11 @@ namespace Nexus
             var st = De(Equipada);
             if (Recargando || Cargador >= st.cargador) return;
             if (Reserva <= 0) { HUDNexus.Aviso("No te queda munición para esta arma"); return; }
-            finRecarga = Time.time + st.recarga;
+            InicioRecarga = Time.time;
+            CartuchosARecargar = Mathf.Min(st.cargador - Cargador, Reserva);
+            // La escopeta de corredera se carga cartucho a cartucho por la ventana inferior
+            float duracion = Equipada == TipoArma.Escopeta ? 0.3f + SegundosPorCartucho * CartuchosARecargar : st.recarga;
+            finRecarga = Time.time + duracion;
             ActualizarHUD();
         }
 

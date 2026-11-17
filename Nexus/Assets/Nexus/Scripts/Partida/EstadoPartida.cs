@@ -21,6 +21,12 @@ namespace Nexus
         public static int Refrigerantes = 0;          // total recogidos (coleccionable con contador)
         public static readonly Dictionary<TipoColeccionable, int> Inventario = new Dictionary<TipoColeccionable, int>();
         public static readonly List<string> NotasLeidas = new List<string>();
+        /// <summary>Cadáveres ya registrados (para que no vuelvan a dar su objeto al cargar la partida).</summary>
+        public static readonly List<string> Registrados = new List<string>();
+        /// <summary>Escenas cuya cinemática de entrada ya se vio (no se repite al reintentar ni al cargar).</summary>
+        static readonly HashSet<string> introsVistas = new HashSet<string>();
+        public static bool IntroVista(string escena) => introsVistas.Contains(escena);
+        public static void MarcarIntro(string escena) => introsVistas.Add(escena);
         // Armas: la que lleva en la mano (TipoArma) y las balas que quedan en cada cargador
         public static int ArmaEquipada = 0;
         public static int CargadorPistola = 0, CargadorEscopeta = 0;
@@ -42,7 +48,7 @@ namespace Nexus
         static void ReiniciarAlArrancar()
         {
             PersonajeElegido = 0; Salud = SaludMaxima; Discos = 0; Refrigerantes = 0;
-            Inventario.Clear(); NotasLeidas.Clear();
+            Inventario.Clear(); NotasLeidas.Clear(); Registrados.Clear(); introsVistas.Clear();
             PosicionCargada = null; TiempoCargado = null;
             ArmaEquipada = 0; CargadorPistola = 0; CargadorEscopeta = 0;
             AlCambiar = null; inicioNivel = null;
@@ -57,6 +63,8 @@ namespace Nexus
             Refrigerantes = 0;
             Inventario.Clear();
             NotasLeidas.Clear();
+            Registrados.Clear();
+            introsVistas.Clear();
             PosicionCargada = null;
             TiempoCargado = null;
             Notificar();
@@ -74,6 +82,8 @@ namespace Nexus
             public List<int> tipos = new List<int>();
             public List<int> cantidades = new List<int>();
             public List<string> notas = new List<string>();
+            public List<string> registrados = new List<string>();
+            public List<string> intros = new List<string>();
             public bool conPosicion;
             public Vector3 posicion;
             public float tiempo;
@@ -87,6 +97,8 @@ namespace Nexus
                               arma = ArmaEquipada, cargadorPistola = CargadorPistola, cargadorEscopeta = CargadorEscopeta };
             foreach (var kv in Inventario) { d.tipos.Add((int)kv.Key); d.cantidades.Add(kv.Value); }
             d.notas.AddRange(NotasLeidas);
+            d.registrados.AddRange(Registrados);
+            d.intros.AddRange(introsVistas);
             return d;
         }
 
@@ -97,6 +109,8 @@ namespace Nexus
             Inventario.Clear();
             for (int i = 0; i < d.tipos.Count; i++) Inventario[(TipoColeccionable)d.tipos[i]] = d.cantidades[i];
             NotasLeidas.Clear(); NotasLeidas.AddRange(d.notas);
+            Registrados.Clear(); if (d.registrados != null) Registrados.AddRange(d.registrados);
+            if (d.intros != null) introsVistas.UnionWith(d.intros);
             Notificar();
         }
 

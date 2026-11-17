@@ -77,6 +77,7 @@ namespace Nexus
 
         void Update()
         {
+            if (Cinematica.EnCurso) return;
             var k = Keyboard.current;
             var g = Gamepad.current;
             bool alternar = (k != null && (k.tabKey.wasPressedThisFrame || k.iKey.wasPressedThisFrame)) ||

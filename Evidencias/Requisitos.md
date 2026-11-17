@@ -54,3 +54,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 | Ambientación de empresa abandonada | 48 objetos de utilería, decorador automático por tema de sala, basura, polvo y luces que titilan | Bitácora 6.5 |
 | Máquinas expendedoras | Fuente de curación (Speedmax / Chocorramo) con riesgo: el ruido atrae a los androides | Bitácora 6.5 |
 | Armas y daño a los androides | Cuchillo, pistola y escopeta con apuntado asistido, munición limitada y ruido que atrae androides; los androides tienen vida y se pueden neutralizar (doble daño si Deisy los apagó) | Bitácora 3.12 |
+| Cadáveres que se registran | Las armas y la munición se obtienen de quienes cayeron antes (empleados y operadores SWAT), con notas que cuentan la historia previa a la misión | Bitácora 2.7, 3.13 |
+| Animaciones de escopeta propias | Clips Humanoid creados músculo por músculo + IK de manos: agarre, apuntar, retroceso, bombeo y recarga cartucho a cartucho | Bitácora 3.14 |
+| Cinemáticas | Entrada del técnico al centro de datos y alarma al extraer el disco (luces rojas, androides que salen de sus estaciones de carga), con subtítulos y opción de saltar | Bitácora 6.7 |
+| Huida y balance | Nivel 1 solo con cuchillo y huida hasta la cafetería; Nivel 2 con 7 androides y munición contada (~15 % de margen) | Bitácora 6.8 |

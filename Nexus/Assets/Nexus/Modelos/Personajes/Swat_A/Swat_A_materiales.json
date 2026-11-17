@@ -1,0 +1,17 @@
+{
+ "Soldier_body1.001": {
+  "base": "T_Swat_A_Soldier_body1_001_Base.png",
+  "normal": "T_Swat_A_Soldier_body1_001_Normal.png",
+  "metalSuave": "T_Swat_A_Soldier_body1_001_MetalSuave.png"
+ },
+ "Soldier_body1": {
+  "base": "T_Swat_A_Soldier_body1_Base.png",
+  "normal": "T_Swat_A_Soldier_body1_Normal.png",
+  "metalSuave": "T_Swat_A_Soldier_body1_MetalSuave.png"
+ },
+ "Soldier_head6": {
+  "base": "T_Swat_A_Soldier_head6_Base.png",
+  "normal": "T_Swat_A_Soldier_head6_Normal.png",
+  "metalSuave": "T_Swat_A_Soldier_head6_MetalSuave.png"
+ }
+}

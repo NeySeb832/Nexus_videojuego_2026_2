@@ -48,18 +48,18 @@ namespace Nexus.Herramientas
                 "#.a..n.#..D..#G....u#", // 2
                 "#......#.....#......#", // 3
                 "###R######B######L###", // 4
-                "#...................#", // 5
+                "#Q..........K.......#", // 5   estación de carga | sargento Ortiz (escopeta)
                 "#.....|.......|.....#", // 6
                 "#================...#", // 7
-                "#...................#", // 8
-                "#.......|......|....#", // 9
+                "#..................Q#", // 8   estación de carga
+                "#...K...|......|....#", // 9   operador Castro (balas)
                 "#...================#", // 10
                 "#.....=.......=.....#", // 11
-                "#...................#", // 12
+                "#Q..................#", // 12  estación de carga
                 "###L#####...#####L###", // 13
-                "#V...Y.#.....#......#", // 14
+                "#V...Y.#....K#.....K#", // 14  operador Vargas (pistola) | operador Ruiz (cartuchos)
                 "#..M...#T.S..#.b..k.#", // 15
-                "#n..m..#..E..#....g.#", // 16
+                "#n..m.K#..E..#....g.#", // 16  guía del equipo táctico (balas)
                 "#####################"  // 17
             };
 
@@ -149,6 +149,82 @@ namespace Nexus.Herramientas
             {
                 Ruta = new[] { new Vector2Int(15, 12), new Vector2Int(11, 12) },
                 ConAlarma = true
+            });
+
+            // ---- Equipo táctico caído (cadáveres 'K', en orden de lectura del mapa) ----
+            // Balance: 7 androides x 12 de vida = 84. Munición del nivel: 26 balas (52 de daño) y
+            // 5 cartuchos (~9 de daño de cerca cada uno, ~45): alcanza para todos con ~15% de margen
+            // si no se desperdicia. El cuchillo queda para rematar o para ahorrar balas.
+            n.VelAlarma = 3.6f;
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Swat_B", Pose = "Tendido", Quien = "Sargento del equipo táctico",
+                Lineas = new[]
+                {
+                    "El sargento del equipo táctico. Cayó a pocos metros de la puerta del Núcleo de Datos.",
+                    "Su escopeta quedó en el suelo, a su lado. Quedan tres cartuchos en el tubo."
+                },
+                Objeto = TipoColeccionable.Escopeta, NombreObjeto = "Escopeta Remington 870",
+                Extra = TipoColeccionable.CartuchosEscopeta, CantidadExtra = 3, NombreExtra = "cartuchos de escopeta",
+                TituloNota = "Orden de misión — Sgto. Ortiz",
+                TextoNota = "UNIDAD TÁCTICA 7 — ORDEN DE MISIÓN. Contratante: Nexus Corp.\n" +
+                            "Objetivo: asegurar los tres Discos Duros Maestros antes de que CERBERUS cifre los respaldos. Prioridad: los datos, no el personal.\n" +
+                            "Escrito a mano: «Nos dijeron que eran drones con un fallo de software. Nexus sabía desde el día 14 que las unidades estaban purgando gente. Si salgo de esta, lo cuento todo.»"
+            });
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Swat_A", Pose = "Tendido", Quien = "Operador Castro",
+                Lineas = new[]
+                {
+                    "Un operador del equipo táctico, con la placa CASTRO. Parece que lo arrastraron hasta aquí.",
+                    "Lleva un cargador de pistola en el chaleco."
+                },
+                Objeto = TipoColeccionable.BalasPistola, Cantidad = 9, NombreObjeto = "Balas de pistola",
+                TituloNota = "Radio de Castro (última transmisión)",
+                TextoNota = "—Castro a Vargas: me separé del grupo en el pasillo B. Los racks se mueven... o eso parece. Son tres, no, cuatro unidades.\n" +
+                            "Me quedan nueve balas y no pienso gastarlas a ciegas.\n—Vargas a Castro, repite. Castro, ¿me copias? ¿Castro?"
+            });
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Swat_A", Pose = "Pared", Quien = "Operador Vargas",
+                Lineas = new[]
+                {
+                    "Un operador del equipo táctico. Está sentado contra la pared, con la pistola todavía en la mano.",
+                    "El chaleco está perforado de lado a lado. Le quedaban nueve balas."
+                },
+                Objeto = TipoColeccionable.Pistola, NombreObjeto = "Pistola M9",
+                Extra = TipoColeccionable.BalasPistola, CantidadExtra = 9, NombreExtra = "balas",
+                TituloNota = "Registro de la Unidad Táctica — Vargas",
+                TextoNota = "03:10. Entramos seis por la rampa de carga. El contratista habló de «drones de vigilancia con un fallo». No son drones.\n" +
+                            "El 9 mm apenas los frena: hay que meterles medio cargador en el pecho para tumbarlos. Nada de disparos a lo loco.\n" +
+                            "Perdimos a Castro en el pasillo B. Ortiz siguió hacia el núcleo con la escopeta. Yo ya no puedo caminar."
+            });
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Swat_B", Pose = "Pared", Quien = "Operador Ruiz",
+                Lineas = new[]
+                {
+                    "El operador más joven del equipo, por lo que se ve. Se quedó a cubrir el almacén.",
+                    "En el cinturón tiene dos cartuchos de escopeta."
+                },
+                Objeto = TipoColeccionable.CartuchosEscopeta, Cantidad = 2, NombreObjeto = "Cartuchos de escopeta",
+                TituloNota = "Mensaje de Ruiz",
+                TextoNota = "Mamá: si te llega esto es porque no salí. No es culpa de nadie del equipo. Nos mandaron a recuperar unos discos y nadie nos dijo lo que había aquí abajo.\n" +
+                            "Los SENTINEL no se cansan y no olvidan. Cuando suena la alarma, salen todos de sus estaciones de carga."
+            });
+            n.Cadaveres.Add(new DefCadaver
+            {
+                Modelo = "Empleado", Pose = "Pared", Quien = "Guía del equipo táctico",
+                Lineas = new[]
+                {
+                    "Un empleado de Nexus con la tarjeta de visitante del equipo táctico colgada al cuello.",
+                    "Tiene una caja de balas de 9 mm. Los operadores debieron dársela para que se defendiera."
+                },
+                Objeto = TipoColeccionable.BalasPistola, Cantidad = 8, NombreObjeto = "Balas de pistola",
+                TituloNota = "Nota del guía",
+                TextoNota = "Me ofrecí a guiar al equipo táctico por los pasillos de almacenamiento: nadie conoce este laberinto como yo.\n" +
+                            "Cuando nos atacaron, el sargento me dio una caja de balas «por si acaso». No sé disparar.\n" +
+                            "La salida es el montacargas de la Sala de Inicio, al sur. El disco está en el Núcleo, al norte. Todo lo demás es laberinto."
             });
 
             return n;

@@ -37,6 +37,7 @@ namespace Nexus
         {
             cercanos.RemoveAll(i => i == null || !i.isActiveAndEnabled);
             actual = MasCercano();
+            if (Cinematica.EnCurso) { HUDNexus.Prompt(null); return; }
             HUDNexus.Prompt(actual != null && !HUDNexus.DialogoAbierto ? $"[E] {actual.TextoAccion}" : null);
 
             bool pulsado = PulsacionSimulada || (accionInteractuar != null && accionInteractuar.WasPressedThisFrame());
