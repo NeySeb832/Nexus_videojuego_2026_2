@@ -21,6 +21,9 @@ namespace Nexus
         public static int Refrigerantes = 0;          // total recogidos (coleccionable con contador)
         public static readonly Dictionary<TipoColeccionable, int> Inventario = new Dictionary<TipoColeccionable, int>();
         public static readonly List<string> NotasLeidas = new List<string>();
+        // Armas: la que lleva en la mano (TipoArma) y las balas que quedan en cada cargador
+        public static int ArmaEquipada = 0;
+        public static int CargadorPistola = 0, CargadorEscopeta = 0;
 
         /// <summary>Si no es null, el nivel debe colocar al jugador en esta posición (partida cargada).</summary>
         public static Vector3? PosicionCargada;
@@ -41,12 +44,14 @@ namespace Nexus
             PersonajeElegido = 0; Salud = SaludMaxima; Discos = 0; Refrigerantes = 0;
             Inventario.Clear(); NotasLeidas.Clear();
             PosicionCargada = null; TiempoCargado = null;
+            ArmaEquipada = 0; CargadorPistola = 0; CargadorEscopeta = 0;
             AlCambiar = null; inicioNivel = null;
         }
 
         public static void NuevaPartida(int personaje)
         {
             PersonajeElegido = personaje;
+            ArmaEquipada = 0; CargadorPistola = 0; CargadorEscopeta = 0;
             Salud = SaludMaxima;
             Discos = 0;
             Refrigerantes = 0;
@@ -65,6 +70,7 @@ namespace Nexus
         {
             public string escena;
             public int personaje, salud, discos, refrigerantes;
+            public int arma, cargadorPistola, cargadorEscopeta;
             public List<int> tipos = new List<int>();
             public List<int> cantidades = new List<int>();
             public List<string> notas = new List<string>();
@@ -77,7 +83,8 @@ namespace Nexus
 
         static Datos Capturar(string escena)
         {
-            var d = new Datos { escena = escena, personaje = PersonajeElegido, salud = Salud, discos = Discos, refrigerantes = Refrigerantes };
+            var d = new Datos { escena = escena, personaje = PersonajeElegido, salud = Salud, discos = Discos, refrigerantes = Refrigerantes,
+                              arma = ArmaEquipada, cargadorPistola = CargadorPistola, cargadorEscopeta = CargadorEscopeta };
             foreach (var kv in Inventario) { d.tipos.Add((int)kv.Key); d.cantidades.Add(kv.Value); }
             d.notas.AddRange(NotasLeidas);
             return d;
@@ -86,6 +93,7 @@ namespace Nexus
         static void Aplicar(Datos d)
         {
             PersonajeElegido = d.personaje; Salud = d.salud; Discos = d.discos; Refrigerantes = d.refrigerantes;
+            ArmaEquipada = d.arma; CargadorPistola = d.cargadorPistola; CargadorEscopeta = d.cargadorEscopeta;
             Inventario.Clear();
             for (int i = 0; i < d.tipos.Count; i++) Inventario[(TipoColeccionable)d.tipos[i]] = d.cantidades[i];
             NotasLeidas.Clear(); NotasLeidas.AddRange(d.notas);

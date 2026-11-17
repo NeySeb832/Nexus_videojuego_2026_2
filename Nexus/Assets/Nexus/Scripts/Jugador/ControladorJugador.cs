@@ -70,6 +70,11 @@ namespace Nexus
 
         public bool ControlTanque { get => controlTanque; set => controlTanque = value; }
 
+        /// <summary>Apuntando o atacando: el técnico no camina, solo gira (lo controla ArmaJugador).</summary>
+        public bool Apuntando { get; set; }
+        /// <summary>Giro pedido por el jugador en este cuadro (-1 a 1), para soltar el apuntado automático.</summary>
+        public float EntradaGiro { get; private set; }
+
         Vector2 LeerEntrada() => EntradaSimulada ?? (accionMover != null ? accionMover.ReadValue<Vector2>() : Vector2.zero);
         bool LeerCorrer() => CorrerSimulado ?? (accionCorrer != null && accionCorrer.IsPressed());
 
@@ -128,6 +133,13 @@ namespace Nexus
         {
             Vector2 entrada = PuedeMoverse ? LeerEntrada() : Vector2.zero;
             bool corriendo = PuedeMoverse && LeerCorrer();
+            EntradaGiro = Mathf.Abs(entrada.x) > 0.2f ? entrada.x : 0f;
+            if (Apuntando)
+            {
+                // Con el arma levantada no se camina: solo se gira, más despacio
+                transform.Rotate(0f, EntradaGiro * giroTanque * 0.6f * Time.deltaTime, 0f);
+                entrada = Vector2.zero; corriendo = false;
+            }
 
             Vector3 movimiento;
             float velocidadAnimacion, sentido = 1f;

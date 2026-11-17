@@ -12,7 +12,13 @@ namespace Nexus
         Fusible,
         USB,
         Speedmax,
-        Chocorramo
+        Chocorramo,
+        // Armas y munición (al final: los números de los anteriores no cambian)
+        Cuchillo,
+        Pistola,
+        Escopeta,
+        BalasPistola,
+        CartuchosEscopeta
     }
 
     /// <summary>
@@ -33,6 +39,8 @@ namespace Nexus
         [Tooltip("Mensaje de sistema que aparece como diálogo al recogerlo (vacío = solo aviso)")]
         [TextArea(2, 4)] [SerializeField] string[] dialogoAlRecoger;
         [SerializeField] AudioClip sonidoRecoger;
+        [Tooltip("Unidades que da al recogerlo (munición)")]
+        [SerializeField] int cantidad = 1;
 
         public const float SegundosPorRefrigerante = 20f;
 
@@ -44,9 +52,9 @@ namespace Nexus
             GetComponent<Collider>().isTrigger = true;
         }
 
-        public void Configurar(TipoColeccionable nuevoTipo, string nombre, string objetivo = null, string[] dialogo = null)
+        public void Configurar(TipoColeccionable nuevoTipo, string nombre, string objetivo = null, string[] dialogo = null, int unidades = 1)
         {
-            tipo = nuevoTipo; nombreVisible = nombre; objetivoAlRecoger = objetivo; dialogoAlRecoger = dialogo;
+            tipo = nuevoTipo; nombreVisible = nombre; objetivoAlRecoger = objetivo; dialogoAlRecoger = dialogo; cantidad = Mathf.Max(1, unidades);
         }
 
         void OnTriggerEnter(Collider otro)
@@ -67,8 +75,11 @@ namespace Nexus
                     break;
                 default:
                     var inventario = otro.GetComponentInParent<InventarioJugador>();
-                    if (inventario != null) inventario.Agregar(tipo);
-                    HUDNexus.Aviso($"Obtuviste: {nombreVisible}");
+                    if (inventario != null) inventario.Agregar(tipo, cantidad);
+                    HUDNexus.Aviso(cantidad > 1 ? $"Obtuviste: {nombreVisible} x{cantidad}" : $"Obtuviste: {nombreVisible}");
+                    // Un arma nueva se equipa sola si el técnico no tiene una de fuego en la mano
+                    var arma = otro.GetComponentInParent<ArmaJugador>();
+                    if (arma != null) arma.AlRecoger(tipo);
                     break;
             }
             EstadoPartida.Notificar();

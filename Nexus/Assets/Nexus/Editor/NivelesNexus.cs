@@ -26,18 +26,18 @@ namespace Nexus.Herramientas
                     "###############",
                     "#######E#######",   // montacargas (salida)
                     "#n.k#|...|#####",   // oficina de seguridad | sala de servidores
-                    "#.W.#|.D.|#####",
+                    "#hWH#|.D.|#####",   // pistola y balas en la oficina de seguridad
                     "#...#|...|#####",
                     "##X####R#######",   // puerta sin energía | puerta roja
                     "#...........###",   // cruce de pasillos
                     "##L##...##L####",
-                    "#f..#.|.#u.P###",   // almacén | pasillo de racks | cuarto eléctrico
-                    "#mg.#...#.G.###",
+                    "#f.z#.|.#uhP###",   // almacén (cartuchos) | pasillo de racks | cuarto eléctrico (balas)
+                    "#mgZ#...#.G.###",   // escopeta en el almacén
                     "#####.|.#######",
                     "#####...###V.Y#",   // cafetería: máquinas expendedoras en la pared norte
                     "###.T...n.#.M.#",   // sala de mantenimiento (inicio): terminal y nota en la pared norte
                     "###.b.S...L..n#",   // puerta a la cafetería y nota sobre las máquinas
-                    "###.m...b.#.M.#",
+                    "###.m.C.b.#.M.#",   // cuchillo en la sala de inicio
                     "###############",
                 },
                 Zonas = new[]

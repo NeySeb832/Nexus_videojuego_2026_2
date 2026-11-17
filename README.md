@@ -52,6 +52,10 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
 | Interactuar | E | Y / triángulo |
 | Habilidad | Q | X / cuadrado |
 | Inventario | TAB / I | Start |
+| Equipar cuchillo / pistola / escopeta | 1 / 2 / 3 (0 guarda el arma) | Cruceta |
+| Apuntar | Clic derecho / K | LT |
+| Disparar o acuchillar | Clic izquierdo / J | RT |
+| Recargar | R | RB |
 
 Las cámaras son fijas y cambian solas cuando el personaje sale del cuadro.
 

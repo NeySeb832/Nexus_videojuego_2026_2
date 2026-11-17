@@ -13,6 +13,11 @@ namespace Nexus
             TipoColeccionable.Speedmax => "Speedmax",
             TipoColeccionable.Chocorramo => "Chocorramo",
             TipoColeccionable.Refrigerante => "Cartucho de refrigerante",
+            TipoColeccionable.Cuchillo => "Bayoneta M9",
+            TipoColeccionable.Pistola => "Pistola M9",
+            TipoColeccionable.Escopeta => "Escopeta Remington 870",
+            TipoColeccionable.BalasPistola => "Balas de pistola",
+            TipoColeccionable.CartuchosEscopeta => "Cartuchos de escopeta",
             _ => t.ToString()
         };
 
@@ -26,9 +31,22 @@ namespace Nexus
             TipoColeccionable.Speedmax => "Bebida energética. Recupera una Oportunidad de Evasión (1 corazón).",
             TipoColeccionable.Chocorramo => "El clásico ponqué de la cafetería. Recupera todas las Oportunidades de Evasión.",
             TipoColeccionable.Refrigerante => "Gas refrigerante a presión. Se usa al recogerlo: suma 20 segundos al temporizador.",
+            TipoColeccionable.Cuchillo => "Cuchillo de combate. Ataque cuerpo a cuerpo con clic izquierdo o J. Es silencioso: no atrae a los androides.",
+            TipoColeccionable.Pistola => "Semiautomática de 9 mm, cargador de 15 balas. Apunta con clic derecho o K y dispara con clic izquierdo o J. El disparo se oye lejos.",
+            TipoColeccionable.Escopeta => "Devastadora a corta distancia: 7 perdigones por disparo, pero pierde fuerza con la distancia. Cargador de 6 cartuchos. Muy ruidosa.",
+            TipoColeccionable.BalasPistola => "Munición de 9 mm para la pistola M9. Se recarga con R.",
+            TipoColeccionable.CartuchosEscopeta => "Cartuchos calibre 12 para la Remington 870. Se recarga con R.",
             _ => ""
         };
 
-        public static bool Usable(TipoColeccionable t) => t == TipoColeccionable.Speedmax || t == TipoColeccionable.Chocorramo;
+        public static bool EsArma(TipoColeccionable t) =>
+            t == TipoColeccionable.Cuchillo || t == TipoColeccionable.Pistola || t == TipoColeccionable.Escopeta;
+
+        public static bool Usable(TipoColeccionable t) =>
+            t == TipoColeccionable.Speedmax || t == TipoColeccionable.Chocorramo || EsArma(t);
+
+        /// <summary>Texto de la acción en el inventario.</summary>
+        public static string Accion(TipoColeccionable t) =>
+            EsArma(t) ? ">> PULSA E / ENTER / TOCA PARA EQUIPAR" : ">> PULSA E / ENTER / TOCA PARA USAR";
     }
 }

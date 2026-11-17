@@ -1519,3 +1519,141 @@ parecía un error. Cambios:
   se encendió y fue en estado de búsqueda hacia donde estaba el técnico.
 
 ![Androide de alarma en reposo: visor casi apagado](capturas/073_androide-en-reposo.png)
+
+---
+
+## Fase 6 (continuación) — Integración del Nivel 2
+
+### 6.6 Unión del trabajo del equipo: Nivel 2 "Pasillos de Almacenamiento" — 17/11/2026 · [Diseño] · [Dificultad superada]
+
+**Qué se hizo:** una integrante del equipo trabajó el Nivel 2 en su propia copia del repositorio y lo
+envió como *pull request* (#1). Se unió con la rama principal para que todo quedara al día.
+
+**Contenido del Nivel 2:** un laberinto de 21 × 18 celdas con 12 salas y 4 androides (uno de ellos
+de alarma). La cadena de objetivos es: tarjeta roja → oficina → tarjeta azul → sala del núcleo →
+Disco Maestro 2 → montacargas hacia el Nivel 3.
+
+**Dificultad superada — la escena llegó sin cámaras:** la escena del *pull request* se había generado
+con una versión anterior del constructor de niveles, antes de los ángulos por cobertura y los planos
+cercanos, así que no tenía ninguna cámara fija. Como el nivel está descrito por su mapa de texto, se
+volvió a construir con las herramientas actuales (menú *Nexus → Niveles → Construir Nivel 2*):
+quedaron cámaras, decoración, puntos de interés y el mapa del inventario, sin tocar el diseño de la
+compañera.
+
+---
+
+## Fase 3 (continuación) — Combate
+
+### 3.12 Sistema de armas y daño a los androides — 17/11/2026 · [Arte] · [Diseño] · [Programación] · [Dificultad superada]
+
+**Objetivo:** que el técnico pueda defenderse de las unidades SENTINEL sin dejar de ser un juego de
+sigilo. El equipo consiguió tres modelos: un **cuchillo** (bayoneta), una **pistola M9** y una
+**escopeta Remington 870**.
+
+![Las tres armas y las cajas de munición](capturas/074_armas-vitrina.png)
+
+**1. Importación de los modelos** (menú *Nexus → Armas → 1. Importar modelos y materiales*):
+
+- Los modelos venían en formatos distintos (FBX y DAE) y con texturas de 4096 px. El importador
+  las reduce a 1024 px (la oclusión a 512): en pantalla un arma ocupa poco y así no pesan en las
+  versiones WebGL y Android. Las tres armas quedaron en unos 20 MB.
+- Los materiales URP se crean por código y se asignan por el nombre del material de cada modelo.
+- Los mapas normales de la pistola estaban en formato DirectX; Unity usa el formato OpenGL, así que
+  se invierte el canal verde al importarlos (si no, el relieve se ve "hundido").
+
+**2. Prefabs, agarre y animaciones** (menú *Nexus → Armas → 2. Prefabs, calibración y animaciones*):
+
+- Cada modelo venía a una escala y con una orientación distinta. El constructor mide su caja y lo
+  deja a su tamaño real (pistola 21,7 cm, cuchillo 32 cm, escopeta 1 m), con el cañón hacia
+  adelante y un punto "Boca" de donde salen el fogonazo, el láser y la trazadora.
+- El arma se coloca en el **hueso de la mano derecha** del avatar Humanoid, así que funciona igual
+  con Neyder y con Deisy. La posición se calibró sobre la pose de la animación de disparo.
+- Para el nivel hay versiones para recoger (más grandes, con brillo) y dos cajas de munición:
+  balas de pistola (12) y cartuchos de escopeta (4).
+- El controlador de animación compartido recibió parámetros nuevos (`ArmaFuego`, `Apuntando`,
+  `Disparo`, `Acuchillar`) y estados para caminar con el arma, apuntar, disparar y acuchillar.
+
+**3. Cómo se juega:**
+
+| Acción | Teclado y ratón | Mando |
+|---|---|---|
+| Equipar cuchillo / pistola / escopeta | 1 / 2 / 3 (0 guarda el arma) | Cruceta |
+| Apuntar | Clic derecho o K | LT |
+| Disparar o acuchillar | Clic izquierdo o J | RT |
+| Recargar | R | RB |
+| Equipar desde el inventario | Seleccionar el arma y pulsar E | A |
+
+- **Apuntado asistido:** al apuntar, el técnico gira solo hacia el androide visible más cercano
+  dentro de un cono de 50°. El jugador puede corregir con A/D. Un láser rojo marca hacia dónde
+  apunta.
+- **Apuntar es comprometerse:** mientras apunta, el técnico no camina y gira más despacio, como en
+  los survival horror clásicos.
+- **El ruido importa:** cada disparo atrae a los androides cercanos (18 m la pistola, 24 m la
+  escopeta). El cuchillo es silencioso, pero obliga a acercarse.
+- **HUD:** una línea de texto con el arma, el cargador y la reserva (por ejemplo `PISTOLA 12 / 0`),
+  y "RECARGANDO" mientras recarga. El cargador se guarda con la partida; la reserva está en el
+  inventario.
+
+| Arma | Daño | Alcance | Tiempo entre ataques | Cargador | Recarga | Ruido |
+|---|---|---|---|---|---|---|
+| Cuchillo | 2,5 por tajo | 1,9 m, arco de 60° | 0,75 s | — | — | Silencioso |
+| Pistola M9 | 2 | 25 m | 0,32 s | 15 | 1,3 s | 18 m |
+| Escopeta | 7 perdigones de 1,6 (pierden fuerza con la distancia) | 14 m | 1 s | 6 | 2 s | 24 m |
+
+El Nivel 1 tiene las tres armas, dos cajas de balas y una de cartuchos. Al recoger un arma de fuego
+sin tener otra equipada, el técnico la equipa solo.
+
+![Inventario con las armas y la munición](capturas/075_inventario-armas.png)
+
+**4. Daño a los androides:**
+
+- Cada androide tiene **12 puntos de vida**: unos 6 disparos de pistola, 5 tajos de cuchillo o 1 a
+  2 disparos de escopeta de cerca.
+- Al recibir un golpe, el visor destella, el androide se aturde 0,35 s y persigue al técnico. Si
+  estaba en reposo, despierta.
+- **Sinergia con la habilidad de Deisy:** un androide apagado con KILLSWITCH.exe recibe el **doble**
+  de daño.
+- Al quedar sin vida cae, sus luces se apagan, deja de bloquear el paso y aparece el aviso
+  "UNIDAD SENTINEL NEUTRALIZADA".
+
+![Apuntando con la pistola: el láser marca el objetivo](capturas/076_pistola-apuntando.png)
+
+![Disparo de pistola: trazadora y chispas en el androide](capturas/077_pistola-disparo.png)
+
+![Apuntando con la escopeta](capturas/078_escopeta-apuntando.png)
+
+![Disparo de escopeta: los perdigones se abren en abanico](capturas/079_escopeta-disparo.png)
+
+![Tajo de cuchillo](capturas/080_cuchillo-ataque.png)
+
+![Androide neutralizado](capturas/081_androide-neutralizado.png)
+
+**5. Prueba en modo Play** (Nivel 1, con el técnico invulnerable solo durante la prueba):
+
+| Prueba | Resultado |
+|---|---|
+| Recoger la pistola | Se equipó sola; HUD `PISTOLA 12 / 0` |
+| Dos tajos de cuchillo | Vida del androide 12 → 7 |
+| Disparos de pistola | Androide neutralizado, con el aviso en pantalla |
+| Escopeta a 4 m | Vida 12 → 3,7; el segundo disparo neutralizó al androide de alarma |
+| Recargar con 6 balas en el cargador y 12 de reserva | Quedó en 15 / 3 |
+| Disparar sin munición | Aviso de que no hay munición |
+
+**Dificultades superadas:**
+
+1. **Escala de la escopeta:** el archivo traía la raíz escalada ×87 y girada 270°, así que al
+   ponerle la escala calculada quedaba diminuta. El constructor ahora mide el modelo ya colocado y
+   multiplica su escala en vez de reemplazarla.
+2. **Disparos que fallaban:** en la primera prueba solo acertaban 2 de 7 disparos. El rayo salía del
+   pecho del técnico, pero la dirección se calculaba desde la boca del arma, que está más abajo y a
+   un lado. Se calcula ahora desde el mismo punto de donde sale el rayo. El láser y la trazadora
+   salen de la boca y terminan donde pega la bala. Con el cambio, los disparos acertaron y
+   neutralizaron a los androides.
+3. **Inventario lleno:** con cinco objetos nuevos, las 8 ranuras no alcanzaban. El inventario pasó
+   a 12 ranuras en 3 columnas.
+4. **Game Over en medio de la prueba:** los androides atacaban al técnico mientras se probaban las
+   armas. Para la prueba se hizo invulnerable con un script temporal que no forma parte del juego.
+
+**Pendiente:** animaciones propias de rifle para la escopeta (por ahora usa las de pistola), munición
+en los Niveles 2 y 3, botones táctiles para apuntar, disparar y recargar, y los créditos de los
+autores de los modelos.

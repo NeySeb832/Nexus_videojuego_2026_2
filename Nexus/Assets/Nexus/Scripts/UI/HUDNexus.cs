@@ -41,6 +41,8 @@ namespace Nexus
         [SerializeField] TMP_Text textoInventario;
         [Tooltip("Habilidad del técnico y su recarga (Q)")]
         [SerializeField] TMP_Text textoHabilidad;
+        [Tooltip("Arma equipada y munición (cargador / reserva)")]
+        [SerializeField] TMP_Text textoArma;
 
         [Header("Mensajes")]
         [SerializeField] TMP_Text textoObjetivo;
@@ -104,6 +106,13 @@ namespace Nexus
             if (inst == null || inst.textoHabilidad == null) return;
             inst.textoHabilidad.text = texto;
             inst.textoHabilidad.color = lista ? ColorInfo : new Color(0.5f, 0.58f, 0.62f);
+        }
+
+        /// <summary>Línea del arma: nombre y munición (vacía si no lleva ninguna).</summary>
+        public static void Arma(string texto)
+        {
+            if (inst == null || inst.textoArma == null) return;
+            inst.textoArma.text = texto;
         }
 
         public static void MostrarFinal(bool victoria, string titulo, string motivo)

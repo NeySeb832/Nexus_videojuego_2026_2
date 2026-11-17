@@ -205,7 +205,7 @@ namespace Nexus
                 vistaPrevia.sprite = iconos[(int)t];
                 textoNombreObjeto.text = DatosObjetos.Nombre(t).ToUpperInvariant();
                 textoDescripcion.text = DatosObjetos.Descripcion(t);
-                textoAccion.text = DatosObjetos.Usable(t) ? ">> PULSA E / ENTER / TOCA PARA USAR" : "";
+                textoAccion.text = DatosObjetos.Usable(t) ? DatosObjetos.Accion(t) : "";
             }
             else
             {
@@ -222,6 +222,13 @@ namespace Nexus
             var t = contenido[i];
             if (!DatosObjetos.Usable(t)) return;
             var jugador = GameObject.FindGameObjectWithTag("Player");
+            if (DatosObjetos.EsArma(t))
+            {
+                var arma = jugador != null ? jugador.GetComponent<ArmaJugador>() : null;
+                if (arma != null) arma.Equipar(ArmaJugador.DesdeObjeto(t));
+                textoAccion.text = $"EQUIPASTE: {DatosObjetos.Nombre(t).ToUpperInvariant()}";
+                return;
+            }
             var vida = jugador != null ? jugador.GetComponent<VidaJugador>() : null;
             if (vida == null) return;
             int curar = t == TipoColeccionable.Chocorramo ? EstadoPartida.SaludMaxima : 1;

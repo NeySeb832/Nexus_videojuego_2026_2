@@ -34,9 +34,9 @@ Nexus/crashlytics-build.properties
 
 # ===== Fuera del proyecto =====
 # Compilaciones (Windows, WebGL, APK): se publican aparte, p. ej. en GitHub Releases
-Builds/
+/Builds/
 # Descargas originales de Mixamo: ya están importadas dentro de Nexus/Assets
-Descargas_Nixamo/
+/Descargas_Nixamo/
 # Configuración local de herramientas
 .claude/
 
@@ -44,3 +44,7 @@ Descargas_Nixamo/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Descargas originales de modelos (pesadas): lo procesado está en Nexus/Assets
+# (la barra inicial limita la regla a la raíz; Nexus/Assets/Nexus/Modelos sí se sube)
+/Modelos/

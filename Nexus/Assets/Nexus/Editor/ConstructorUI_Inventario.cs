@@ -19,7 +19,9 @@ namespace Nexus.Herramientas
         {
             "Coleccionables/Disco_Duro_Maestro", "Coleccionables/Tarjeta_Acceso_Roja", "Coleccionables/Tarjeta_Acceso_Azul",
             "Coleccionables/Cartucho_Refrigerante", "Coleccionables/Fusible", "Coleccionables/Memoria_USB",
-            "Coleccionables/Speedmax", "Coleccionables/Chocorramo"
+            "Coleccionables/Speedmax", "Coleccionables/Chocorramo",
+            "Coleccionables/Cuchillo", "Coleccionables/Pistola", "Coleccionables/Escopeta",
+            "Coleccionables/Balas_Pistola", "Coleccionables/Cartuchos_Escopeta"
         };   // mismo orden que el enum TipoColeccionable
 
         static void ConstruirInventario(GameObject raiz, Sprite corazon, Sprite corazonVacio, Sprite blanco)
@@ -92,11 +94,12 @@ namespace Nexus.Herramientas
             var tDesc = Texto("Descripcion", pagObjetos, "", 22, new Color(0.85f, 0.88f, 0.9f), TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(0, -566), new Vector2(520, 180));
             var tAccion = Texto("Accion", pagObjetos, "", 18, new Color(1f, 0.78f, 0.3f), TextAlignmentOptions.TopLeft, new Vector2(0, 1), new Vector2(0, -760), new Vector2(520, 30));
 
-            var ranuras = new RanuraInventario[8];
+            // 12 ranuras en 3 columnas (con las armas y la munición caben hasta 12 objetos distintos)
+            var ranuras = new RanuraInventario[12];
             for (int i = 0; i < ranuras.Length; i++)
             {
-                int col = i % 2, fila = i / 2;
-                var rt = Rect("Ranura_" + i, pagObjetos, new Vector2(1, 1), new Vector2(-(1 - col) * 350, -fila * 170), new Vector2(330, 150));
+                int col = i % 3, fila = i / 3;
+                var rt = Rect("Ranura_" + i, pagObjetos, new Vector2(1, 1), new Vector2(-(2 - col) * 235, -fila * 170), new Vector2(222, 150));
                 var img = rt.gameObject.AddComponent<Image>();
                 img.color = new Color(0.04f, 0.08f, 0.1f, 0.95f);
                 var b = rt.gameObject.AddComponent<Button>();
@@ -106,10 +109,10 @@ namespace Nexus.Herramientas
                 colores.selectedColor = new Color(1.3f, 1.7f, 1.8f);
                 colores.colorMultiplier = 1.5f;
                 b.colors = colores;
-                var m = Icono("Marco", rt, marco, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(330, 150));
+                var m = Icono("Marco", rt, marco, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(222, 150));
                 m.type = Image.Type.Sliced; m.preserveAspect = false; m.color = new Color(0.4f, 0.9f, 1f, 0.35f);
-                var ic = Icono("Icono", rt, iconos[0], new Vector2(0, 0.5f), new Vector2(20, 0), new Vector2(124, 124));
-                var tx = Texto("Cantidad", rt, "", 26, Color.white, TextAlignmentOptions.BottomRight, new Vector2(1, 0), new Vector2(-16, 10), new Vector2(160, 36));
+                var ic = Icono("Icono", rt, iconos[0], new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(124, 124));
+                var tx = Texto("Cantidad", rt, "", 24, Color.white, TextAlignmentOptions.BottomRight, new Vector2(1, 0), new Vector2(-12, 8), new Vector2(110, 34));
                 var r = rt.gameObject.AddComponent<RanuraInventario>();
                 r.icono = ic; r.texto = tx; r.indice = i;
                 ranuras[i] = r;

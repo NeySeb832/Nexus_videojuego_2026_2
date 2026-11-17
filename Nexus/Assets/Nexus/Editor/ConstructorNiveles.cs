@@ -65,6 +65,7 @@ namespace Nexus.Herramientas
     ///        c  Chocorramo     g  cartucho de refrigerante
     ///        V  máquina de bebidas (Speedmax)    Y  máquina de snacks (Chocorramo)
     ///        M  mesa de cafetería con sillas     W  isla de escritorios     b  estiba de cajas
+    ///        C  cuchillo   H  pistola   Z  escopeta   h  balas de pistola (12)   z  cartuchos (4)
     /// Zonas: cada letra agrupa celdas en una sala con su cámara fija y sus luces.
     /// El resto de muebles, basura y efectos los pone el decorador según el tema de cada sala
     /// (ver ConstructorNiveles_Decoracion.cs).
@@ -348,13 +349,19 @@ namespace Nexus.Herramientas
                 'm' => ("Coleccionables/Speedmax", TipoColeccionable.Speedmax, "Speedmax"),
                 'c' => ("Coleccionables/Chocorramo", TipoColeccionable.Chocorramo, "Chocorramo"),
                 'g' => ("Coleccionables/Cartucho_Refrigerante", TipoColeccionable.Refrigerante, "Cartucho de refrigerante"),
+                'C' => ("Coleccionables/Cuchillo", TipoColeccionable.Cuchillo, "Bayoneta M9"),
+                'H' => ("Coleccionables/Pistola", TipoColeccionable.Pistola, "Pistola M9"),
+                'Z' => ("Coleccionables/Escopeta", TipoColeccionable.Escopeta, "Escopeta Remington 870"),
+                'h' => ("Coleccionables/Balas_Pistola", TipoColeccionable.BalasPistola, "Balas de pistola"),
+                'z' => ("Coleccionables/Cartuchos_Escopeta", TipoColeccionable.CartuchosEscopeta, "Cartuchos de escopeta"),
                 _ => null
             };
             if (item == null) return;
             var go = Poner(item.Value.prefab, p + Vector3.up * 1.0f, 0f, padre);
             RegistrarInteres(p, Vector3.zero, c, go, 0.9f, 2.6f);
             var col = go.GetComponent<Coleccionable>();
-            col.Configurar(item.Value.tipo, item.Value.nombre, ObjetivoDe(ch));
+            int unidades = ch == 'h' ? 12 : ch == 'z' ? 4 : 1;   // munición por caja
+            col.Configurar(item.Value.tipo, item.Value.nombre, ObjetivoDe(ch), null, unidades);
             EditorUtility.SetDirty(col);
         }
 
@@ -695,6 +702,12 @@ namespace Nexus.Herramientas
             sh.FindProperty("efectoChispas").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(Pre + "Efectos/FX_Chispas.prefab");
             sh.FindProperty("prefabSenuelo").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(Pre + "Efectos/Senuelo_Red.prefab");
             sh.ApplyModifiedPropertiesWithoutUndo();
+
+            // Armas (cuchillo, pistola, escopeta): se equipan al recogerlas o desde el inventario
+            var arma = jugador.AddComponent<ArmaJugador>();
+            var sa = new SerializedObject(arma);
+            sa.FindProperty("datos").objectReferenceValue = AssetDatabase.LoadAssetAtPath<DatosArmas>("Assets/Nexus/Datos/DatosArmas.asset");
+            sa.ApplyModifiedPropertiesWithoutUndo();
 
             // Modelo de vista previa en el editor (en juego lo reemplaza ModeloJugador)
             var modelo = (GameObject)PrefabUtility.InstantiatePrefab(neyder, jugador.transform);

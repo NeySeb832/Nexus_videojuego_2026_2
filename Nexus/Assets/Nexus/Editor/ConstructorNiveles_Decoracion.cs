@@ -148,7 +148,7 @@ namespace Nexus.Herramientas
 
         static bool EsPuerta(char ch) => ch == 'R' || ch == 'B' || ch == 'X' || ch == 'L';
         /// <summary>Celda libre, inicio o con un objeto que flota en el centro (tarjeta, fusible, disco...).</summary>
-        static bool Amueblable(char ch) => ch == '.' || ch == 'S' || ch == 'D' || "kafumcg".IndexOf(ch) >= 0;
+        static bool Amueblable(char ch) => ch == '.' || ch == 'S' || ch == 'D' || "kafumcgCHZhz".IndexOf(ch) >= 0;
         static bool JuntoAPuerta(Vector2Int c) => Dirs.Any(d => EsPuerta(En(c + d)));
         static Vector3 Perpendicular(Vector2Int d) => new Vector3(d.y, 0f, -d.x);
 

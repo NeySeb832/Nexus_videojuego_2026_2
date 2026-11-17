@@ -7,7 +7,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 
 | # | Requisito | Cómo lo cumple Nexus | Fase | Estado |
 |---|---|---|---|---|
-| 1.1 | Mínimo 3 niveles jugables con progresión lógica | Mantenimiento (tutorial) → Almacenamiento (laberinto) → Núcleo (clímax). Un disco por nivel; el nivel siguiente se desbloquea al extraerlo | 6 | 🟨 Nivel 1 completo y probado (6 salas + 2 cruces); faltan Niveles 2 y 3 |
+| 1.1 | Mínimo 3 niveles jugables con progresión lógica | Mantenimiento (tutorial) → Almacenamiento (laberinto) → Núcleo (clímax). Un disco por nivel; el nivel siguiente se desbloquea al extraerlo | 6 | 🟨 Nivel 1 completo y probado (6 salas + 2 cruces); Nivel 2 integrado (bitácora 6.6); falta el Nivel 3 |
 | 1.2 | Mínimo 3 Canvas diferenciados | Canvas 1 Menú (inicio, selector, objetivo, créditos) · Canvas 2 HUD · Canvas 3 Game Over / Victoria | 3, 6 | ✅ Canvas 1 menú (título, selector, briefing, créditos), Canvas 2 HUD, Canvas 3 Game Over / Victoria, y además el inventario (bitácora 3.4, 3.5, 3.6 y 6.4) |
 | 1.3 | Selector de personajes con Avatar Humanoid | Modelo A y Modelo B = avatares 3D de los dos integrantes, configurados como Humanoid y con un único Animator compartido | 2 | ✅ selector 3D en el menú; el nivel usa el avatar elegido (probado con Deisy, bitácora 6.4) |
 | 1.4 | Música de fondo con componentes de audio | `AudioSource` con música ambiental en bucle + capa de zumbido de ventiladores | 5 | ⬜ |
@@ -53,3 +53,4 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 | Habilidad propia de cada técnico (Q) | Rejugabilidad: Neyder distrae con un señuelo de red, Deisy apaga androides con KILLSWITCH.exe | Bitácora 3.7 |
 | Ambientación de empresa abandonada | 48 objetos de utilería, decorador automático por tema de sala, basura, polvo y luces que titilan | Bitácora 6.5 |
 | Máquinas expendedoras | Fuente de curación (Speedmax / Chocorramo) con riesgo: el ruido atrae a los androides | Bitácora 6.5 |
+| Armas y daño a los androides | Cuchillo, pistola y escopeta con apuntado asistido, munición limitada y ruido que atrae androides; los androides tienen vida y se pueden neutralizar (doble daño si Deisy los apagó) | Bitácora 3.12 |

@@ -18,7 +18,7 @@ namespace Nexus
     [RequireComponent(typeof(NavMeshAgent))]
     public class AndroideIA : MonoBehaviour
     {
-        public enum Estado { Inactivo, Patrulla, Persecucion, Busqueda, Recalibrando, Apagado }
+        public enum Estado { Inactivo, Patrulla, Persecucion, Busqueda, Recalibrando, Apagado, Destruido }
 
         /// <summary>Se dispara cuando un androide detecta al jugador (alarma sonora, música de tensión).</summary>
         public static event Action<AndroideIA> AlDetectar;
@@ -50,6 +50,10 @@ namespace Nexus
         [SerializeField] float tiempoBusqueda = 4f;
         [SerializeField] float tiempoRecalibrar = 2.5f;
 
+        [Header("Resistencia")]
+        [Tooltip("Puntos de vida: pistola 2 por bala, escopeta hasta ~2 por perdigón de cerca, cuchillo 2,5")]
+        [SerializeField] float saludMaxima = 12f;
+
         [Header("Presentación")]
         [SerializeField] Light linterna;
         [SerializeField] Animator animator;
@@ -79,8 +83,13 @@ namespace Nexus
         readonly List<(Renderer r, int propiedad, Color color)> brillos = new List<(Renderer, int, Color)>();
         MaterialPropertyBlock bloque;
 
+        float salud = -1f, aturdidoHasta, destelloHasta;
+
         public bool JugadorEnCono { get; set; }
         public Estado EstadoActual => estado;
+        public bool Destruido => estado == Estado.Destruido;
+        public float Salud => salud < 0f ? saludMaxima : salud;
+        public Vector3 Pecho => transform.position + Vector3.up * 1.25f;
         /// <summary>Se puede apagar con el KILLSWITCH: está encendido y no está ya desconectado.</summary>
         public bool PuedeApagarse => agente != null && agente.enabled && estado != Estado.Inactivo && estado != Estado.Apagado;
         public float SegundosApagado => estado == Estado.Apagado ? Mathf.Max(0f, finApagado - Time.time) : 0f;
@@ -110,6 +119,41 @@ namespace Nexus
         void OnDisable() { Coleccionable.AlRecoger -= AlRecogerObjeto; Todos.Remove(this); }
 
         // ======================= Habilidades y ruidos =======================
+
+        /// <summary>
+        /// Daño de las armas. Cada impacto lo frena un instante, enciende el visor de golpe y lo pone
+        /// a perseguir al jugador (ya sabe dónde está); una unidad en reposo se reactiva. Si está
+        /// desconectado por el KILLSWITCH recibe el doble. A cero se desploma y se apaga del todo.
+        /// </summary>
+        public void RecibirDanio(float cantidad, Vector3 punto)
+        {
+            if (Destruido) return;
+            if (salud < 0f) salud = saludMaxima;
+            if (estado == Estado.Apagado) cantidad *= 2f;
+            salud -= cantidad;
+            if (salud <= 0f) { Destruir(); return; }
+
+            aturdidoHasta = Time.time + 0.35f;
+            destelloHasta = Time.time + 0.12f;
+            if (estado == Estado.Inactivo) Despertar(true, 0.25f);
+            else if (estado != Estado.Apagado && estado != Estado.Recalibrando && jugador != null) Perseguir();
+        }
+
+        void Destruir()
+        {
+            salud = 0f;
+            estado = Estado.Destruido;
+            if (agente != null && agente.enabled && agente.isOnNavMesh) { agente.ResetPath(); agente.isStopped = true; }
+            if (agente != null) agente.enabled = false;
+            if (linterna != null) linterna.enabled = false;
+            if (animator != null) { animator.SetFloat(ParamVelocidad, 0f); animator.SetBool(ParamMuerto, true); }
+            Brillo(0f);
+            JugadorEnCono = false;
+            // Queda en el suelo: sin colisión que estorbe ni cono de visión
+            foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;
+            Todos.Remove(this);
+            HUDNexus.Aviso("UNIDAD SENTINEL NEUTRALIZADA");
+        }
 
         /// <summary>KILLSWITCH: desconecta al androide unos segundos. Devuelve false si no se pudo.</summary>
         public bool Apagar(float segundos)
@@ -142,7 +186,7 @@ namespace Nexus
             foreach (var (r, propiedad, color) in brillos)
             {
                 if (r == null) continue;
-                if (k >= 0.999f) { r.SetPropertyBlock(null); continue; }
+                if (Mathf.Abs(k - 1f) < 0.001f) { r.SetPropertyBlock(null); continue; }   // valor original
                 r.GetPropertyBlock(bloque);
                 bloque.SetColor(propiedad, color * k);
                 r.SetPropertyBlock(bloque);
@@ -219,8 +263,22 @@ namespace Nexus
 
         void Update()
         {
+            if (Destruido) return;
             if (jugador == null || !agente.isOnNavMesh) return;
             if (animator != null) animator.SetFloat(ParamVelocidad, agente.velocity.magnitude, 0.1f, Time.deltaTime);
+
+            // Impacto reciente: el visor destella y el androide se frena un instante
+            if (destelloHasta > 0f)
+            {
+                if (Time.time < destelloHasta) Brillo(3f);
+                else { destelloHasta = 0f; Brillo(estado == Estado.Inactivo ? 0.04f : estado == Estado.Apagado ? 0f : 1f); }
+            }
+            if (aturdidoHasta > 0f)
+            {
+                if (Time.time < aturdidoHasta) { agente.isStopped = true; return; }
+                aturdidoHasta = 0f;
+                agente.isStopped = estado == Estado.Inactivo || estado == Estado.Recalibrando || estado == Estado.Apagado;
+            }
             if (estado == Estado.Inactivo) { EnReposo(); return; }
             if (estado == Estado.Apagado) { Reiniciando(); return; }
 

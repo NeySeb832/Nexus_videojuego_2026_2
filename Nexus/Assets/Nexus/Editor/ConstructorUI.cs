@@ -66,7 +66,8 @@ namespace Nexus.Herramientas
             var tDiscos = Texto("Texto_Discos", canvasHud, "DISCOS 0/3", 17, Cian, TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-30, -110), new Vector2(300, 24));
             var tRefri = Texto("Texto_Refrigerante", canvasHud, "CARTUCHOS x0", 17, new Color(0.7f, 0.95f, 1f), TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-30, -134), new Vector2(300, 24));
             var tHabilidad = Texto("Texto_Habilidad", canvasHud, "Q  ·  HABILIDAD  ·  LISTA", 15, Cian, TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-30, -160), new Vector2(460, 22));
-            Texto("Texto_Ayuda", canvasHud, "TAB / I  ·  INVENTARIO", 14, new Color(0.5f, 0.6f, 0.64f), TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-30, -184), new Vector2(400, 22));
+            var tArma = Texto("Texto_Arma", canvasHud, "", 15, new Color(1f, 0.82f, 0.5f), TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-30, -182), new Vector2(460, 22));
+            Texto("Texto_Ayuda", canvasHud, "TAB / I  ·  INVENTARIO", 14, new Color(0.5f, 0.6f, 0.64f), TextAlignmentOptions.TopRight, new Vector2(1, 1), new Vector2(-30, -206), new Vector2(400, 22));
 
             var prompt = Rect("Panel_Prompt", canvasHud, new Vector2(0.5f, 0), new Vector2(0, 130), new Vector2(800, 36));
             var tPrompt = Texto("Texto_Prompt", prompt, "[E] Usar terminal", 23, Color.white, TextAlignmentOptions.Center, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(800, 36));
@@ -111,7 +112,7 @@ namespace Nexus.Herramientas
             Ref("corazonLleno", corazon); Ref("corazonVacio", corazonVacio); Ref("textoPersonaje", tPersonaje);
             Ref("textoTiempo", tTiempo); Ref("textoTemperatura", tTemp); Ref("barraTemperatura", barra);
             Ref("textoDiscos", tDiscos); Ref("textoRefrigerante", tRefri); Ref("textoInventario", tInventario);
-            Ref("textoHabilidad", tHabilidad);
+            Ref("textoHabilidad", tHabilidad); Ref("textoArma", tArma);
             Ref("textoObjetivo", tObjetivo); Ref("panelPrompt", prompt.gameObject); Ref("textoPrompt", tPrompt);
             Ref("grupoAviso", grupoAviso); Ref("textoAviso", tAviso);
             Ref("panelDialogo", dialogo.gameObject); Ref("tituloDialogo", tTitulo); Ref("textoDialogo", tCuerpo); Ref("pistaDialogo", tPista);
