@@ -78,3 +78,4 @@ Las cámaras son fijas y cambian solas cuando el personaje sale del cuadro.
 - [Requisitos del curso y su estado](Evidencias/Requisitos.md)
 - [Diseño de niveles](Evidencias/Diseno_Niveles.md)
 - [Créditos de modelos](Evidencias/Creditos_Modelos.md) y [de audio](Evidencias/Creditos_Audio.md)
+- Manuales de instalación ([Windows](Documentacion/manual_windows/Manual_Instalacion_Windows.pdf), [Android](Documentacion/manual_android/Manual_Instalacion_Android.pdf)) y [documento de desarrollo](Documentacion/desarrollo/Desarrollo_Nexus.pdf), en LaTeX con normas APA 7

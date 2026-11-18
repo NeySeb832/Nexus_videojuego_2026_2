@@ -1,0 +1,57 @@
+\section{Resultados}
+
+El juego final cumple todos los requisitos de la asignatura (Tabla~\ref{tab:requisitos}) y se
+entrega en las tres plataformas pedidas.
+
+\begin{TablaAPA}{tab:requisitos}{Cumplimiento de los requisitos de la asignatura}
+\begin{tabularx}{\linewidth}{P{4.6cm}L}
+\toprule
+Requisito & Cómo lo cumple Nexus \\
+\midrule
+Tres niveles jugables con progresión lógica & Cuarto de Mantenimiento, Pasillos de Almacenamiento y Núcleo de Datos; cada uno se desbloquea al extraer el disco del anterior \\
+Tres Canvas diferenciados & Menú principal, HUD y pantalla de Game Over y Victoria, además del inventario \\
+Selector de personajes con Avatar Humanoid & Avatares de los dos integrantes configurados como Humanoid, con un único controlador de animación \\
+Música de fondo con componentes de audio & Música por capas (menú, exploración, tensión, jefe, alarma y victoria) y ambiente del centro de datos \\
+Créditos e imagen institucional & Pantalla de créditos con la materia, la Universidad Central, el docente y los integrantes; logo en el título y en los créditos \\
+Explicación del objetivo & Informe de la misión antes del Nivel~1 y objetivo actual en el HUD \\
+Temporizador & Refrigeración con cuenta atrás y temperatura del núcleo \\
+Sistema de vidas o salud & Tres oportunidades de evasión con estado herido y objetos de curación \\
+Objetos coleccionables con contador & Discos Duros Maestros (x/3) y cartuchos de refrigerante \\
+Inteligencia artificial autónoma & Androides con patrulla, visión, oído, persecución y búsqueda sobre una malla de navegación, y un jefe final \\
+Cuadros de diálogo narrativos & Terminales, notas, avisos del sistema y subtítulos de las cinemáticas \\
+Plataformas & Windows (\cod{.exe}), WebGL con pantalla completa y Android (\cod{.apk}) \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+Además de los requisitos, el juego incorpora una habilidad distinta para cada personaje, armas con
+munición limitada y apuntado asistido, cadáveres que se registran con notas que cuentan la historia,
+animaciones de escopeta creadas por código, cámaras que guían al jugador hacia los objetos
+importantes, un inventario con archivo y mapa, guardado en terminales, máquinas expendedoras con
+riesgo, un puzzle de válvulas, un jefe final, cinemáticas hechas con el motor, una transición
+animada entre niveles y controles táctiles.
+
+\section{Conclusiones}
+
+El desarrollo por fases, con una versión jugable al final de cada una y compilaciones de prueba
+desde el inicio, permitió construir un juego completo de tres niveles y llevarlo a las tres
+plataformas sin sorpresas al final del proyecto.
+
+La construcción del contenido mediante herramientas de editor programadas fue la decisión que más
+influyó en el resultado. Describir los niveles como mapas de texto y generar texturas, objetos,
+decoración, cámaras y cinemáticas por código hizo posible producir escenarios grandes y coherentes
+con un equipo de dos personas, y aplicar cualquier ajuste de diseño en todo el juego con solo
+reconstruir.
+
+El sistema de Avatar Humanoid de Unity fue la base del trabajo de personajes: permitió que los
+avatares de los integrantes, los androides y los personajes secundarios compartieran animaciones,
+y que el selector de personajes funcionara con un único controlador. Ese mismo sistema hizo posible
+crear poses y animaciones nuevas músculo por músculo, como las de los cadáveres y la escopeta.
+
+Las referencias del survival horror clásico orientaron las decisiones de diseño: cámaras fijas que
+cortan cuando el personaje sale del cuadro, controles tipo tanque, recursos escasos, sigilo frente
+a enemigos que ven y oyen, y una mezcla de audio que acompaña la tensión de cada situación.
+
+Finalmente, adaptar el juego a celulares y navegadores exigió cuidar el rendimiento desde el
+principio (mallas combinadas, sombreadores sin scripts, una sola cámara activa) y añadir controles
+táctiles, lo que dejó un juego que se puede jugar de la misma forma en las tres plataformas.

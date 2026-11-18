@@ -33,8 +33,8 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 |---|---|---|---|
 | 3.1 | Artículo en Niixer | Nombres completos de los integrantes; bitácora paso a paso (diseño, programación, arte, dificultades superadas); juego WebGL embebido con pantalla completa; video de gameplay embebido | ⬜ |
 | 3.2 | Video "Cómo lo hicimos" | Construcción de niveles en Unity, configuración del Avatar y del selector, scripts clave, juego funcionando en tiempo real | ⬜ |
-| 3.3 | Manual de instalación Windows | Paso a paso con capturas | ⬜ |
-| 3.4 | Manual de instalación APK Android | Paso a paso con capturas (orígenes desconocidos, instalación, ejecución) | ⬜ |
+| 3.3 | Manual de instalación Windows | Paso a paso con capturas | ✅ `Documentacion/manual_windows` (APA 7, bitácora 8.1) |
+| 3.4 | Manual de instalación APK Android | Paso a paso con capturas (orígenes desconocidos, instalación, ejecución) | 🟨 `Documentacion/manual_android` (APA 7); pasos del teléfono como ilustraciones, faltan capturas reales de un celular |
 
 ## Datos pendientes de los integrantes
 

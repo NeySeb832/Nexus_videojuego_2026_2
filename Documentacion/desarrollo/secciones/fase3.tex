@@ -1,0 +1,254 @@
+% =====================================================================
+\subsection{Fase 3: sistemas de juego}
+
+\subsubsection{Arquitectura}
+
+Los sistemas del juego están repartidos en scripts con una responsabilidad cada uno
+(Tabla~\ref{tab:arquitectura}). Los objetos no se conocen entre sí: se comunican mediante métodos
+estáticos del HUD (por ejemplo, mostrar un aviso, cambiar el objetivo o abrir un diálogo) y mediante
+eventos, como el que anuncia que se recogió un objeto. Así, una terminal no necesita saber cómo se
+dibuja un diálogo.
+
+\begin{TablaAPA}{tab:arquitectura}{Scripts principales del juego}
+\begin{tabularx}{\linewidth}{P{4.4cm}L}
+\toprule
+Script & Responsabilidad \\
+\midrule
+\cod{EstadoPartida} & Datos que pasan de un nivel a otro: personaje elegido, salud, discos, inventario, munición, notas leídas y cuerpos registrados; guardado y carga \\
+\cod{NivelNexus} & Temporizador, temperatura, objetivo inicial, Game Over, paso al nivel siguiente y Victoria; calcula la malla de navegación al cargar el nivel \\
+\cod{ControladorJugador} & Movimiento con controles tipo tanque mediante un \textit{CharacterController} \\
+\cod{VidaJugador} & Las tres oportunidades de evasión, el estado herido y la muerte \\
+\cod{InteraccionJugador} e \cod{Interactuable} & Detecta lo que está cerca, muestra la acción disponible y la ejecuta con la tecla de interactuar \\
+\cod{GestorCamaras} y \cod{CamaraFija} & Las cámaras fijas y el cambio entre ellas \\
+\cod{HUDNexus}, \cod{PantallaInventario} y \cod{PantallaFinal} & Interfaz del juego, inventario y pantallas de Game Over y Victoria \\
+\cod{ArmaJugador} e \cod{IKTecnico} & Armas, apuntado y animación por cinemática inversa \\
+\cod{HabilidadJugador} & Habilidad de cada personaje \\
+\cod{AndroideIA} y \cod{JefeSentinel} & Inteligencia artificial de los enemigos \\
+\cod{AudioNexus} & Música por capas y efectos de sonido \\
+\cod{Cinematica} y \cod{TransicionAscensor} & Cinemáticas y transición entre niveles \\
+\cod{ControlesTactiles} & Controles para pantallas táctiles \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsubsection{Cámaras fijas}
+
+Como en el survival horror clásico, el juego no usa una cámara que sigue al personaje sino cámaras
+fijas en las salas, que crean tensión porque el jugador oye a los androides pero no siempre los ve.
+Solo una cámara está encendida a la vez, lo que además reduce el costo de renderizado.
+
+\begin{itemize}
+  \item \textbf{Ángulos por sala.} El constructor de niveles ubica en cada sala una cámara
+        principal y evalúa como candidatas las esquinas y los puntos medios de las paredes largas.
+        Después de decorar la sala, agrega uno a uno el candidato que ve más puntos del suelo que
+        ninguna otra cámara ve, hasta cubrir la sala completa. Un punto solo cuenta como cubierto si
+        la cámara ve al técnico de los pies a la cabeza, sin obstáculos y ocupando al menos el 11\,\%
+        del alto de la imagen.
+  \item \textbf{Cambio de cámara.} Unas 16 veces por segundo, el gestor comprueba si el técnico
+        sigue dentro de la imagen y si algo lo tapa. Mientras siga en cuadro, la cámara no cambia;
+        si sale del cuadro, queda tapado más de 0,6~s o se ve más pequeño que el 9\,\% de la imagen,
+        cambia al ángulo de la sala que lo encuadra mejor (Figura~\ref{fig:angulos}, izquierda). Que el umbral
+        de salida sea menor que el de entrada evita que la imagen salte entre dos cámaras.
+  \item \textbf{Planos de interés.} La cámara también guía al jugador: al acercarse a un objeto
+        importante (terminales, paneles, notas, máquinas, puertas con cerradura, válvulas, objetos
+        que se recogen, cadáveres y el ascensor) corta a un plano cercano en tres cuartos que
+        muestra el objeto y al técnico (Figuras~\ref{fig:angulos}, derecha, y~\ref{fig:interes2}). Solo se activa si el técnico mira
+        hacia el objeto, si el objeto está en la misma sala y si han pasado al menos 1,2~s desde el
+        último corte; cuando un objeto se recoge, su plano deja de usarse.
+  \item \textbf{Proporciones de pantalla.} Los encuadres están pensados para 16:9; en pantallas más
+        estrechas el gestor abre el ángulo vertical para conservar el mismo campo horizontal. La
+        cobertura se verificó en 16:9, 4:3 y en la proporción de un celular (19,5:9).
+\end{itemize}
+
+\FiguraDoble{068_camara-alternativa-oeste.jpg}{070_plano-interes-terminal.jpg}{fig:angulos}{Ángulo alternativo de la sala de inicio (izquierda) y plano de interés de la terminal (derecha)}{}
+
+\FiguraDoble{071_plano-interes-maquina.jpg}{072_plano-interes-puerta-roja.jpg}{fig:interes2}{Planos de interés de la máquina expendedora (izquierda) y de la puerta roja (derecha)}{}
+
+\subsubsection{Controles tipo tanque}
+
+El técnico avanza y retrocede con \tecla{W} y \tecla{S} (o el stick hacia arriba y abajo) y gira
+sobre sí mismo con \tecla{A} y \tecla{D}; \tecla{Shift} lo hace correr y \tecla{Shift + S} da media
+vuelta rápida. La dirección no depende de la cámara: aunque el ángulo cambie, el personaje sigue
+caminando hacia donde mira, por lo que este tipo de control encaja con las cámaras fijas. Al
+empezar el juego aparece un recordatorio con los controles (Figura~\ref{fig:recordatorio}). Las
+acciones de movimiento, correr e interactuar se leen del archivo de acciones del Input System,
+que se habilita al activarse el jugador, y funcionan igual con teclado, mando y, en móviles, con los
+controles táctiles.
+
+\Figura[0.8\linewidth]{067_aviso-controles-tanque.jpg}{fig:recordatorio}{Recordatorio de los controles al empezar el nivel}{}
+
+\subsubsection{Salud, temporizador y HUD}
+
+La salud son tres \textit{oportunidades de evasión}. Al ser alcanzado por un androide, el técnico
+pierde una, recibe un empujón y queda invulnerable 2,5~s; con una sola oportunidad camina herido y
+los bordes de la pantalla laten en rojo, y con ninguna muere y aparece el Game Over. La bebida
+energética recupera una oportunidad y la barrita de proteína, todas.
+
+El temporizador de refrigeración cuenta hacia atrás, y la temperatura del núcleo sube de su valor
+inicial hasta el 100\,\% cuando el tiempo se agota. Los cartuchos de refrigerante son coleccionables
+con contador que suman 20~s cada uno.
+
+El HUD es solo texto pequeño con una sombra suave, sin recuadros, para no tapar el escenario
+(Figura~\ref{fig:hud}): arriba a la izquierda, el objetivo actual; arriba a la derecha, la
+refrigeración, la temperatura, los discos recuperados (x/3), los cartuchos, la habilidad y el arma
+con su munición. La salud no está fija en pantalla: aparece unos segundos cada vez que cambia y
+siempre se puede consultar en el inventario. La sombra del texto es un material de TextMeshPro con
+una copia difuminada detrás de cada letra, que se lee sobre cualquier fondo.
+
+\Figura[0.85\linewidth]{029_hud-minimo-solo-texto.jpg}{fig:hud}{HUD del juego: objetivo, refrigeración, temperatura y contadores}{}
+
+\subsubsection{Diálogos e interacción}
+
+Los mensajes de las terminales, las notas y los avisos del sistema aparecen en un cuadro de diálogo
+con estilo de terminal: el texto se escribe letra a letra y el juego se pausa mientras se lee
+(Figura~\ref{fig:dialogo}). Se avanza con \tecla{E}, \tecla{Espacio}, \tecla{Enter}, un clic, el
+mando o tocando la pantalla. Todo lo que se usa con la tecla de interactuar hereda de la clase
+\cod{Interactuable}: al acercarse aparece la acción disponible (por ejemplo, \textquote{[E] Usar
+terminal}) y el jugador solo interactúa con objetos a menos de 4~m.
+
+\Figura[0.85\linewidth]{030_dialogo-terminal-mantenimiento.jpg}{fig:dialogo}{Cuadro de diálogo de la terminal de mantenimiento}{}
+
+\subsubsection{Inventario}
+
+El inventario es la \textit{terminal portátil del técnico}. Se abre con \tecla{Tab} o \tecla{I},
+pausa el juego y tiene un diseño propio con estética de sistema operativo en tonos cian. A la
+izquierda muestra el retrato del técnico, un monitor de signos vitales cuya línea de pulso cambia de
+velocidad y color según el estado (estable, herido o crítico) y un resumen de la misión. Tiene tres
+páginas (Figura~\ref{fig:inventario}):
+
+\begin{itemize}
+  \item \textbf{Objetos:} cuadrícula de doce casillas, vista previa del objeto seleccionado y su
+        descripción. Desde aquí se usan los objetos de curación y se equipan las armas.
+  \item \textbf{Archivo:} las notas leídas, para releerlas.
+  \item \textbf{Mapa:} plano esquemático del nivel con el nombre de cada sala, las puertas por
+        color, los puntos de interés y la posición del jugador parpadeando.
+\end{itemize}
+
+\FiguraDoble{037_inventario-objetos.jpg}{038_inventario-archivo-notas.jpg}{fig:inventario}{Inventario: página de objetos (izquierda) y archivo de notas (derecha)}{}
+
+Los retratos se obtuvieron fotografiando los avatares 3D desde una herramienta de editor que coloca
+una cámara frente al hueso de la cabeza en una escena con luz de estudio (Figura~\ref{fig:retratos});
+los íconos de los objetos, fotografiando cada prefab con fondo transparente; y el mapa se dibuja a
+partir del mismo mapa de texto del nivel. Todos los Canvas usan un escalado que garantiza que la
+resolución de referencia de 1920 × 1080 quepa completa en cualquier pantalla.
+
+\FiguraDoble{040_retrato-neyder-renderizado.jpg}{041_retrato-deisy-renderizado.jpg}{fig:retratos}{Retratos de Neyder (izquierda) y Deisy (derecha) generados desde sus avatares}{}
+
+\subsubsection{Guardado de la partida}
+
+La partida se guarda en las terminales de respaldo, que consumen una memoria USB del inventario.
+Se guardan el nivel, la posición, el tiempo, la salud, el inventario, la munición, las notas leídas
+y los cuerpos ya registrados, mediante el sistema \textit{PlayerPrefs} de Unity, que funciona igual
+en Windows, en el navegador y en Android. Cuando hay una partida guardada, el menú muestra la opción
+\textit{Continuar}, y la pantalla de Game Over permite cargarla.
+
+\subsubsection{Habilidades de los personajes}
+
+\begin{itemize}
+  \item \textbf{Señuelo de red (Neyder):} el repetidor vuela en arco hasta donde cae y, mientras
+        emite, muestra un anillo de pulso cian y llama cada medio segundo a los androides cercanos,
+        que van a revisarlo en estado de búsqueda. Puede distraer a varios a la vez, pero si un
+        androide ve al técnico, lo persigue igual (Figura~\ref{fig:senuelo}).
+  \item \textbf{KILLSWITCH.exe (Deisy):} un haz de datos cian salta en zigzag hasta el androide más
+        cercano a la vista, que se desploma con el visor y las juntas apagados; al final parpadea,
+        se reinicia y vuelve a su ruta (Figura~\ref{fig:killswitch}). Es seguro, pero afecta a uno
+        solo y obliga a acercarse.
+\end{itemize}
+
+La ficha del selector de personajes explica la habilidad de cada técnico, y el HUD muestra su estado
+o los segundos de recarga que faltan.
+
+\FiguraDoble{058_selector-ficha-con-habilidad.jpg}{059_senuelo-de-red-neyder.jpg}{fig:senuelo}{Ficha del selector con la habilidad (izquierda) y el señuelo de red atrayendo a un androide (derecha)}{}
+
+\FiguraDoble{060_killswitch-deisy-rayo.jpg}{061_killswitch-androide-apagado.jpg}{fig:killswitch}{KILLSWITCH.exe: el haz de datos (izquierda) y el androide apagado (derecha)}{}
+
+\subsubsection{Armas y combate}
+
+El técnico puede defenderse con una bayoneta M9, una pistola Beretta M9A1 y una escopeta Remington
+870, modelos de Sketchfab con licencia CC BY 4.0
+\parencite{erdogay_m9,do_m9a1,milin_870} (Figura~\ref{fig:armas}). Una herramienta de editor los
+importa reduciendo sus texturas a 1024~píxeles, crea los materiales URP, invierte el canal verde de
+los mapas de normales que venían en formato DirectX, mide cada modelo para dejarlo a su tamaño real
+y le agrega un punto de \textit{boca} para el fogonazo, el láser y la trazadora. El arma se coloca
+en el hueso de la mano derecha del avatar, así que funciona igual con los dos personajes.
+
+\Figura[0.8\linewidth]{074_armas-vitrina.jpg}{fig:armas}{Las tres armas y las cajas de munición}{}
+
+\begin{itemize}
+  \item \textbf{Apuntado asistido:} al apuntar, el técnico gira solo hacia el androide visible más
+        cercano dentro de un cono de 50°, y un láser rojo marca el objetivo
+        (Figura~\ref{fig:disparos}).
+  \item \textbf{Apuntar es comprometerse:} mientras apunta, el técnico no camina y gira más
+        despacio.
+  \item \textbf{El ruido importa:} cada disparo atrae a los androides cercanos (18~m la pistola,
+        24~m la escopeta); el cuchillo es silencioso pero obliga a acercarse.
+  \item \textbf{Munición:} el cargador se guarda con la partida y la reserva está en el inventario.
+\end{itemize}
+
+\begin{TablaAPA}{tab:armas}{Características de las armas}
+\begin{tabularx}{\linewidth}{P{2.4cm}LP{1.6cm}P{1.6cm}P{1.5cm}P{1.6cm}}
+\toprule
+Arma & Daño & Alcance & Cadencia & Cargador & Ruido \\
+\midrule
+Bayoneta & 2,5 por tajo, arco de 60° & 1,9 m & 0,75 s & --- & Silencioso \\
+Pistola & 2 & 25 m & 0,32 s & 15 & 18 m \\
+Escopeta & 7 perdigones de 1,6 que pierden fuerza con la distancia & 14 m & 1 s & 6 & 24 m \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\FiguraDoble{077_pistola-disparo.jpg}{079_escopeta-disparo.jpg}{fig:disparos}{Disparo de pistola con láser, trazadora y chispas (izquierda) y disparo de escopeta en abanico (derecha)}{}
+
+Cada androide tiene 12 puntos de vida: unos seis disparos de pistola, cinco tajos o uno o dos
+disparos de escopeta de cerca. Al recibir un golpe, su visor destella, se aturde un instante y
+persigue al técnico; un androide apagado con el KILLSWITCH de Deisy recibe el doble de daño. Al
+quedar sin vida cae, sus luces se apagan, deja de bloquear el paso y aparece el aviso
+\textquote{UNIDAD SENTINEL NEUTRALIZADA} (Figura~\ref{fig:neutralizado}).
+
+\FiguraDoble{080_cuchillo-ataque.jpg}{081_androide-neutralizado.jpg}{fig:neutralizado}{Tajo de bayoneta (izquierda) y androide neutralizado (derecha)}{}
+
+\subsubsection{Cadáveres y notas}
+
+Como en los survival horror clásicos, las armas y la munición no flotan en el nivel: se obtienen al
+registrar los cuerpos de quienes entraron antes. Al pulsar \tecla{E} sobre un cuerpo, el técnico
+describe lo que ve, recibe lo que llevaba la víctima y lee su nota, que queda en el archivo del
+inventario (Figura~\ref{fig:registro}). El arma o la munición se ven junto al cuerpo o en su mano y
+desaparecen al tomarlas, y un cuerpo registrado no vuelve a dar nada, tampoco al cargar la partida.
+Las notas cuentan, en conjunto, lo que pasó en el centro de datos (Tabla~\ref{tab:cuerpos}).
+
+\begin{TablaAPA}{tab:cuerpos}{Cuerpos que se pueden registrar en cada nivel}
+\begin{tabularx}{\linewidth}{P{0.9cm}P{4.2cm}P{3.2cm}L}
+\toprule
+Nivel & Cuerpo & Lleva & Lo que cuenta su nota \\
+\midrule
+1 & Mendoza, técnico & --- & Sacar el disco despierta a las unidades; la salida es el ascensor de la cafetería \\
+1 & J. Ramírez, técnico & Bayoneta M9 & Los SENTINEL los encerraron; Mendoza fue por el disco \\
+2 & Sargento Ortiz & Escopeta y 3 cartuchos & Orden de misión: Nexus Corp. lo sabía desde el día 14 \\
+2 & Operador Castro & 9 balas & Su última transmisión por radio \\
+2 & Operador Vargas & Pistola y 9 balas & Registro de la unidad táctica \\
+2 & Operador Ruiz & 2 cartuchos & Al sonar la alarma salen todos \\
+2 & Guía del equipo & 8 balas & Dónde están el disco y la salida \\
+3 & Ibarra & 2 cartuchos & Los anillos de patrulla y algo grande en una cápsula \\
+3 & Teniente Salgado & 3 cartuchos y 6 balas & Las válvulas tienen un orden: está en el manual \\
+3 & Operador Medina & 12 balas & No gastar las balas en las patrullas \\
+3 & Ingeniero Ríos, jefe de sistemas & Barrita de proteína & CERBERUS 7.1 se pidió para proteger los datos a cualquier costo; el reinicio publica los registros \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\FiguraDoble{084_cadaver-cafeteria-bayoneta.jpg}{085_registro-obtuviste-bayoneta.jpg}{fig:registro}{El técnico Ramírez en la cafetería con la bayoneta (izquierda) y el registro del cuerpo (derecha)}{}
+
+\Figura[0.8\linewidth]{087_nivel2-nota-vargas.jpg}{fig:nota}{Nota del operador Vargas en el Nivel 2}{}
+
+\subsubsection{Controles táctiles}
+
+Para la versión de Android y el navegador del celular se programaron controles táctiles con el
+mismo estilo del HUD: anillos finos y texto (Figura~\ref{fig:tactiles}). Se crean solos cuando el
+juego corre en un dispositivo móvil y solo se muestran mientras el jugador tiene el control. A la
+izquierda hay un joystick que aparece donde se apoya el pulgar, con los mismos controles tipo
+tanque, y los botones CORRER e INVENTARIO; a la derecha, INTERACTUAR, HABILIDAD, ARMA y, según el
+arma equipada, ATACAR o DISPARAR, APUNTAR y RECARGAR. Si se dispara sin estar apuntando, el técnico
+apunta solo al androide más cercano. Los botones usan las mismas entradas que las pruebas
+automáticas, de modo que no se duplicó la lógica del juego.
+
+\Figura[0.85\linewidth]{115_controles-tactiles.jpg}{fig:tactiles}{Controles táctiles con la pistola equipada}{}

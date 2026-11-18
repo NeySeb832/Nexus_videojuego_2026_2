@@ -1,0 +1,207 @@
+\documentclass[stu,letterpaper,12pt,donotrepeattitle,floatsintext]{apa7}
+\input{../comun/preambulo}
+\graphicspath{{figuras/}{../desarrollo/figuras/}}
+\floatplacement{figure}{H}
+\floatplacement{table}{H}
+
+\title{Manual de instalación del videojuego Nexus para Windows}
+
+\begin{document}
+\maketitle
+
+\section{Introducción}
+
+\textit{Nexus: Protocolo de emergencia} es un videojuego de terror y sigilo en tercera persona,
+desarrollado en Unity \parencite{unity2026} como trabajo final de la asignatura Modelado 3D y Video
+Juegos. Este manual explica, paso a paso, cómo instalar y ejecutar la versión para computadores con
+Windows, cómo dar los primeros pasos en el juego y cómo resolver los problemas más comunes.
+
+La versión de Windows no necesita un instalador: se distribuye como una carpeta comprimida que
+contiene el ejecutable \cod{Nexus.exe} y los archivos que lo acompañan. Para \textquote{instalar} el
+juego basta con extraer esa carpeta en cualquier ubicación del equipo.
+
+\section{Requisitos del sistema}
+
+La Tabla~\ref{tab:requisitos} resume los requisitos. El juego se probó en un computador portátil con
+Windows~11 y una tarjeta gráfica dedicada; los valores mínimos son una estimación a partir del tamaño
+del juego y de la configuración de calidad con que se compiló.
+
+\begin{TablaAPA}{tab:requisitos}{Requisitos del sistema para la versión de Windows}
+\begin{tabularx}{\linewidth}{P{3.6cm}LL}
+\toprule
+Componente & Mínimo & Recomendado \\
+\midrule
+Sistema operativo & Windows 10 de 64 bits & Windows 11 de 64 bits \\
+Procesador & Doble núcleo de 64 bits & Cuatro núcleos o más \\
+Memoria RAM & 4 GB & 8 GB \\
+Tarjeta gráfica & Compatible con DirectX 11 & Tarjeta dedicada compatible con DirectX 12 \\
+Espacio en disco & 250 MB libres & 500 MB libres \\
+Controles & Teclado y ratón & Teclado y ratón, o un mando compatible con Windows (XInput) \\
+Audio & Altavoces o audífonos & Audífonos, para ubicar a los androides por el sonido \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\section{Contenido del paquete}
+
+El juego se entrega en el archivo \cod{Nexus\_Windows.zip}, de unos 97 MB. Al extraerlo ocupa unos
+217 MB y contiene los elementos de la Tabla~\ref{tab:contenido}. Todos deben permanecer juntos en la
+misma carpeta: el ejecutable no funciona si se copia solo.
+
+\begin{TablaAPA}{tab:contenido}{Archivos y carpetas que contiene el paquete de Windows}
+\begin{tabularx}{\linewidth}{P{5.2cm}L}
+\toprule
+Elemento & Función \\
+\midrule
+\cod{Nexus.exe} & Ejecutable del juego: es el archivo que se abre para jugar \\
+\cod{Nexus\_Data} & Escenas, modelos, texturas, sonidos y código del juego \\
+\cod{UnityPlayer.dll} & Motor de Unity que ejecuta el juego \\
+\cod{MonoBleedingEdge} & Entorno de ejecución del código C\# \\
+\cod{D3D12}, \cod{dstorage.dll}, \cod{dstoragecore.dll} & Componentes gráficos y de carga rápida de DirectX \\
+\cod{UnityCrashHandler64.exe} & Registra información si el juego se cierra por un error \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\section{Instalación paso a paso}
+
+\subsection{Paso 1: obtener el archivo comprimido}
+
+Descargue \cod{Nexus\_Windows.zip} o cópielo desde la memoria USB donde se entregó, y guárdelo en una
+carpeta del equipo, por ejemplo en \textit{Descargas} o en el \textit{Escritorio}. En el Explorador de
+archivos se ve como una carpeta comprimida con un cierre en el ícono (Figura~\ref{fig:zip}).
+
+\Figura[0.85\linewidth]{01_zip_en_carpeta.png}{fig:zip}{El archivo comprimido del juego en el Explorador de archivos}{}
+
+\subsection{Paso 2: extraer los archivos}
+
+Windows puede mostrar el contenido de un archivo \cod{.zip} sin extraerlo, pero el juego no funciona
+desde ahí, porque necesita leer sus carpetas como archivos normales. Para extraerlo:
+
+\begin{enumerate}
+  \item Haga clic derecho sobre \cod{Nexus\_Windows.zip} y elija \ruta{Extraer todo}.
+  \item En el asistente \ruta{Extraer carpetas comprimidas (en zip)} (Figura~\ref{fig:asistente})
+        aparece como destino una carpeta con el mismo nombre del archivo. Puede dejarla así o elegir
+        otra con \ruta{Examinar}.
+  \item Deje marcada la casilla \ruta{Mostrar los archivos extraídos al completar} y pulse
+        \ruta{Extraer}. La extracción tarda unos segundos.
+\end{enumerate}
+
+\Figura[0.62\linewidth]{02_asistente_extraer.png}{fig:asistente}{Asistente de Windows para extraer la carpeta comprimida}{}
+
+\subsection{Paso 3: abrir la carpeta del juego}
+
+Al terminar, Windows abre la carpeta \cod{Nexus\_Windows} con los archivos de la
+Tabla~\ref{tab:contenido} (Figura~\ref{fig:carpeta}). El archivo que se usa para jugar es
+\cod{Nexus.exe}, de tipo \textit{Aplicación}.
+
+\Figura[0.85\linewidth]{03_carpeta_extraida.png}{fig:carpeta}{Carpeta del juego después de la extracción}{}
+
+\subsection{Paso 4: ejecutar el juego}
+
+Haga doble clic en \cod{Nexus.exe}. Si el archivo se descargó de Internet, Windows puede mostrar el
+aviso \textquote{Windows protegió su PC}. El aviso aparece con las aplicaciones que no tienen una
+firma digital comercial y que todavía son poco conocidas para el filtro Microsoft Defender
+SmartScreen \parencite{smartscreen}; no significa que el juego tenga un problema. Si aparece:
+
+\begin{enumerate}
+  \item Pulse el enlace \ruta{Más información}.
+  \item Compruebe que la aplicación es \cod{Nexus.exe} y pulse \ruta{Ejecutar de todas formas}.
+\end{enumerate}
+
+Windows recuerda la decisión y el aviso no vuelve a aparecer para ese archivo. En los equipos donde
+el juego se copia desde una memoria USB, el aviso normalmente no se muestra.
+
+\subsection{Paso 5: primer inicio}
+
+El juego abre su pantalla de título (Figura~\ref{fig:menu}). Se ejecuta en una ventana que se puede
+maximizar o cambiar de tamaño; la combinación \tecla{Alt + Enter} alterna entre ventana y pantalla
+completa. Las opciones del menú se eligen con el ratón, con las flechas y \tecla{Enter}, o con el mando.
+
+\Figura[0.85\linewidth]{04_juego_menu.png}{fig:menu}{Pantalla de título del juego ejecutándose en Windows}{}
+
+\subsection{Paso 6 (opcional): crear un acceso directo}
+
+Para abrir el juego desde el escritorio, haga clic derecho sobre \cod{Nexus.exe} y elija
+\ruta{Mostrar más opciones} \textrightarrow{} \ruta{Enviar a} \textrightarrow{}
+\ruta{Escritorio (crear acceso directo)}. El acceso directo apunta al ejecutable, así que la carpeta
+del juego no se debe mover después de crearlo.
+
+\section{Primeros pasos en el juego}
+
+\begin{enumerate}
+  \item En el menú elija \ruta{Nueva partida}.
+  \item Seleccione a su técnico con las flechas o con los botones \cod{<} y \cod{>}
+        (Figura~\ref{fig:selector}): Neyder lanza un señuelo de red que atrae a los androides y Deisy
+        apaga un androide durante 10 segundos con el programa KILLSWITCH.exe. Pulse
+        \ruta{Confirmar}.
+  \item Lea el informe de la misión y pulse \ruta{Iniciar misión}.
+  \item El objetivo es recuperar los tres Discos Duros Maestros, uno por nivel, antes de que se
+        agote el tiempo de refrigeración y sin que los androides de seguridad lo atrapen.
+\end{enumerate}
+
+\Figura[0.85\linewidth]{051_selector-neyder.jpg}{fig:selector}{Selector de personaje}{}
+
+La Tabla~\ref{tab:controles} muestra los controles. El juego usa \textit{controles tipo tanque}:
+el personaje avanza hacia donde mira, sin importar el ángulo de la cámara fija.
+
+\begin{TablaAPA}{tab:controles}{Controles con teclado y ratón, y con mando}
+\begin{tabularx}{\linewidth}{LP{4.4cm}P{4.2cm}}
+\toprule
+Acción & Teclado y ratón & Mando \\
+\midrule
+Avanzar / retroceder & \tecla{W} / \tecla{S} & Stick izquierdo arriba / abajo \\
+Girar & \tecla{A} / \tecla{D} & Stick izquierdo a los lados \\
+Correr & \tecla{Shift} & Presionar el stick izquierdo \\
+Media vuelta rápida & \tecla{Shift + S} & --- \\
+Interactuar, recoger y avanzar diálogos & \tecla{E} & Botón Y \\
+Habilidad del técnico & \tecla{Q} & Botón X \\
+Inventario, archivo y mapa & \tecla{Tab} o \tecla{I} & Start \\
+Equipar cuchillo / pistola / escopeta & \tecla{1} / \tecla{2} / \tecla{3} (\tecla{0} guarda el arma) & Cruceta \\
+Apuntar & Clic derecho o \tecla{K} & Gatillo izquierdo \\
+Disparar o atacar & Clic izquierdo o \tecla{J} & Gatillo derecho \\
+Recargar & \tecla{R} & Botón superior derecho \\
+Saltar una cinemática & \tecla{Enter}, \tecla{Esc} o \tecla{Espacio} & Start \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\section{Partidas guardadas}
+
+La partida se guarda en las terminales de respaldo del juego, gastando una memoria USB del
+inventario. Al volver a abrir el juego aparece la opción \ruta{Continuar} en el menú. Los datos se
+guardan en el registro de Windows del usuario (en la clave
+\cod{HKEY\_CURRENT\_USER\textbackslash Software\textbackslash Nexus Team\textbackslash Nexus}), no
+dentro de la carpeta del juego; por eso se conservan aunque la carpeta se mueva o se vuelva a
+extraer.
+
+\section{Desinstalación}
+
+Como el juego no se instala en el sistema, para quitarlo basta con borrar la carpeta
+\cod{Nexus\_Windows} y, si se creó, el acceso directo del escritorio. La partida guardada se puede
+borrar también eliminando la clave del registro mencionada en la sección anterior; no es necesario,
+porque ocupa muy poco espacio.
+
+\section{Solución de problemas}
+
+La Tabla~\ref{tab:problemas} reúne los problemas más frecuentes y su solución.
+
+\begin{TablaAPA}{tab:problemas}{Problemas frecuentes y cómo resolverlos}
+\begin{tabularx}{\linewidth}{P{5cm}L}
+\toprule
+Problema & Solución \\
+\midrule
+Aparece \textquote{Windows protegió su PC} & Pulse \ruta{Más información} y luego \ruta{Ejecutar de todas formas} (paso 4) \\
+Falta \cod{UnityPlayer.dll} o el juego no abre & El juego se abrió desde dentro del \cod{.zip} o se copió solo el ejecutable. Extraiga la carpeta completa (paso 2) \\
+El antivirus pone el juego en cuarentena & Restaure el archivo desde el antivirus y agregue la carpeta del juego como excepción \\
+Pantalla negra o cierre al iniciar & Actualice el controlador de la tarjeta gráfica y verifique que el equipo tenga DirectX 11 o superior \\
+El juego va lento & Cierre otros programas, juegue en ventana en lugar de pantalla completa y conecte el portátil a la corriente \\
+No hay sonido & Revise el dispositivo de salida predeterminado de Windows y el volumen de la aplicación en el mezclador \\
+El personaje no responde a las teclas & Haga clic dentro de la ventana del juego para que reciba el teclado \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\printbibliography
+
+\end{document}

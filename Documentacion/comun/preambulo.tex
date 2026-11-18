@@ -1,0 +1,70 @@
+% Preámbulo común de los documentos de Nexus: Normas APA 7.a edición (trabajo de estudiante).
+% Se carga con \input{../comun/preambulo} justo después de \documentclass.
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{csquotes}
+\usepackage[style=apa,backend=biber]{biblatex}
+\addbibresource{../comun/referencias.bib}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.misc}
+\hypersetup{hidelinks}
+\setlist{itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlength{\emergencystretch}{3em}
+
+% Datos de la portada
+\authorsnames{Neyder Sebastián Orozco Villamil, Deisy Lorena Jiménez Martínez}
+\authorsaffiliations{Universidad Central}
+\course{Modelado 3D y Video Juegos (43391312)}
+\professor{Mg. Carlos Iván Pinzón Romero}
+\duedate{18 de noviembre de 2026}
+
+% Atajos de escritura
+\newcommand{\cod}[1]{\texttt{#1}}            % archivos, scripts y código
+\newcommand{\ruta}[1]{\textit{#1}}           % rutas de menú: Archivo > Guardar
+\newcommand{\tecla}[1]{\textsc{#1}}          % teclas
+
+% Columnas de tabla con texto justificado a la izquierda
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% Ubicación de figuras y tablas: cerca del texto (los manuales usan H: exactamente en su lugar)
+\usepackage{float}
+\floatplacement{figure}{!htbp}
+\floatplacement{table}{!htbp}
+% Nota de figuras y tablas en español y alineada a la izquierda (APA)
+\AtBeginDocument{\renewcommand{\notelabel}{Nota}}
+\newcommand{\NotaFig}[1]{\if\relax\detokenize{#1}\relax\else\par\raggedright\figurenote{#1}\fi}
+
+% Figura APA: número y título arriba, imagen y nota opcional abajo
+%   \Figura[ancho]{archivo}{etiqueta}{título}{nota}
+\newcommand{\Figura}[5][0.82\linewidth]{%
+  \begin{figure}
+    \caption{#4}\label{#3}
+    \centering\includegraphics[width=#1]{#2}
+    \NotaFig{#5}
+  \end{figure}}
+
+% Dos imágenes lado a lado en una misma figura
+%   \FiguraDoble{archivo a}{archivo b}{etiqueta}{título}{nota}
+\newcommand{\FiguraDoble}[5]{%
+  \begin{figure}
+    \caption{#4}\label{#3}
+    \centering
+    \includegraphics[width=0.49\linewidth]{#1}\hfill\includegraphics[width=0.49\linewidth]{#2}
+    \NotaFig{#5}
+  \end{figure}}
+
+% Tabla APA: número y título arriba; contenido a espacio sencillo y en letra un poco menor
+\newenvironment{TablaAPA}[2]{%
+  \begin{table}\caption{#2}\label{#1}\centering\small\linespread{1}\selectfont}
+  {\end{table}}
+
+% Términos de las referencias como en el manual de normas APA adjunto (Menéndez Echavarría, 2020)
+\DefineBibliographyStrings{spanish}{version = {Versión}, nodate = {s.\,f\adddot}}

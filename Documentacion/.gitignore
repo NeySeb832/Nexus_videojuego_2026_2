@@ -1,0 +1,14 @@
+# Archivos temporales de LaTeX (los PDF sí se guardan)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.log
+*.out
+*.run.xml
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.fls
+*.fdb_latexmk

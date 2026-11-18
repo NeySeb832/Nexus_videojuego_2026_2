@@ -1,0 +1,90 @@
+% Anexos (después de las referencias, cada uno en una página nueva)
+\newcommand{\Anexo}[2]{%
+  \clearpage
+  \phantomsection\addcontentsline{toc}{section}{Anexo #1. #2}
+  \begin{center}\textbf{Anexo #1}\\[0.5\baselineskip]\textbf{#2}\end{center}}
+
+\Anexo{A}{Controles del juego}
+
+El juego se controla con teclado y ratón, con un mando compatible con Windows o con la pantalla
+táctil en Android y en el navegador del celular (Tabla~\ref{tab:controles-completos}).
+
+\begin{TablaAPA}{tab:controles-completos}{Controles del juego en las tres formas de entrada}
+\begin{tabularx}{\linewidth}{P{3.6cm}P{3.6cm}P{3.2cm}L}
+\toprule
+Acción & Teclado y ratón & Mando & Pantalla táctil \\
+\midrule
+Avanzar / retroceder & \tecla{W} / \tecla{S} & Stick izquierdo & Joystick arriba / abajo \\
+Girar & \tecla{A} / \tecla{D} & Stick izquierdo & Joystick a los lados \\
+Correr & \tecla{Shift} & Presionar el stick & CORRER \\
+Media vuelta & \tecla{Shift + S} & --- & CORRER y joystick abajo \\
+Interactuar & \tecla{E} & Botón Y & INTERACTUAR \\
+Habilidad & \tecla{Q} & Botón X & HABILIDAD \\
+Inventario & \tecla{Tab} o \tecla{I} & Start & INVENTARIO \\
+Cambiar de arma & \tecla{1}, \tecla{2}, \tecla{3}; \tecla{0} guarda & Cruceta & ARMA \\
+Apuntar & Clic derecho o \tecla{K} & Gatillo izquierdo & APUNTAR \\
+Disparar o atacar & Clic izquierdo o \tecla{J} & Gatillo derecho & DISPARAR o ATACAR \\
+Recargar & \tecla{R} & Botón superior derecho & RECARGAR \\
+Avanzar diálogos & \tecla{E}, \tecla{Espacio}, \tecla{Enter} o clic & Botón A o Y & Tocar la pantalla \\
+Saltar cinemática & \tecla{Enter}, \tecla{Esc} o \tecla{Espacio} & Start & Tocar la pantalla \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\Anexo{B}{Créditos de los recursos de terceros}
+
+Los modelos de las armas se tomaron de Sketchfab con licencia CC BY 4.0, que exige citar a sus
+autores \parencite{ccby40}; la música y los efectos, de Pixabay \parencite{pixabaylicencia}. Todo lo
+demás (escenarios, objetos, texturas, sombreadores, interfaz y efectos visuales) se creó para este
+proyecto.
+
+\begin{TablaAPA}{tab:creditos-modelos}{Modelos 3D y personajes de terceros}
+\begin{tabularx}{\linewidth}{P{4.4cm}LP{3.4cm}}
+\toprule
+Uso en el juego & Recurso & Autor o fuente \\
+\midrule
+Bayoneta & \textit{M9 Bayonet} \parencite{erdogay_m9} & Atilla Kutluay Erdoğay \\
+Pistola & \textit{Beretta M9A1} \parencite{do_m9a1} & Hung Do \\
+Escopeta & \textit{Remington 870 Shotgun} \parencite{milin_870} & Andrei Milin \\
+Avatares de los integrantes & Avatares generados desde fotografías & Avaturn \\
+Androides, operadores, empleado y animaciones & Y Bot, personajes y animaciones & Mixamo (Adobe) \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\begin{TablaAPA}{tab:creditos-efectos}{Efectos de sonido (Pixabay)}
+\begin{tabularx}{\linewidth}{P{5.2cm}LP{4.3cm}}
+\toprule
+Uso en el juego & Sonido & Autor \\
+\midrule
+Disparo de pistola & 9mm Pistol Shot & freesound\_community \\
+Disparo de escopeta & Shotgun Firing 3 & freesound\_community \\
+Bombeo de la escopeta & Pump Action Shotgun Cycle & freesound\_community \\
+Recarga de pistola & 1911 Reload & freesound\_community \\
+Cartucho de escopeta & Shell Load & freesound\_community \\
+Sin munición & Dry Fire & spinopel \\
+Bayoneta & Sword Slash 01 & u\_xjrmmgxfru \\
+Bala contra el blindaje & Bullet Hit Metal & freesound\_community \\
+Un androide detecta al técnico & Distorted Stinger & ALEXIS\_GAMING\_CAM \\
+Pisada del androide & Big Robot Footstep 015 & AudioPapkin \\
+Un androide se enciende & Wake Up the Robot & freesound\_community \\
+Un androide cae o se apaga & Robot Power Off & freesound\_community \\
+Pisadas del técnico & Concrete Footsteps 1 & freesound\_community \\
+Neyder herido & Male Grunting in Pain & freesound\_community \\
+Deisy herida & Female Hurt 2 & freesound\_community \\
+Puertas de seguridad & Sci-Fi Heavy Hydraulic Door & SoundEffectsParty \\
+Recoger un objeto & Item Pickup & freesound\_community \\
+Navegar por los menús & Old Computer Click & Finntastico \\
+Mensajes de terminal e inventario & Radio Static Break & ZenoWaves \\
+Válvula que gira & Long Metal Creak & freesound\_community \\
+Vapor de la válvula & Steam Hissing & DRAGON-STUDIO \\
+Carga del jefe & Energy Charge 2 & Yodguard \\
+Descarga del jefe & Electro Impact & zehendrew \\
+Máquina expendedora & Vending Machine & freesound\_community \\
+Señuelo de red & FM Radio Static & freesound\_community \\
+Sirena de la alarma & Facility Siren (loopable) & freesound\_community \\
+Game Over & Dramatic Synth Echo & freesound\_community \\
+Ascensor: puertas, marcha y frenada & 080223-002 Freight Elevator & freesound\_community \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}

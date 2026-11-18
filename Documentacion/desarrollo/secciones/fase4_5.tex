@@ -1,0 +1,167 @@
+% =====================================================================
+\subsection{Fase 4: inteligencia artificial}
+
+\subsubsection{Modelo de los androides SENTINEL}
+
+Los androides de seguridad se construyeron sobre el modelo \textit{Y Bot} de Mixamo
+\parencite{mixamo2026}, configurado como Avatar Humanoid; por eso usan las mismas animaciones de
+reposo, caminar y correr que los técnicos. Una herramienta de editor les da su aspecto: cuerpo de
+metal negro pulido, juntas que brillan (en la oscuridad se ve la silueta antes que el cuerpo), un
+visor rojo pegado al hueso de la cabeza y una linterna roja que marca hacia dónde miran
+(Figura~\ref{fig:androide}).
+
+\FiguraDoble{042_androide-sentinel-primer-plano.jpg}{043_androide-detecta-y-persigue.jpg}{fig:androide}{Androide SENTINEL (izquierda) y un androide que detecta y persigue al técnico (derecha)}{}
+
+\subsubsection{Percepción}
+
+\begin{itemize}
+  \item \textbf{Visión:} un cono invisible de 9~m de alcance y 55° de apertura, hecho con un
+        \textit{Mesh Collider} convexo en modo \textit{trigger}, avisa cuando el técnico entra en él.
+        Entonces el androide lanza un rayo desde sus ojos hasta el pecho del técnico: si choca antes
+        con un rack, una pared o un mueble alto, no lo ve. Por eso esconderse detrás de los racks
+        funciona. A menos de 1,6~m lo percibe aunque esté a su espalda.
+  \item \textbf{Oído:} el androide va a investigar si el técnico corre a menos de 5~m, si dispara
+        cerca (18~m la pistola, 24~m la escopeta), si una máquina expendedora suelta un producto o si
+        una válvula se abre fuera de orden. Caminar es la forma sigilosa de moverse.
+\end{itemize}
+
+\subsubsection{Máquina de estados}
+
+El comportamiento de cada androide está en el script \cod{AndroideIA}, organizado como una máquina
+de estados (Tabla~\ref{tab:estados}). Los androides se mueven con un \textit{NavMeshAgent} sobre
+una malla de navegación que se calcula al cargar cada nivel a partir del suelo, las paredes, las
+filas de racks y los muebles \parencite{unitymanual2026}; las puertas cerradas llevan un obstáculo
+que corta la malla hasta que se abren. Patrullan a 1,3~m/s y persiguen a unos 3,5~m/s, más despacio
+que el técnico cuando corre (5~m/s), de modo que huir siempre es posible.
+
+\begin{TablaAPA}{tab:estados}{Estados de la inteligencia artificial de los androides}
+\begin{tabularx}{\linewidth}{P{2.6cm}LP{4.4cm}}
+\toprule
+Estado & Comportamiento & Pasa a\ldots \\
+\midrule
+Reposo & Anclado en su estación de carga, con el visor casi apagado y un pulso tenue & Búsqueda al sonar la alarma o si el técnico pasa muy cerca \\
+Patrulla & Recorre sus puntos de ruta a paso lento y se detiene un momento en cada uno & Persecución si ve al técnico; Búsqueda si lo oye \\
+Persecución & Corre hacia el técnico; la linterna se intensifica y parpadea & Recalibrando si lo alcanza; Búsqueda si lo pierde de vista 3~s \\
+Búsqueda & Va al último lugar donde vio u oyó al técnico y mira alrededor & Persecución si lo ve; Patrulla si no lo encuentra \\
+Recalibrando & Se detiene 2,5~s después de alcanzar al técnico, dándole tiempo para huir & Patrulla \\
+Atraído & Va al señuelo o al ruido y se queda ahí mientras dure & Búsqueda o Persecución \\
+Apagado & Desplomado por el KILLSWITCH; recibe el doble de daño & Patrulla, después de 10~s \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsubsection{Estaciones de carga y alarma}
+
+Algunos androides esperan en estaciones de carga: un panel, una base con luz y la unidad anclada en
+reposo (Figura~\ref{fig:reposo}). Se reactivan si el técnico pasa pegado a ellos, corre cerca o se
+les planta enfrente, y todos despiertan cuando se extrae el Disco Maestro de un nivel. En ese
+momento suena la alarma, las luces pasan a rojo y, durante 22~s, el sistema les comunica la
+posición del técnico aunque no lo vean, lo que obliga a huir.
+
+\FiguraDoble{073_androide-en-reposo.jpg}{097_alarma-androide-se-enciende.jpg}{fig:reposo}{Androide en reposo (izquierda) y una unidad que se enciende en su estación de carga al sonar la alarma (derecha)}{}
+
+\subsubsection{Jefe final: SENTINEL-\texorpdfstring{$\Omega$}{Omega}}
+
+En el Nivel 3, al tomar el último disco, CERBERUS se descarga en una unidad prototipo que esperaba en
+una cápsula junto a la salida de emergencia. Es un androide 1,45 veces más grande, con juntas
+doradas y 60 puntos de vida, que bloquea la salida hasta ser destruido. Su script
+\cod{JefeSentinel} sigue un ciclo de tres fases (Tabla~\ref{tab:jefe}).
+
+\begin{TablaAPA}{tab:jefe}{Ciclo de combate del jefe final}
+\begin{tabularx}{\linewidth}{P{3.6cm}P{1.6cm}P{2.6cm}L}
+\toprule
+Fase & Duración & Daño que recibe & Qué debe hacer el jugador \\
+\midrule
+Blindado: persigue al técnico & 8 s & La mitad & Alejarse y no gastar balas \\
+Cargando una descarga & 2,2 s & Normal & Alejarse: la descarga hiere a menos de 6,5~m \\
+Expuesto: quieto y sobrecalentado & 2,5 s & El doble & Atacarlo, incluso con la bayoneta \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+A la mitad de su vida llama a dos unidades de refuerzo que estaban en reserva y carga más seguido.
+Arriba de la pantalla se muestra una barra de vida en texto con su estado (blindado, cargando o
+expuesto). Al destruirlo, CERBERUS pierde la unidad que lo aloja: todos los androides se desconectan
+y la salida se desbloquea (Figuras~\ref{fig:jefe1} y~\ref{fig:jefe2}). El combate puede ganarse
+incluso sin munición, aprovechando con la bayoneta las ventanas en que queda expuesto.
+
+\FiguraDoble{101_jefe-sentinel-omega.jpg}{102_jefe-cargando-descarga.jpg}{fig:jefe1}{SENTINEL-$\Omega$ al activarse (izquierda) y cargando su descarga (derecha)}{}
+
+\FiguraDoble{103_jefe-expuesto.jpg}{105_jefe-destruido.jpg}{fig:jefe2}{SENTINEL-$\Omega$ expuesto (izquierda) y destruido (derecha)}{}
+
+% =====================================================================
+\subsection{Fase 5: audio}
+
+\subsubsection{Selección de la música y los efectos}
+
+La música y los efectos se tomaron de Pixabay, cuya licencia permite usarlos de forma gratuita,
+también con fines comerciales y sin obligación de atribución \parencite{pixabaylicencia}; aun así,
+cada autor se acredita en el juego y en el Anexo~B. Se buscó una atmósfera de tensión constante,
+como la de los survival horror de referencia. La Tabla~\ref{tab:musica} resume las pistas, y los
+30 efectos cubren las armas, los androides, el técnico, la interfaz, el entorno, el jefe y el
+ascensor.
+
+\begin{TablaAPA}{tab:musica}{Música y ambientes del juego}
+\begin{tabularx}{\linewidth}{P{4.4cm}L}
+\toprule
+Momento del juego & Pista \\
+\midrule
+Menú principal & \textit{Horror piano} \parencite{leberch_piano} \\
+Exploración de los niveles & \textit{Survival horror} \parencite{leberch_survival} \\
+Persecución & \textit{Suspense horror tension} \parencite{delosound_tension} \\
+Combate contra el jefe & \textit{Dark fight music boss III} \parencite{montogoronto_boss} \\
+Pantalla de Victoria & \textit{Victory} \parencite{paulyudin_victory} \\
+Ambiente del centro de datos & \textit{Server room atmos} \parencite{freesound_servidores} \\
+Ascensor entre niveles & \textit{080223-002 freight elevator} \parencite{freesound_ascensor} \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsubsection{Preparación con FFmpeg}
+
+Los archivos se prepararon con FFmpeg \parencite{ffmpeg2026}, mediante un script que se puede
+volver a ejecutar en cualquier momento:
+
+\begin{enumerate}
+  \item Se midió en cada grabación dónde hay sonido y dónde silencio, y su volumen cada 100~ms,
+        para elegir el tramo útil. Por ejemplo, de una grabación de 11~s con varios ciclos de
+        escopeta se tomó un solo bombeo, y de una grabación de pasos se sacaron cuatro pisadas
+        sueltas que el juego alterna al azar.
+  \item Cada efecto se recortó con fundidos de pocos milisegundos para que no produzca clics.
+  \item Cada sonido se niveló a una sonoridad (LUFS) acorde con su papel en la mezcla: pasos
+        suaves, disparos fuertes, interfaz discreta.
+  \item La música y los ambientes se convirtieron en bucles sin corte: el final de la pista se
+        funde con su comienzo, de modo que al repetirse no se nota el salto.
+  \item Los efectos se guardaron en WAV mono y la música en OGG estéreo.
+\end{enumerate}
+
+\Figura[0.9\linewidth]{112_audio-pixabay-recortes.jpg}{fig:recortes}{Grabaciones originales y su versión recortada y nivelada para el juego}{}
+
+\subsubsection{Banco de sonidos y gestor de audio}
+
+Los sonidos se reúnen en un \textit{banco de sonidos} (un archivo de datos de Unity) que una
+herramienta de editor llena y configura: la música y el ambiente se leen del disco mientras suenan
+(\textit{streaming}), y los efectos se cargan descomprimidos y en mono para sonar al instante y en
+3D. El banco admite varias tomas de un mismo efecto, como las pisadas, y un quejido distinto para
+cada personaje al recibir daño.
+
+El gestor \cod{AudioNexus} se crea solo al iniciar el juego y pasa de una escena a otra. Mezcla la
+música por capas, cuyos volúmenes se funden según lo que ocurre:
+
+\begin{itemize}
+  \item en el menú suena su tema;
+  \item en los niveles suenan la música de exploración y el zumbido de la sala de servidores;
+  \item la capa de \textbf{tensión} entra cuando algún androide persigue al técnico;
+  \item la \textbf{sirena} suena mientras dura la alarma;
+  \item en el combate contra el jefe entra su música y baja la de exploración;
+  \item dentro del ascensor la mezcla se apaga y la alarma se oye lejos;
+  \item al final suena la pieza de Victoria o el remate del Game Over.
+\end{itemize}
+
+Los efectos suenan en 3D desde donde ocurren, con un grupo de 20 fuentes reutilizables y una leve
+variación de tono para que los sonidos repetidos no suenen idénticos. Una separación mínima entre
+sonidos del mismo tipo evita que, por ejemplo, seis androides que detectan al técnico a la vez
+produzcan seis golpes encimados. El \textit{oído} del juego (\textit{AudioListener}) va en el
+técnico y no en la cámara: con cámaras fijas que cortan de golpe, el sonido saltaría de un lado a
+otro con cada corte, mientras que con el oído en el personaje un androide que se acerca por la
+izquierda siempre suena a su izquierda.

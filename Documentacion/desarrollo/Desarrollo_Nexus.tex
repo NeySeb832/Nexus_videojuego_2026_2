@@ -1,0 +1,232 @@
+\documentclass[stu,letterpaper,12pt,donotrepeattitle,floatsintext]{apa7}
+\input{../comun/preambulo}
+\graphicspath{{figuras/}}
+\setcounter{tocdepth}{2}
+
+\title{Nexus: Protocolo de emergencia. Desarrollo de un videojuego de terror y sigilo en Unity 6}
+
+\begin{document}
+\maketitle
+
+\renewcommand{\contentsname}{Tabla de contenido}
+\tableofcontents
+\clearpage
+
+\section*{Resumen}
+\addcontentsline{toc}{section}{Resumen}
+
+Este documento presenta el desarrollo de \textit{Nexus: Protocolo de emergencia}, un videojuego de
+terror y sigilo en tercera persona hecho en Unity~6 con el Universal Render Pipeline como trabajo
+final de la asignatura Modelado 3D y Video Juegos. El jugador controla a un técnico de guardia,
+encarnado por los avatares 3D de los dos integrantes del equipo, que debe recuperar tres Discos
+Duros Maestros en un centro de datos donde los androides de seguridad se volvieron hostiles, antes
+de que el sistema de refrigeración colapse. El trabajo se organizó en ocho fases: preparación del
+entorno, modelado de objetos y escenarios, personajes y animación, sistemas de juego, inteligencia
+artificial, audio, niveles y menús, y exportación. Los escenarios, objetos, texturas y efectos se
+generaron con herramientas de editor programadas en C\#, a partir de mapas de texto y de primitivas
+de Unity; los personajes se configuraron con el sistema Humanoid y comparten un único controlador
+de animación. El resultado es un juego completo de tres niveles con cámaras fijas al estilo del
+survival horror clásico, controles tipo tanque, inventario, guardado, armas, cinemáticas, un puzzle
+y un jefe final, compilado para Windows, navegador web (WebGL) y Android.
+
+\textit{Palabras clave:} videojuegos, Unity, modelado 3D, avatar Humanoid, inteligencia artificial,
+survival horror
+\clearpage
+
+\section{Introducción}
+
+El trabajo final de la asignatura pide desarrollar un videojuego 3D en Unity que reúna las mecánicas
+vistas en el curso y que funcione en tres plataformas: Windows, navegador web y Android. Entre los
+requisitos están al menos tres niveles con progresión lógica, tres Canvas diferenciados, un selector
+de personajes con avatares Humanoid, música de fondo, créditos con la imagen institucional, una
+explicación del objetivo, temporizador, sistema de vidas o salud, objetos coleccionables con
+contador, enemigos con inteligencia artificial autónoma y cuadros de diálogo narrativos.
+
+Para responder a esos requisitos el equipo creó \textit{Nexus: Protocolo de emergencia}, un juego
+de terror y sigilo ambientado en el centro de datos de una empresa de tecnología. El juego toma como
+referencia los survival horror clásicos \parencite{capcom1996,capcom1999,square1998}: cámaras fijas
+que encuadran cada sala, controles tipo tanque, recursos escasos, un inventario con objetos y notas,
+y una atmósfera de tensión constante.
+
+Este documento describe el desarrollo del juego de principio a fin, siguiendo las fases de trabajo
+definidas al inicio del proyecto. Cada sección explica qué se construyó, cómo se construyó y con qué
+herramientas, y se acompaña de capturas del proyecto. El código fuente, las herramientas de editor y
+la bitácora detallada del proceso están en el repositorio del proyecto \parencite{repositorio2026}.
+
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+Desarrollar un videojuego 3D completo de terror y sigilo en Unity, con tres niveles jugables y todas
+las mecánicas exigidas por la asignatura, y compilarlo para Windows, navegador web y Android.
+
+\subsection{Objetivos específicos}
+
+\begin{itemize}
+  \item Configurar un proyecto de Unity~6 con el Universal Render Pipeline y perfiles de compilación
+        para las tres plataformas.
+  \item Modelar los objetos y escenarios de un centro de datos con primitivas de Unity, texturas y
+        sombreadores propios.
+  \item Convertir los avatares 3D de los integrantes en personajes jugables con el sistema de Avatar
+        Humanoid y animarlos con un único controlador de animación.
+  \item Programar los sistemas de juego: cámaras fijas, controles, salud, temporizador, HUD,
+        diálogos, inventario, guardado, habilidades, armas y controles táctiles.
+  \item Implementar enemigos con inteligencia artificial basada en una máquina de estados, con
+        visión, oído, patrulla y persecución, y un jefe final.
+  \item Diseñar y construir tres niveles con objetivos encadenados, un puzzle, cinemáticas y una
+        transición animada entre niveles.
+  \item Integrar música y efectos de sonido mezclados por capas según la situación del juego.
+  \item Compilar y probar las versiones para Windows, WebGL y Android.
+\end{itemize}
+
+\section{Metodología}
+
+\subsection{Desarrollo por fases}
+
+El proyecto se dividió en ocho fases (Tabla~\ref{tab:fases}). Cada fase produjo una parte jugable
+que se probaba en el editor antes de pasar a la siguiente, de modo que el juego estuvo en estado
+ejecutable durante todo el desarrollo. Algunas fases avanzaron en paralelo; por ejemplo, las
+compilaciones de prueba para las tres plataformas se hicieron desde el primer día para detectar a
+tiempo cualquier limitación de exportación.
+
+\begin{TablaAPA}{tab:fases}{Fases del desarrollo}
+\begin{tabularx}{\linewidth}{P{1.2cm}P{4.2cm}L}
+\toprule
+Fase & Nombre & Contenido \\
+\midrule
+0 & Preparación del entorno & Instalación de Unity y sus módulos, creación y organización del proyecto, ajustes de compilación y control de versiones \\
+1 & Modelado de objetos y entorno & Texturas y sombreadores propios, objetos del centro de datos, utilería y decoración automática \\
+2 & Personajes y animación & Avatares de los integrantes, sistema Humanoid, animaciones de Mixamo, personajes secundarios y animaciones creadas por código \\
+3 & Sistemas de juego & Cámaras fijas, controles, salud, temporizador, HUD, diálogos, inventario, guardado, habilidades, armas y controles táctiles \\
+4 & Inteligencia artificial & Androides de seguridad con máquina de estados y jefe final \\
+5 & Audio & Música y efectos, mezcla por capas y sonido 3D \\
+6 & Niveles y menús & Constructor de niveles, tres niveles, cinemáticas, menú principal y pantallas finales \\
+7 & Exportación & Compilación y prueba en Windows, WebGL y Android \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsection{Construcción por código}
+
+Una decisión central del proyecto fue construir casi todo el contenido con herramientas de editor
+programadas en C\#. En lugar de colocar objetos a mano, cada parte del juego tiene una herramienta
+en el menú \ruta{Nexus} del editor de Unity que genera texturas, materiales, prefabs, niveles,
+interfaz, animaciones o sonidos a partir de datos. Así, un cambio de diseño se aplica en un solo
+lugar y basta con volver a ejecutar la herramienta para reconstruir todo lo que depende de él. Esta
+forma de trabajo permitió hacer niveles grandes en poco tiempo y mantener la coherencia visual entre
+todos los elementos.
+
+\subsection{Pruebas y registro de evidencias}
+
+Cada sistema se probó en el modo Play del editor con recorridos y pruebas automáticas escritas en
+C\#: por ejemplo, un técnico controlado por código que recorre un nivel completo, pruebas de
+cobertura de las cámaras o mediciones de la mezcla de audio. Los resultados, las decisiones y las
+capturas de cada paso se registraron en una bitácora de desarrollo, con capturas numeradas en orden
+cronológico, que es la base de este documento. Salvo que se indique otra cosa, todas las figuras son
+capturas propias del proyecto. El trabajo del equipo se coordinó en un repositorio de Git alojado en
+GitHub \parencite{repositorio2026}.
+
+\subsection{Herramientas}
+
+La Tabla~\ref{tab:herramientas} resume las herramientas y recursos externos utilizados.
+
+\begin{TablaAPA}{tab:herramientas}{Herramientas y recursos utilizados}
+\begin{tabularx}{\linewidth}{P{4.4cm}L}
+\toprule
+Herramienta o recurso & Uso en el proyecto \\
+\midrule
+Unity 6.6 \parencite{unity2026} & Motor del juego, con Universal Render Pipeline, Input System y AI Navigation \\
+C\# & Lenguaje de los scripts del juego y de las herramientas de editor \\
+Blender \parencite{blender2026} & Revisión y conversión de modelos (GLB a FBX), reducción de texturas y poses \\
+Avaturn \parencite{avaturn2026} & Creación de los avatares 3D de los integrantes a partir de fotografías \\
+Mixamo \parencite{mixamo2026} & Animaciones humanoides, androide base y personajes secundarios \\
+Sketchfab & Modelos de las armas, con licencia CC BY 4.0 \parencite{ccby40} \\
+Pixabay & Música y efectos de sonido, con la licencia de contenido de Pixabay \parencite{pixabaylicencia} \\
+FFmpeg \parencite{ffmpeg2026} & Recorte, nivelación y conversión de los sonidos \\
+Git y GitHub & Control de versiones y trabajo en equipo \\
+Claude Code \parencite{claudecode2026} & Asistencia de programación \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\section{Concepto y diseño del juego}
+
+\subsection{Historia}
+
+Nexus Corp. es una empresa de tecnología cuyo centro de datos quedó fuera de control durante el
+turno de la noche. La actualización de seguridad CERBERUS~7.1, instalada el día 14, alteró a los
+androides de seguridad SENTINEL, que empezaron a tratar a cualquier humano como una anomalía, y al
+mismo tiempo falló el sistema de refrigeración. El técnico de guardia, Neyder o Deisy según la
+elección del jugador, entra al complejo por una puerta de servicio que se sella detrás de él. Para
+forzar el reinicio manual del sistema debe recuperar los tres Discos Duros Maestros, uno en cada
+sector, antes de que la temperatura del núcleo llegue al 100\,\%. Durante el recorrido encuentra
+los cuerpos de un equipo técnico y de una unidad táctica que entraron antes, cuyas notas revelan
+que la empresa conocía el fallo. El juego termina cuando el técnico, con los tres discos, fuerza el
+reinicio y los registros del día 14 se hacen públicos.
+
+\subsection{Mecánicas principales}
+
+\begin{TablaAPA}{tab:mecanicas}{Mecánicas principales del juego}
+\begin{tabularx}{\linewidth}{P{4.2cm}L}
+\toprule
+Mecánica & Descripción \\
+\midrule
+Cámaras fijas & Cada sala tiene sus ángulos de cámara y el juego cambia al más adecuado cuando el personaje sale del cuadro o se acerca a un objeto importante \\
+Controles tipo tanque & El personaje avanza hacia donde mira y gira sobre sí mismo, sin depender del ángulo de la cámara \\
+Sigilo & Los androides ven con un cono de visión que se bloquea con los racks y oyen al jugador cuando corre o dispara \\
+Temporizador & La refrigeración se agota con el tiempo; los cartuchos de refrigerante y las válvulas suman tiempo \\
+Salud & Tres oportunidades de evasión; se recuperan con bebidas energéticas y barritas de proteína \\
+Objetivos encadenados & Fusibles, tarjetas de acceso, puertas sin energía, válvulas y discos que obligan a explorar \\
+Inventario y notas & Terminal portátil con objetos, archivo de notas y mapa del nivel \\
+Guardado & En las terminales de respaldo, gastando una memoria USB \\
+Habilidades & Una habilidad distinta para cada personaje jugable \\
+Combate & Cuchillo, pistola y escopeta con munición limitada; disparar hace ruido \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsection{Personajes jugables}
+
+Los dos personajes jugables son los avatares 3D de los integrantes del equipo. Para que elegir uno u
+otro cambie la forma de jugar, cada uno tiene una habilidad propia que se activa con la tecla
+\tecla{Q} y tiene un tiempo de recarga:
+
+\begin{itemize}
+  \item \textbf{Neyder Orozco, técnico de redes (Modelo A)}: el \textit{señuelo de red} lanza un
+        repetidor que emite una señal falsa durante 8~s; los androides que estén a menos de 14~m van
+        a revisarlo. Recarga de 25~s.
+  \item \textbf{Deisy Jiménez, analista de sistemas (Modelo B)}: el programa
+        \textit{KILLSWITCH.exe} apaga durante 10~s al androide más cercano que tenga a la vista, a
+        menos de 7~m. Recarga de 30~s.
+\end{itemize}
+
+\subsection{Estructura de los niveles}
+
+El juego tiene tres niveles que aumentan la dificultad con más androides, menos tiempo y menos
+recursos (Tabla~\ref{tab:niveles}). La duración prevista de una partida completa es de unos 15 a
+20~minutos.
+
+\begin{TablaAPA}{tab:niveles}{Niveles del juego}
+\begin{tabularx}{\linewidth}{P{3.6cm}P{2.2cm}L}
+\toprule
+Nivel & Tiempo inicial & Planteamiento \\
+\midrule
+1. Cuarto de Mantenimiento & 7:00 & Tutorial: enseña los controles, las cámaras, el inventario y el guardado. Fusible, tarjeta roja, Disco Maestro 1 y huida hasta el ascensor \\
+2. Pasillos de Almacenamiento & 8:00 & Laberinto de racks con luces de emergencia: tarjetas roja y azul, Disco Maestro 2, más androides y munición contada \\
+3. Núcleo de Datos & 3:00 & Clímax: sala central simétrica, puzzle de válvulas, Disco Maestro 3, jefe final y reinicio del sistema \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\input{secciones/fase0_2}
+\input{secciones/fase3}
+\input{secciones/fase4_5}
+\input{secciones/fase6_7}
+\input{secciones/resultados}
+
+\clearpage
+\printbibliography[heading=bibintoc,title=Referencias]
+
+\input{secciones/anexos}
+
+\end{document}

@@ -1,0 +1,257 @@
+\documentclass[stu,letterpaper,12pt,donotrepeattitle,floatsintext]{apa7}
+\input{../comun/preambulo}
+\graphicspath{{figuras/}{../desarrollo/figuras/}}
+\floatplacement{figure}{H}
+\floatplacement{table}{H}
+
+\title{Manual de instalación del videojuego Nexus para Android (APK)}
+
+% ---------- Ilustraciones esquemáticas de un teléfono (TikZ) ----------
+% \Telefono{contenido de la pantalla}: dibuja un teléfono vertical; la pantalla va de
+% (0.25,0.45) a (5.15,10.2) y su centro horizontal es x = 2.7.
+\newcommand{\Telefono}[1]{%
+  \begingroup\linespread{1}\selectfont
+  \begin{tikzpicture}[x=1cm,y=1cm,font=\sffamily\small]
+    \draw[rounded corners=0.45cm,line width=1.4pt,fill=black!80] (0,0) rectangle (5.4,10.6);
+    \fill[white,rounded corners=0.18cm] (0.25,0.45) rectangle (5.15,10.2);
+    \node[anchor=west,font=\sffamily\scriptsize] at (0.45,9.95) {12:30};
+    \node[anchor=east,font=\sffamily\scriptsize] at (4.95,9.95) {\(\blacktriangledown\) 80\,\%};
+    #1
+  \end{tikzpicture}\endgroup}
+% Cuadro de diálogo centrado en la pantalla: \Dialogo{y}{título}{texto}{botón izq.}{botón der.}
+\newcommand{\Dialogo}[5]{%
+  \fill[black!30,rounded corners=0.18cm] (0.25,0.45) rectangle (5.15,9.75);
+  \node[draw=black!25,fill=white,rounded corners=0.25cm,text width=4.1cm,align=left,
+        inner sep=8pt] (d) at (2.7,#1) {\textbf{#2}\\[4pt]{\footnotesize #3}\\[10pt]
+        \hfill{\footnotesize\color{blue!70!black}\textbf{#4}\quad\textbf{#5}}};}
+\newcommand{\Barra}[1]{%
+  \fill[black!6] (0.25,8.9) rectangle (5.15,9.75);
+  \node[anchor=west,font=\sffamily\bfseries] at (0.5,9.32) {#1};}
+
+\begin{document}
+\maketitle
+
+\section{Introducción}
+
+\textit{Nexus: Protocolo de emergencia} es un videojuego de terror y sigilo en tercera persona,
+desarrollado en Unity \parencite{unity2026} como trabajo final de la asignatura Modelado 3D y Video
+Juegos. Este manual explica cómo instalar la versión para Android a partir del archivo
+\cod{Nexus.apk}, cómo se juega con los controles táctiles y cómo resolver los problemas más
+comunes.
+
+Un archivo APK es el paquete con el que se instalan las aplicaciones en Android. Como Nexus no se
+publica en la tienda Google Play, se instala directamente desde el archivo; por eso Android pide un
+permiso adicional la primera vez, como se explica en el paso~3.
+
+\section{Requisitos del teléfono}
+
+\begin{TablaAPA}{tab:requisitos}{Requisitos del teléfono o la tableta}
+\begin{tabularx}{\linewidth}{P{4cm}L}
+\toprule
+Componente & Requisito \\
+\midrule
+Versión de Android & Android 8.0 (Oreo) o posterior \\
+Procesador & De 64 bits (ARM64), presente en casi todos los teléfonos fabricados desde 2017 \\
+Memoria RAM & 3 GB o más \\
+Espacio libre & 300 MB (el archivo ocupa 75 MB y el juego instalado, un poco más) \\
+Pantalla & Se juega en horizontal; se recomienda una pantalla de 6 pulgadas o más \\
+Audio & Audífonos recomendados, para ubicar a los androides por el sonido \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+La versión de Android se consulta en \ruta{Ajustes} \textrightarrow{} \ruta{Acerca del teléfono}
+\textrightarrow{} \ruta{Información de software} (el nombre exacto del menú cambia según el
+fabricante).
+
+\section{Instalación paso a paso}
+
+Las Figuras~\ref{fig:transferir} a~\ref{fig:instalado} son representaciones esquemáticas de las
+pantallas de Android, elaboradas para este manual. El texto y la apariencia exactos dependen de la
+versión de Android y de la marca del teléfono, pero los pasos son los mismos.
+
+\subsection{Paso 1: copiar el archivo al teléfono}
+
+Hay dos formas de llevar \cod{Nexus.apk} al teléfono:
+
+\begin{itemize}
+  \item \textbf{Con un cable USB:} conecte el teléfono al computador, desbloquéelo y, en la
+        notificación de USB, elija \ruta{Transferencia de archivos}. En el Explorador de archivos
+        del computador abra el teléfono y copie \cod{Nexus.apk} en la carpeta \cod{Download}
+        (Figura~\ref{fig:transferir}).
+  \item \textbf{Por Internet:} suba el archivo a una carpeta de Google Drive o envíelo por correo,
+        y descárguelo desde el teléfono. Queda guardado en la carpeta \ruta{Descargas}.
+\end{itemize}
+
+\begin{figure}
+  \caption{Representación esquemática de la copia del APK del computador al teléfono}\label{fig:transferir}
+  \centering
+  \begin{tikzpicture}[font=\sffamily\small]
+    \draw[line width=1.2pt,rounded corners=3pt,fill=black!5] (0,1.2) rectangle (4.4,4);
+    \draw[line width=1.2pt] (1.6,1.2) -- (1.4,0.6) -- (3,0.6) -- (2.8,1.2);
+    \node[text width=3.8cm,align=center] at (2.2,2.6) {Computador\\[3pt]\ttfamily Nexus.apk\\{\sffamily\footnotesize (75 MB)}};
+    \draw[-{Stealth[length=3mm]},line width=1.4pt] (4.7,2.5) -- (7.1,2.5)
+      node[midway,above,align=center,font=\sffamily\footnotesize] {Cable USB:\\Transferencia\\de archivos};
+    \draw[line width=1.2pt,rounded corners=6pt,fill=black!80] (7.4,0) rectangle (9.6,4.4);
+    \fill[white,rounded corners=2pt] (7.55,0.25) rectangle (9.45,4.15);
+    \node[text width=1.8cm,align=center,font=\sffamily\scriptsize] at (8.5,2.2) {Teléfono\\[3pt]Carpeta\\\ttfamily Download\\[2pt]\ttfamily Nexus.apk};
+  \end{tikzpicture}
+  \NotaFig{Ilustración elaborada para este manual.}
+\end{figure}
+
+\subsection{Paso 2: abrir el archivo en el teléfono}
+
+Abra la aplicación \ruta{Archivos} (en algunos teléfonos se llama \ruta{Mis archivos} o
+\ruta{Gestor de archivos}), entre a \ruta{Descargas} y toque \cod{Nexus.apk}
+(Figura~\ref{fig:archivos}). Si descargó el archivo con el navegador, también puede tocar la
+notificación de la descarga.
+
+\begin{figure}
+  \caption{Representación esquemática del archivo APK en la carpeta Descargas}\label{fig:archivos}
+  \centering
+  \Telefono{%
+    \Barra{Descargas}
+    \draw[black!15] (0.45,7.6) -- (4.95,7.6);
+    \fill[green!55!black,rounded corners=2pt] (0.55,7.85) rectangle (1.15,8.6);
+    \node[anchor=west] at (1.35,8.4) {\textbf{Nexus.apk}};
+    \node[anchor=west,font=\sffamily\scriptsize,black!60] at (1.35,8.0) {75,4 MB \textperiodcentered{} Hoy};
+    \draw[-{Stealth},line width=1pt,red!70!black] (4.6,7.0) -- (3.4,7.95);
+    \node[font=\sffamily\scriptsize,red!70!black] at (4.3,6.7) {Tocar};
+  }
+  \NotaFig{Ilustración elaborada para este manual.}
+\end{figure}
+
+\subsection{Paso 3: permitir la instalación desde esta fuente}
+
+La primera vez, Android bloquea la instalación de aplicaciones que no vienen de Google Play y muestra
+un aviso como el de la Figura~\ref{fig:fuentes}, izquierda. Para continuar:
+
+\begin{enumerate}
+  \item Toque \ruta{Configuración} en el aviso.
+  \item Active \ruta{Permitir de esta fuente} para la aplicación con la que abrió el archivo
+        (Figura~\ref{fig:fuentes}, derecha).
+  \item Vuelva atrás: aparece la pantalla de instalación.
+\end{enumerate}
+
+El mismo permiso se encuentra en \ruta{Ajustes} \textrightarrow{} \ruta{Aplicaciones}
+\textrightarrow{} \ruta{Acceso especial} \textrightarrow{} \ruta{Instalar apps desconocidas}. Se
+recomienda desactivarlo de nuevo cuando termine la instalación.
+
+\begin{figure}
+  \caption{Representación esquemática del aviso de fuentes desconocidas y del permiso}\label{fig:fuentes}
+  \centering
+  \Telefono{%
+    \Dialogo{5.3}{Instalación bloqueada}{Por tu seguridad, no se permite que tu teléfono instale apps desconocidas de esta fuente.}{Cancelar}{Configuración}
+  }\hspace{1cm}%
+  \Telefono{%
+    \fill[black!6] (0.25,8.9) rectangle (5.15,9.75);
+    \node[anchor=west,font=\sffamily\bfseries\footnotesize] at (0.45,9.32) {Instalar apps desconocidas};
+    \node[anchor=west] at (0.5,8.3) {\textbf{Archivos}};
+    \node[anchor=west,font=\sffamily\footnotesize] at (0.5,7.45) {Permitir de esta fuente};
+    \fill[blue!60!black,rounded corners=0.2cm] (4.15,7.25) rectangle (4.95,7.65);
+    \fill[white] (4.75,7.45) circle (0.15);
+    \node[text width=4.3cm,align=left,font=\sffamily\scriptsize,black!60] at (2.7,6.5)
+      {Si instalas apps de esta fuente, tu teléfono y tus datos pueden correr riesgos.};
+  }
+  \NotaFig{Ilustración elaborada para este manual. A la izquierda, el aviso; a la derecha, el permiso ya activado.}
+\end{figure}
+
+\subsection{Paso 4: instalar}
+
+En la pantalla de instalación toque \ruta{Instalar} (Figura~\ref{fig:instalar}, izquierda). Como el
+juego no proviene de la tienda, Google Play Protect, el sistema de seguridad de Android, puede
+analizarlo o advertir que no reconoce al desarrollador \parencite{playprotect}. En ese caso toque
+\ruta{Más detalles} y luego \ruta{Instalar de todas formas} (Figura~\ref{fig:instalar}, derecha).
+El aviso se debe a que la aplicación no está publicada en Google Play, no a un problema del juego.
+
+\begin{figure}
+  \caption{Representación esquemática de la confirmación de instalación y del aviso de Play Protect}\label{fig:instalar}
+  \centering
+  \Telefono{%
+    \Dialogo{5.3}{Nexus}{¿Quieres instalar esta app?}{Cancelar}{Instalar}
+  }\hspace{1cm}%
+  \Telefono{%
+    \Dialogo{5.3}{Bloqueada por Play Protect}{Play Protect no reconoce al desarrollador de esta app.\\[4pt]\color{blue!70!black}Más detalles \(\blacktriangledown\)\\\color{black}\textbf{Instalar de todas formas}}{}{Aceptar}
+  }
+  \NotaFig{Ilustración elaborada para este manual. El aviso de la derecha puede no aparecer.}
+\end{figure}
+
+\subsection{Paso 5: abrir el juego}
+
+Al terminar la instalación toque \ruta{Abrir} (Figura~\ref{fig:instalado}). El juego también queda
+en la lista de aplicaciones con el nombre \textit{Nexus}. Se juega con el teléfono en horizontal: si
+el teléfono está en vertical, la imagen gira sola. La primera carga tarda unos segundos y luego
+aparece la pantalla de título (Figura~\ref{fig:titulo}).
+
+\begin{figure}
+  \caption{Representación esquemática de la instalación terminada}\label{fig:instalado}
+  \centering
+  \Telefono{%
+    \Dialogo{5.3}{Nexus}{App instalada.}{Listo}{Abrir}
+  }
+  \NotaFig{Ilustración elaborada para este manual.}
+\end{figure}
+
+\Figura[0.9\linewidth]{118_titulo-logo-universidad.jpg}{fig:titulo}{Pantalla de título del juego}{Captura del juego. En el teléfono se ve igual, en horizontal y a pantalla completa.}
+
+\section{Cómo se juega en el teléfono}
+
+En el menú toque \ruta{Nueva partida}, elija a su técnico con las flechas, toque \ruta{Confirmar}
+y luego \ruta{Iniciar misión}. Los diálogos avanzan tocando la pantalla y las cinemáticas se pueden
+saltar con un toque.
+
+Durante el juego aparecen los controles táctiles (Figura~\ref{fig:tactiles} y
+Tabla~\ref{tab:tactiles}). Solo se muestran cuando el jugador tiene el control: se ocultan en los
+menús, los diálogos, el inventario y las cinemáticas. Los botones de apuntar y recargar solo
+aparecen con un arma de fuego equipada.
+
+\Figura[0.9\linewidth]{115_controles-tactiles.jpg}{fig:tactiles}{Controles táctiles con la pistola equipada}{Captura del juego con los controles táctiles activados.}
+
+\begin{TablaAPA}{tab:tactiles}{Controles táctiles}
+\begin{tabularx}{\linewidth}{P{3.4cm}L}
+\toprule
+Control & Función \\
+\midrule
+Joystick (mitad izquierda) & Aparece donde se apoya el pulgar. Arriba y abajo: avanzar y retroceder. A los lados: girar \\
+CORRER & Se deja activado; tóquelo otra vez para volver a caminar \\
+INVENTARIO & Abre el inventario, el archivo de notas y el mapa \\
+INTERACTUAR & Usar terminales, puertas, máquinas y notas, y registrar cuerpos \\
+HABILIDAD & Señuelo de red (Neyder) o KILLSWITCH.exe (Deisy); se atenúa mientras se recarga \\
+ARMA & Cambia entre las armas que se tengan \\
+ATACAR / DISPARAR & Ataque con el cuchillo o disparo. Sin estar apuntando, el técnico apunta solo al androide más cercano y dispara \\
+APUNTAR & Se deja activado: el técnico mantiene el arma levantada y gira con el joystick \\
+RECARGAR & Recarga el arma de fuego \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\section{Desinstalación}
+
+Mantenga presionado el ícono de Nexus y elija \ruta{Desinstalar}, o entre a \ruta{Ajustes}
+\textrightarrow{} \ruta{Aplicaciones} \textrightarrow{} \ruta{Nexus} \textrightarrow{}
+\ruta{Desinstalar}. Al desinstalarlo se borra también la partida guardada.
+
+\section{Solución de problemas}
+
+La Tabla~\ref{tab:problemas} reúne los problemas más frecuentes durante la instalación y el juego,
+con su solución.
+
+\begin{TablaAPA}{tab:problemas}{Problemas frecuentes y cómo resolverlos}
+\begin{tabularx}{\linewidth}{P{4.6cm}L}
+\toprule
+Problema & Solución \\
+\midrule
+No aparece la opción de instalar & Active el permiso de fuentes desconocidas para la aplicación con la que abre el archivo (paso 3) \\
+\textquote{App no instalada} & Libere espacio, desinstale una versión anterior de Nexus si la hay, y vuelva a copiar el APK por si se copió incompleto \\
+\textquote{La app no es compatible} o error de análisis & El teléfono tiene una versión de Android anterior a la 8.0 o un procesador de 32 bits \\
+Aviso de Play Protect & Toque \ruta{Más detalles} y luego \ruta{Instalar de todas formas} (paso 4) \\
+El juego va lento o se calienta & Cierre otras aplicaciones, active el modo de alto rendimiento si el teléfono lo tiene y conéctelo al cargador \\
+No hay sonido & Suba el volumen multimedia (no el del timbre) y revise que no haya audífonos Bluetooth conectados a otro equipo \\
+Los controles táctiles no aparecen & Se ocultan en menús, diálogos, inventario y cinemáticas; cierre el diálogo o el inventario para volver a verlos \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\printbibliography
+
+\end{document}

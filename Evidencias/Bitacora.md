@@ -2421,3 +2421,54 @@ Con los créditos y el logo de la entrada 6.12 se volvieron a compilar las tres 
 - Estas compilaciones fueron mucho más rápidas que las de la entrada 7.5: Unity reutilizó todo lo
   que no cambió, y esta vez solo cambiaron los créditos, el menú y el logo.
 - Al terminar, el editor volvió a Windows como plataforma de trabajo.
+
+---
+
+## Fase 8 — Documentación
+
+### 8.1 Manuales de instalación y documento de desarrollo en LaTeX — 18/11/2026 · [Diseño]
+
+**Qué se hizo:** los tres documentos escritos de la entrega, en LaTeX y con normas **APA 7.a
+edición**. Se siguió el manual de citas y referencias de la asignatura (Menéndez Echavarría, 2020).
+Están en la carpeta `Documentacion/`, con sus PDF ya compilados:
+
+| Documento | Archivo | Páginas |
+|---|---|---|
+| Manual de instalación para Windows | `manual_windows/Manual_Instalacion_Windows.pdf` | 9 |
+| Manual de instalación del APK para Android | `manual_android/Manual_Instalacion_Android.pdf` | 11 |
+| Documento del desarrollo del proyecto | `desarrollo/Desarrollo_Nexus.pdf` | 61 |
+
+**Cómo se hicieron:**
+- **Formato:** clase `apa7` en modo estudiante, con portada (título, integrantes, Universidad
+  Central, materia, docente y fecha), Times de 12 puntos, doble espacio y número de página.
+  - Figuras y tablas con número en negrita, título en cursiva y nota.
+  - Referencias con `biblatex-apa` y `biber`, en orden alfabético y con sangría francesa.
+  - Como en el manual de la asignatura, las referencias dicen "Versión" y "s. f.", y cada tipo
+    de recurso lleva su etiqueta: [Software de computación], [Modelo 3D], [Música], [Videojuego].
+  - El preámbulo y las referencias (`comun/`) son compartidos por los tres documentos.
+  - `Documentacion/compilar.sh` vuelve a generar los tres PDF.
+- **Manual de Windows:** capturas reales del proceso, tomadas con un capturador de ventanas por
+  título (`Evidencias/herramientas/capturar_ventana.ps1`):
+  - el .zip en su carpeta;
+  - el asistente "Extraer todo";
+  - la carpeta extraída;
+  - el juego abierto.
+
+  También incluye requisitos, contenido del paquete, el aviso de SmartScreen, controles, partidas
+  guardadas, desinstalación y solución de problemas.
+- **El .zip de Windows se rehízo** con los archivos en la raíz: al extraerlo, `Nexus.exe` queda
+  directamente en la carpeta `Nexus_Windows`.
+- **Manual del APK:** no había un teléfono disponible para las capturas, así que los pasos de
+  Android se muestran con **ilustraciones esquemáticas en TikZ**, marcadas como tales: copia del
+  archivo, fuentes desconocidas, instalación, Play Protect y "App instalada". Las capturas reales
+  del juego muestran la pantalla de título y los controles táctiles.
+- **Documento de desarrollo:**
+  - El desarrollo se cuenta de forma continua, siguiendo las fases de la bitácora (0 a 7). No
+    incluye las desviaciones y correcciones; describe el juego tal como quedó.
+  - Contenido: resumen, introducción, objetivos, metodología, concepto y diseño, las ocho fases,
+    resultados frente a los requisitos y conclusiones.
+  - Al final, las referencias y dos anexos: controles completos y créditos de todos los
+    recursos de terceros.
+  - Lleva 87 figuras convertidas a JPEG, para que el PDF pese 6 MB.
+  - Del documento de la compañera se tomaron el diseño y la construcción del Nivel 2 y una de
+    sus capturas.

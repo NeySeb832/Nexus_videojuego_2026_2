@@ -1,0 +1,249 @@
+\section{Desarrollo del proyecto}
+
+% =====================================================================
+\subsection{Fase 0: preparación del entorno}
+
+\subsubsection{Motor, módulos y plantilla}
+
+El proyecto se creó en Unity 6.6 (versión 6000.6.3f1) con la plantilla \textit{Universal 3D}, que
+usa el Universal Render Pipeline (URP). URP es el sistema de renderizado recomendado para proyectos
+que se exportan a móviles y navegadores, porque permite iluminación, materiales con emisión y
+posprocesado con un costo controlado. Además del soporte para Windows y Web, se instalaron los
+módulos de Android: \textit{Android Build Support}, \textit{Android SDK \& NDK Tools} y
+\textit{OpenJDK}, necesarios para generar el APK. Al proyecto se añadieron los paquetes de la
+Tabla~\ref{tab:paquetes}.
+
+\begin{TablaAPA}{tab:paquetes}{Paquetes de Unity utilizados}
+\begin{tabularx}{\linewidth}{P{4.2cm}L}
+\toprule
+Paquete & Uso en Nexus \\
+\midrule
+Universal RP 17.6 & Renderizado, luces, materiales con emisión y posprocesado \\
+Input System 1.19 & Teclado, ratón, mando y entradas táctiles \\
+AI Navigation 2.0 & Mallas de navegación (NavMesh) y agentes para los androides \\
+uGUI y TextMeshPro & Interfaz: menú, HUD, inventario y pantallas finales; texto en el espacio 3D \\
+Pipeline & Control del editor desde la línea de comandos para automatizar pruebas y compilaciones \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsubsection{Organización del proyecto y escenas}
+
+Todo el contenido propio se agrupó en la carpeta \cod{Assets/Nexus}, con una subcarpeta por tipo
+de recurso: escenas, scripts, herramientas de editor, prefabs, materiales, texturas, modelos,
+animaciones, audio, interfaz, datos y perfiles de compilación. Se crearon cuatro escenas, que se
+cargan en este orden: \cod{00\_Menu} (menú principal), \cod{01\_Mantenimiento},
+\cod{02\_Almacenamiento} y \cod{03\_Nucleo} (Figura~\ref{fig:estructura}).
+
+\Figura[0.9\linewidth]{003_estructura-carpetas-y-escenas.jpg}{fig:estructura}{Estructura de carpetas del proyecto y escenas del juego}{}
+
+\subsubsection{Configuración del reproductor y perfiles de compilación}
+
+En \ruta{Project Settings} \textrightarrow{} \ruta{Player} se configuraron el nombre del producto
+(\textit{Nexus}) y de la empresa (\textit{Nexus Team}), y los ajustes propios de cada plataforma
+(Figura~\ref{fig:player}): en Windows, ventana redimensionable; en Android, el identificador
+\cod{com.nexusteam.nexus}, el compilador IL2CPP con arquitectura ARM64, Android~8.0 como versión
+mínima y orientación solo horizontal; en Web, compresión con descompresión de respaldo, para que el
+juego funcione en cualquier servidor. Android y Web usan el nivel de calidad \textit{Mobile} y
+Windows el nivel \textit{PC}.
+
+\Figura[0.85\linewidth]{004_player-settings-android.jpg}{fig:player}{Ajustes del reproductor para Android}{}
+
+Para generar las tres versiones desde el mismo proyecto se crearon tres perfiles de compilación
+(\textit{Build Profiles}): \cod{Nexus\_PC\_Windows}, \cod{Nexus\_Web} y \cod{Nexus\_Android}
+(Figura~\ref{fig:perfiles}). Cada perfil guarda la configuración de su plataforma, y cambiar de
+plataforma consiste en activar el perfil correspondiente.
+
+\Figura[0.85\linewidth]{005_build-profiles-plataformas.jpg}{fig:perfiles}{Ventana de perfiles de compilación con las tres plataformas}{}
+
+% =====================================================================
+\subsection{Fase 1: modelado de objetos y del entorno}
+
+\subsubsection{Herramienta de construcción}
+
+Los objetos del juego se modelaron combinando primitivas de Unity (cubos, cilindros y planos) con
+texturas y materiales propios. Todo se genera con la herramienta de editor
+\cod{ConstructorFase1}, que agrega al menú \ruta{Nexus} \textrightarrow{} \ruta{Fase 1} los pasos
+\textit{Generar texturas}, \textit{Crear materiales} y \textit{Construir prefabs}. Cada objeto queda
+guardado como prefab, listo para colocarlo en los niveles.
+
+\subsubsection{Texturas procedurales}
+
+Las texturas se generan por código, píxel a píxel, por lo que son originales. Junto con cada
+textura de color se genera un mapa de alturas y, a partir de él, un mapa de normales que da relieve
+a la luz: los agujeros se ven hundidos y las asas sobresalen (Tabla~\ref{tab:texturas}).
+
+\begin{TablaAPA}{tab:texturas}{Texturas generadas por código}
+\begin{tabularx}{\linewidth}{P{3.6cm}P{2.3cm}L}
+\toprule
+Textura & Tamaño & Contenido \\
+\midrule
+Frente de rack & 256 × 1024 & Rieles con agujeros de montaje, diez servidores con malla perforada, etiquetas, huecos para LEDs, botones, asas y rejilla de ventilación \\
+Piso técnico & 512 × 512 & Baldosas de 60~cm con tornillos; una de cada cuatro perforada para la ventilación \\
+Pared & 512 × 512 & Paneles metálicos con juntas, remaches, banda horizontal y zócalo \\
+Franjas de peligro & 256 × 256 & Diagonales amarillas y negras para los marcos de las puertas \\
+Metal cepillado & 256 × 256 & Vetas horizontales para el cuerpo de los racks \\
+Tarjetas de acceso & 256 × 160 & Banda, chip dorado y logotipo, en rojo y en azul \\
+\bottomrule
+\end{tabularx}
+\end{TablaAPA}
+
+\subsubsection{Sombreador de LEDs}
+
+Para los cientos de luces de los racks se escribió un sombreador propio en HLSL para URP. El
+parpadeo se calcula en la tarjeta gráfica a partir del tiempo, sin ningún script, lo que mantiene
+el juego fluido en Android y WebGL. Cada LED guarda en el color de sus vértices su color (verde,
+azul, ámbar o rojo) y un desfase, de modo que todos los LEDs de un rack forman una sola malla y aun
+así cada uno parpadea a su ritmo. El color se multiplica por una intensidad alta para que el efecto
+\textit{Bloom} del posprocesado los haga brillar. El mismo sombreador, en modo de pulso suave, se
+usa en el neón de los discos, en los lectores de las puertas y en las pantallas de las terminales.
+
+\subsubsection{Objetos del centro de datos}
+
+\begin{itemize}
+  \item \textbf{Rack de servidores} (0,6 × 2,0 × 1,0~m): cuerpo de metal cepillado, frente y
+        trasera con la textura de rejilla y una malla con 80 LEDs colocados exactamente sobre los
+        huecos de la textura (Figura~\ref{fig:rack}, izquierda). Los racks se agrupan en filas de diez,
+        combinadas en tres mallas por celda, con lo que un laberinto de cientos de racks se dibuja
+        con pocas llamadas a la tarjeta gráfica.
+  \item \textbf{Disco Duro Maestro}: cubo metálico con un anillo y placas de neón azul y una luz
+        propia; gira y flota, y se recoge al tocarlo (Figura~\ref{fig:rack}, derecha).
+  \item \textbf{Tarjetas de acceso} roja y azul, que abren las puertas de su color.
+  \item \textbf{Puerta de seguridad}: marco con franjas de peligro, dos hojas que se deslizan y un
+        lector cuya luz indica qué tarjeta se necesita (Figura~\ref{fig:puerta}, izquierda). Hay variantes
+        roja, azul, libre y sin energía.
+  \item \textbf{Terminal}: consola con teclado y monitor con texto real en la pantalla, escrito con
+        TextMeshPro en el espacio 3D (Figura~\ref{fig:puerta}, derecha).
+  \item \textbf{Módulos de 3 × 3~m} de piso y pared, con los que se arman todos los niveles.
+  \item \textbf{Objetos del nivel}: fusible, memoria USB, bebida energética, barrita de proteína,
+        cartucho de refrigerante, mesa con nota, panel de fusibles, terminal de respaldo, válvula de
+        refrigeración y ascensor. Los objetos que se recogen tienen una leve emisión para distinguirse
+        en la oscuridad sin gastar una luz cada uno.
+\end{itemize}
+
+\FiguraDoble{014_rack-servidor-detalle.jpg}{015_disco-duro-maestro.jpg}{fig:rack}{Racks de servidores con sus LEDs (izquierda) y Disco Duro Maestro sobre su pedestal (derecha)}{}
+
+\FiguraDoble{016_puerta-seguridad-roja.jpg}{017_terminal-nexus.jpg}{fig:puerta}{Puerta de seguridad roja (izquierda) y terminal con texto en pantalla (derecha)}{}
+
+Los productos de curación tienen un diseño propio, sin marcas reales: una lata de bebida energética
+y una barrita de proteína con envoltura de grafito, bordes plateados y una franja turquesa
+(Figura~\ref{fig:curacion}).
+
+\Figura[0.6\linewidth]{111_bebida-energetica-y-barrita.jpg}{fig:curacion}{Bebida energética y barrita de proteína}{}
+
+\subsubsection{Utilería y decoración automática}
+
+Para que los escenarios se vean como una empresa abandonada a la fuerza se modelaron 48 objetos de
+utilería, también con primitivas y texturas generadas por código (Figura~\ref{fig:utileria}):
+escritorios con computadores, sillas, archivadores, casilleros, una consola de cámaras de seguridad,
+pizarras y carteles de la empresa; máquinas expendedoras, mesas y una nevera para la cafetería;
+estanterías, cajas, bobinas de cable y gabinetes eléctricos para el almacén; y papeles, latas,
+bolsas de basura, paneles del techo caídos, manchas, charcos y conos de precaución. Se agregaron
+efectos de polvo flotante, chispas y fluorescentes que titilan. Las piezas de cada objeto se
+combinan en una sola malla por material para que su costo de dibujo sea bajo.
+
+\FiguraDoble{056_utileria-vitrina-general.jpg}{057_utileria-maquinas-y-escritorios.jpg}{fig:utileria}{Utilería del centro de datos: vitrina general (izquierda) y máquinas expendedoras con escritorios (derecha)}{}
+
+Un decorador automático amuebla cada sala según su tema (oficina, seguridad, cafetería, almacén,
+servidores, eléctrico, mantenimiento o pasillo). Primero coloca los muebles obligatorios del tema,
+luego llena las paredes que ve la cámara de la sala hasta una densidad definida, cuelga carteles y
+gabinetes y, por último, riega basura por el suelo y añade polvo del tamaño de la sala. Los muebles
+van siempre contra las paredes, para no estorbar el paso del jugador ni las rutas de los androides,
+y nunca junto a una cámara o una puerta. Los muebles altos bloquean la visión de los androides, así
+que también sirven para esconderse. La decoración usa una semilla fija: reconstruir un nivel da
+siempre el mismo resultado.
+
+Las máquinas expendedoras dan bebidas energéticas y barritas de proteína hasta agotarse, pero el
+producto cae con un golpe que atrae a los androides que estén a menos de 11~m, lo que convierte la
+curación en una decisión con riesgo.
+
+% =====================================================================
+\subsection{Fase 2: personajes y animación}
+
+\subsubsection{Avatares de los integrantes}
+
+Los dos personajes jugables son los avatares de los integrantes del equipo, creados con Avaturn a
+partir de fotografías \parencite{avaturn2026}. Se descargaron en formato GLB, que guarda en un solo
+archivo la malla, un esqueleto de 52 huesos con nombres estándar y las texturas. Con un script de
+Python para Blender \parencite{blender2026} se convirtieron a FBX con las texturas incrustadas, sin
+huesos adicionales y con la escala en metros, que es el formato con el que Unity configura los
+avatares humanoides.
+
+\subsubsection{Configuración como Avatar Humanoid}
+
+En Unity, los modelos se importaron con el tipo de animación \textit{Humanoid} y la definición
+\textit{Create From This Model} (Figura~\ref{fig:rig}). Unity generó un avatar válido para cada
+integrante, con los 52 huesos asignados al esqueleto humano estándar (Figura~\ref{fig:avatares}).
+El sistema Humanoid traduce el esqueleto de cada modelo a un esqueleto común; gracias a eso, una
+misma animación funciona en los dos personajes y en los androides aunque tengan proporciones
+distintas, y es lo que permite que el selector de personajes use un único controlador de animación
+\parencite{unitymanual2026}.
+
+\Figura[0.75\linewidth]{007_rig-humanoid-neyder.jpg}{fig:rig}{Pestaña Rig del modelo de Neyder con el tipo de animación Humanoid}{}
+
+\FiguraDoble{008_configure-avatar-mapeo-huesos-neyder.jpg}{009_configure-avatar-mapeo-huesos-deisy.jpg}{fig:avatares}{Mapeo de huesos del Avatar Humanoid de Neyder (izquierda) y de Deisy (derecha)}{}
+
+Las texturas se asignaron a materiales URP con mapa de color y de normales. El cabello usa recorte
+por transparencia (\textit{alpha clipping}) y se dibuja por las dos caras, una solución más ligera
+que la transparencia real para móviles y navegadores; la piel y la ropa usan un flujo de trabajo no
+metálico (Figura~\ref{fig:integrantes}).
+
+\Figura[0.85\linewidth]{006_avatares-integrantes-en-unity.jpg}{fig:integrantes}{Avatares de los integrantes en Unity}{}
+
+\subsubsection{Animaciones y controlador}
+
+Los integrantes descargaron de Mixamo \parencite{mixamo2026} las animaciones aplicadas sobre sus
+avatares. Se eligieron once clips: reposo, caminar, correr, caminar herido, reacción a un golpe,
+golpe al caminar, morir, y reposo, caminar, disparar y apuñalar con arma. Cada clip se configuró
+como Humanoid; el avance de la cadera se deja fuera del personaje (\textit{root motion}
+descartado), de modo que la animación se reproduce en su sitio y es el componente
+\textit{CharacterController} el que mueve al técnico.
+
+El controlador de animación \cod{AC\_Tecnico}, compartido por los dos personajes, tiene un árbol de
+mezcla de locomoción (reposo, caminar a 1,8~m/s y correr a 5~m/s) cuyos umbrales coinciden con la
+velocidad real de las animaciones, para que los pies no se deslicen sobre el suelo; una variante
+herida; los estados de golpe y muerte; y los estados y parámetros de las armas. Al retroceder, la
+animación de caminar se reproduce en reversa (Figura~\ref{fig:locomocion}).
+
+\FiguraDoble{022_jugador-animacion-reposo-modo-play.jpg}{023_jugador-caminando-hacia-camara-fija.jpg}{fig:locomocion}{Animación de reposo (izquierda) y el técnico caminando hacia la cámara fija (derecha)}{}
+
+\subsubsection{Personajes secundarios y cadáveres}
+
+De Mixamo se obtuvieron también dos operadores tácticos y un empleado con casco y chaleco, que en
+el juego aparecen como los cuerpos de quienes entraron antes que el técnico. Un script de Blender
+reduce sus texturas a un máximo de 1024~píxeles, separa los canales de color, normales, rugosidad y
+emisión, y combina la rugosidad en el formato que usa el material URP; con esto los archivos pasaron
+de hasta 115~MB a unos 10~MB. En Unity se configuraron como Humanoid.
+
+Las poses de los cadáveres se describen con los músculos del sistema Humanoid, valores de $-1$ a 1
+que funcionan con cualquier modelo: una pose tendida, tomada del último cuadro de la animación de
+muerte, y una pose sentada contra la pared, creada músculo por músculo (piernas al frente, una
+rodilla doblada, torso caído y cabeza ladeada). La pose se escribe en los huesos, de modo que el
+prefab no necesita un controlador de animación. Cada cuerpo tiene un charco de sangre, una
+colisión baja que los androides rodean y una luz tenue para distinguirse en la oscuridad
+(Figura~\ref{fig:cadaveres}).
+
+\FiguraDoble{082_cadaveres-tendidos.jpg}{083_cadaveres-sentados-pared.jpg}{fig:cadaveres}{Poses de cadáver tendidas (izquierda) y sentadas contra la pared (derecha), creadas con los músculos del avatar}{}
+
+\subsubsection{Animaciones de la escopeta creadas por código}
+
+Para la escopeta de corredera se crearon animaciones propias a partir de la técnica de manejo real
+de este tipo de arma: culata en el hombro, mano fuerte en la empuñadura y mano de apoyo en el
+guardamanos; posición de listo con el cañón hacia abajo; retroceso hacia el hombro; bombeo para
+cargar el siguiente cartucho; y recarga a la altura de la cadera, empujando los cartuchos uno por
+uno.
+
+\begin{enumerate}
+  \item Se escribieron por código, músculo por músculo, tres clips Humanoid: listo, apuntar y
+        recargar.
+  \item Se agregó al controlador una capa \textit{Escopeta} con una máscara de brazos, manos y
+        cabeza: las piernas siguen caminando y corriendo con la capa base.
+  \item La cinemática inversa (IK) coloca el arma respecto al hombro según la pose y lleva las
+        manos a la empuñadura y al guardamanos. El retroceso, el bombeo y el ciclo de cada cartucho
+        se calculan con curvas en el código.
+  \item La recarga cuesta tiempo real: 0,5~s por cartucho.
+\end{enumerate}
+
+\FiguraDoble{088_escopeta-listo.jpg}{089_escopeta-apuntar-derecha.jpg}{fig:escopeta}{Escopeta en posición de listo (izquierda) y apuntando con la mano de apoyo en el guardamanos (derecha)}{}
+
+\Figura[0.7\linewidth]{091_escopeta-recarga.jpg}{fig:escopeta-recarga}{Recarga de la escopeta, cartucho por cartucho}{}
