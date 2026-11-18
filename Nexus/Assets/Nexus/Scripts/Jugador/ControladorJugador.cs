@@ -35,6 +35,10 @@ namespace Nexus
         [Tooltip("Modo relativo a la cámara: grados por segundo al orientarse")]
         [SerializeField] float giroGradosPorSegundo = 600f;
 
+        [Header("Sonido de pasos")]
+        [SerializeField] float volumenCaminar = 0.8f;
+        [SerializeField] float volumenCorrer = 0.8f;
+
         [SerializeField] float gravedad = -20f;
         [SerializeField] Animator animator;
 
@@ -45,6 +49,10 @@ namespace Nexus
         InputAction accionMover, accionCorrer;
         float velocidadVertical;
         bool tieneMultiplicador;
+
+        // Sonido de pasos: un bucle que suena solo mientras el jugador se mueve
+        AudioSource fuentePasos;
+        string pasoActual;
 
         // Modo tanque
         bool corriendoAntes, atrasAntes;
@@ -84,6 +92,11 @@ namespace Nexus
             if (animator == null) animator = GetComponentInChildren<Animator>();
             accionMover = InputSystem.actions.FindAction("Player/Move");
             accionCorrer = InputSystem.actions.FindAction("Player/Sprint");
+
+            fuentePasos = gameObject.AddComponent<AudioSource>();
+            fuentePasos.loop = true;
+            fuentePasos.playOnAwake = false;
+            fuentePasos.spatialBlend = 0f;
         }
 
         void OnEnable()
@@ -96,7 +109,12 @@ namespace Nexus
             accionCorrer?.Enable();
         }
 
-        void OnDisable() => GestorCamaras.AlCambiarCamara -= CambioDeCamara;
+        void OnDisable()
+        {
+            GestorCamaras.AlCambiarCamara -= CambioDeCamara;
+            if (fuentePasos != null) fuentePasos.Stop();
+            pasoActual = null;
+        }
 
         void Start()
         {
@@ -133,6 +151,26 @@ namespace Nexus
             return f.sqrMagnitude < 1e-4f ? Quaternion.identity : Quaternion.LookRotation(f.normalized);
         }
 
+        /// <summary>Enciende el bucle de caminar o correr mientras hay movimiento y lo corta al parar.</summary>
+        void ActualizarPasos(bool moviendo, bool corriendo)
+        {
+            if (!moviendo)
+            {
+                if (fuentePasos.isPlaying) fuentePasos.Stop();
+                pasoActual = null;
+                return;
+            }
+            string nombre = corriendo ? "correr" : "caminar";
+            if (pasoActual == nombre) return;
+
+            var clip = GestorAudio.Obtener(nombre);
+            if (clip == null) return;
+            fuentePasos.clip = clip;
+            fuentePasos.volume = corriendo ? volumenCorrer : volumenCaminar;
+            fuentePasos.Play();
+            pasoActual = nombre;
+        }
+
         void Update()
         {
             Vector2 entrada = PuedeMoverse ? LeerEntrada() : Vector2.zero;
@@ -152,6 +190,11 @@ namespace Nexus
 
             if (cc.isGrounded && velocidadVertical < 0f) velocidadVertical = -2f;
             velocidadVertical += gravedad * Time.deltaTime;
+
+            // Pasos: solo suenan si el jugador realmente se mueve y el juego no está en pausa
+            ActualizarPasos(PuedeMoverse && Time.timeScale > 0f && cc.isGrounded && VelocidadActual > 0.3f,
+                            corriendo && sentido > 0f);
+
             cc.Move((movimiento + Vector3.up * velocidadVertical) * Time.deltaTime);
 
             if (animator != null && animator.runtimeAnimatorController != null)
