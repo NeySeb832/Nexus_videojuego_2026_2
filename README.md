@@ -28,6 +28,9 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
   el reinicio final.
 - Nivel 3 con un puzzle de válvulas (orden por presión, distinto en cada partida) y un jefe final,
   la unidad prototipo SENTINEL-Ω.
+- Música y efectos de sonido de **Pixabay** (autores en
+  [Evidencias/Creditos_Audio.md](Evidencias/Creditos_Audio.md)), mezclados por capas: la tensión
+  entra cuando un androide te persigue y la sirena con la alarma.
 - Plataformas: **Windows, WebGL y Android**.
 
 ## Estructura del repositorio

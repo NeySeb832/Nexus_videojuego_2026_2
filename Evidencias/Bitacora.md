@@ -19,9 +19,9 @@ Las entradas llevan etiquetas que corresponden a las secciones del artículo de 
 | 1 | Modelado de objetos (racks, discos, tarjetas, puertas, terminales) | Completada |
 | 2 | Personajes Humanoid y selector de personaje | Completada (avatares, animaciones y selector) |
 | 3 | Sistemas de juego (movimiento, cámaras fijas, vidas, temporizador, HUD, diálogos, inventario) | Completada (falta controles táctiles) |
-| 4 | Inteligencia artificial de los androides | Completada (Nivel 1) |
-| 5 | Audio | Pendiente |
-| 6 | Construcción de los 3 niveles y menús | En curso (Nivel 1 decorado, menú principal completo) |
+| 4 | Inteligencia artificial de los androides | Completada (androides y jefe final SENTINEL-Ω) |
+| 5 | Audio | Completada (música y efectos de Pixabay, mezcla por capas) |
+| 6 | Construcción de los 3 niveles y menús | Completada (3 niveles, menú y cinemáticas; falta una partida completa de corrido) |
 | 7 | Exportación a PC, WebGL y Android | Pendiente |
 
 ---
@@ -2172,3 +2172,65 @@ escena.
 
 **Prueba:** tres entradas a Play seguidas, cada una con un cambio del menú al Nivel 1: 0 errores,
 un solo gestor de audio, y la música pasa del tema del menú al de exploración.
+
+### 5.4 Música y efectos de Pixabay — 18/11/2026 · [Arte] · [Programación] · [Dificultad superada]
+
+**Observación del equipo:** el audio sintetizado por código seguía sin convencer en general. Se pidió
+buscar los sonidos en Pixabay, que tiene grabaciones reales y música compuesta, con licencia libre.
+
+**Selección** (lista completa con autores y enlaces en [Creditos_Audio.md](Creditos_Audio.md)):
+- **Música:** piano de terror para el menú; *dark ambient* de survival horror para explorar; una pista
+  de suspenso para cuando un androide persigue; música de combate para SENTINEL-Ω; y una pieza
+  orquestal para la pantalla de Victoria.
+- **Ambiente:** grabación de una sala de servidores (el zumbido del centro de datos) y una sirena de
+  instalación pensada para repetirse en bucle.
+- **Efectos:** 26 grabaciones, entre ellas disparos reales de pistola y escopeta, el bombeo y los
+  cartuchos, servos y pisadas de robot pesado, un golpe de terror distorsionado cuando un androide te
+  ve, una puerta hidráulica, estática de radio para los mensajes de terminal y el señuelo, vapor y metal
+  que cruje para las válvulas, y la carga y descarga eléctrica del jefe.
+- **Nuevo:** el quejido al recibir daño depende del personaje: uno masculino para Neyder y uno
+  femenino para Deisy.
+
+**Cómo se prepararon** (script [`procesar_pixabay.sh`](herramientas/procesar_pixabay.sh), con ffmpeg):
+1. Se descargaron los MP3 originales y se midió dónde hay sonido y dónde silencio (`silencedetect`),
+   además de la envolvente de volumen cada 100 ms, para elegir el tramo útil de cada grabación.
+2. **Recorte:** solo la parte que se usa, con fundidos de pocos milisegundos para que no hagan clic.
+   - El bombeo de escopeta venía en una grabación de 11 s con varios ciclos: se tomó el primero.
+   - De una grabación de pasos se sacaron **4 pisadas sueltas** que el juego alterna al azar.
+   - Al androide que despierta se le quitó el silencio que había en medio de la grabación.
+3. **Nivelación:** cada sonido nuevo quedó con la misma sonoridad (LUFS) que el sintetizado al que
+   reemplaza. Así se conserva la mezcla que ya estaba ajustada en el juego (pasos suaves, disparos
+   fuertes, etc.). Si el clip es tan corto que no se puede medir su sonoridad, se iguala el pico.
+4. **Bucles sin corte:** la música y el ambiente se cortan y su final se funde con el principio, para que
+   al repetirse no se note el salto.
+5. **Formatos:** efectos en WAV mono; música y ambiente en OGG (12 MB en total).
+
+![Original de Pixabay y versión recortada y nivelada para el juego](capturas/112_audio-pixabay-recortes.png)
+
+**En Unity:**
+- Menú **Nexus → Audio → Usar sonidos de Pixabay** (`ConstructorAudioPixabay.cs`): ajusta la
+  importación de cada archivo y lo asigna al banco de sonidos.
+  - Música y ambiente: se leen del disco mientras suenan (*Streaming*), la música en estéreo.
+  - Efectos: mono y descomprimidos al cargar, para que suenen al instante y en 3D.
+- El banco de sonidos ahora admite **variantes** de un mismo efecto (las pisadas).
+- Los sonidos sintetizados quedan como respaldo: si faltara un archivo de Pixabay, se usa el
+  sintetizado. Generar los sintetizados de nuevo ya no reemplaza los de Pixabay.
+- **Dificultad superada:** la pieza de Victoria dura 48 s y seguía sonando al volver al menú. Ahora el
+  gestor de audio corta el remate del final al cargar otra escena.
+- **Dificultad superada:** al recortar, la búsqueda rápida de ffmpeg (`-ss`) caía unas décimas fuera de
+  lugar en estos MP3 y tomaba la parte equivocada de la grabación. Se cambió por el filtro `atrim`,
+  que corta en el punto exacto.
+
+**Créditos:** se actualizaron en el juego. La música y los efectos aparecen con sus autores y la
+licencia de Pixabay.
+
+![Pantalla de créditos con los autores de la música y los efectos](capturas/113_creditos-audio-pixabay.png)
+
+**Prueba en modo Play (Nivel 1 y menú):**
+- La música de exploración, el ambiente y la tensión al ser perseguido suenan con las pistas nuevas, y
+  la sirena entra con la alarma.
+- Los **25 efectos 3D** suenan con su archivo de Pixabay.
+- En 24 pasos salieron las 4 pisadas distintas.
+- Neyder herido suena con el quejido masculino y Deisy con el femenino.
+- La pieza de Victoria suena y se corta al volver al menú, donde entra el piano del menú.
+- 0 errores en la consola.

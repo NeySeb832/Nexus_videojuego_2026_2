@@ -780,10 +780,15 @@ namespace Nexus.Herramientas
             banco.efectos = new AudioClip[nombres.Length];
             foreach (var kv in generadores)
                 banco.efectos[(int)kv.Key] = Guardar("Sfx_" + kv.Key, kv.Value(), SrEfecto, false);
+            banco.efectos[(int)Sfx.JugadoraHerida] = banco.efectos[(int)Sfx.JugadorHerido];
+            banco.variantes = new BancoSonidos.Variantes[0];
+            banco.origen = "Síntesis";
             EditorUtility.SetDirty(banco);
             AssetDatabase.SaveAssets();
             long total = 0; foreach (var f in Directory.GetFiles(Carpeta, "*.wav")) total += new FileInfo(f).Length;
             Debug.Log($"[Nexus] Audio generado: 6 pistas y {generadores.Count} efectos, {total / 1048576f:0.0} MB en WAV, en {(DateTime.Now - inicio).TotalSeconds:0.0} s.");
+            // Los sintetizados quedan de respaldo: donde haya un sonido de Pixabay, se usa ese (bitácora 5.4)
+            ConstructorAudioPixabay.Asignar(banco);
         }
     }
 }

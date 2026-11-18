@@ -99,6 +99,8 @@ namespace Nexus
         void AlCargarEscena()
         {
             if (this == null || musica == null) return;   // por seguridad: objeto ya destruido
+            // La pieza de Victoria (o el remate del Game Over) no sigue sonando en el menú o al reintentar
+            if (final) interfaz.Stop();
             final = false;
             bool menu = SceneManager.GetActiveScene().name.Contains("Menu");
             var clip = menu ? banco.musicaMenu : banco.musicaExploracion;
@@ -135,7 +137,7 @@ namespace Nexus
 
         void Update()
         {
-            // Navegar por los botones (menú, inventario, pantalla final) hace un pitido corto
+            // Navegar por los botones (menú, inventario, pantalla final) hace un clic corto
             var es = UnityEngine.EventSystems.EventSystem.current;
             if (es != null && es.currentSelectedGameObject != seleccionPrevia)
             {
@@ -176,7 +178,8 @@ namespace Nexus
         /// </summary>
         static readonly Dictionary<Sfx, float> separacion = new Dictionary<Sfx, float>
         {
-            [Sfx.AndroideDetecta] = 3f, [Sfx.AndroideDespierta] = 0.5f, [Sfx.AndroideDestruido] = 0.3f, [Sfx.JugadorHerido] = 0.3f
+            [Sfx.AndroideDetecta] = 3f, [Sfx.AndroideDespierta] = 0.5f, [Sfx.AndroideDestruido] = 0.3f, [Sfx.JugadorHerido] = 0.3f,
+            [Sfx.JugadoraHerida] = 0.3f
         };
         readonly Dictionary<Sfx, float> ultimoSonido = new Dictionary<Sfx, float>();
 
