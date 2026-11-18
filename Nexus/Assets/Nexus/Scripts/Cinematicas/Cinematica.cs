@@ -44,7 +44,8 @@ namespace Nexus
     {
         public enum Momento { AlEmpezarNivel, AlExtraerDisco, AlTerminarJuego }
 
-        public static bool EnCurso { get; private set; }
+        /// <summary>Hay una cinemática (o la transición del ascensor) en curso: el jugador no tiene el control.</summary>
+        public static bool EnCurso { get; internal set; }
         public static Cinematica Actual { get; private set; }
         /// <summary>Cinemática del final del juego (reinicio manual), si el nivel tiene una.</summary>
         public static Cinematica Final { get; private set; }

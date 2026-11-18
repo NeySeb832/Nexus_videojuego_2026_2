@@ -50,4 +50,5 @@ sintetizados por código (bitácora 5.1 y 5.2) siguen en el proyecto como respal
 | Descarga de SENTINEL-Ω | [Electro Impact](https://pixabay.com/es/sound-effects/electro-impact-528398/) | zehendrew |
 | Máquina expendedora | [Vending Machine](https://pixabay.com/es/sound-effects/tecnolog%C3%ADa-vending-machine-104483/) | freesound_community |
 | Señuelo de red | [FM Radio Static](https://pixabay.com/es/sound-effects/fm-radio-static-82334/) | freesound_community |
+| Ascensor entre niveles: puertas, marcha y frenada | [080223-002 Freight Elevator](https://pixabay.com/es/sound-effects/pel%C3%ADculas-y-efectos-especiales-080223-002-freight-elevator-75187/) | freesound_community |
 | Game Over | [Dramatic Synth Echo](https://pixabay.com/es/sound-effects/dramatic-synth-echo-43970/) | freesound_community |

@@ -92,6 +92,11 @@ efecto Px_JugadorPaso_2     JugadorPaso.mp3      1.57 1.90 0.08 -3
 efecto Px_JugadorPaso_3     JugadorPaso.mp3      3.12 3.45 0.08 -3
 efecto Px_JugadorPaso_4     JugadorPaso.mp3      4.07 4.40 0.08 -3
 
+# Ascensor entre niveles (bitácora 6.11): de una grabación de montacargas industrial de 35 s
+efecto Px_AscensorPuertas   Ascensor_Mecanico.mp3 0.60 2.40 0.30 -4
+efecto Px_AscensorMarcha    Ascensor_Mecanico.mp3 2.90 11.0 1.00 -3
+efecto Px_AscensorParada    Ascensor_Mecanico.mp3 29.0 32.5 0.80 -3
+
 # El androide al despertar: arranque y servos, sin el silencio que hay en medio de la grabación
 ffmpeg -hide_banner -loglevel error -y -i "$ORIG/AndroideDespierta.mp3" -filter_complex \
     "[0:a]aresample=44100,pan=mono|c0=0.5*c0+0.5*c1,asplit=2[a][b];[a]atrim=0.15:0.92,asetpts=N/SR/TB,afade=t=out:st=0.67:d=0.1[x];\

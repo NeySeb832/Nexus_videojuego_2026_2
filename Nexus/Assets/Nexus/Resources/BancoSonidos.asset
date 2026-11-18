@@ -46,6 +46,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e0db3d2ef5a66b8408559dd25886e634, type: 3}
   - {fileID: 8300000, guid: b1352b59867f34745a0d898646c38e52, type: 3}
   - {fileID: 8300000, guid: 898e481eab7c13a40ae2511349368bac, type: 3}
+  - {fileID: 8300000, guid: e31278975cddf9b489773c1e48a5ad42, type: 3}
+  - {fileID: 8300000, guid: b1ccd5b4c156e674c823af70e208c3cd, type: 3}
+  - {fileID: 8300000, guid: b4f7bf70377a79343acd98ae761d54e8, type: 3}
   variantes:
   - tipo: 12
     clips:

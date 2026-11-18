@@ -88,7 +88,9 @@ namespace Nexus
         }
 
         // ---------- Final del nivel ----------
-        public void CompletarNivel()
+        /// <param name="ascensor">Salida usada; si la hay y existe un nivel siguiente, se baja en el ascensor
+        /// con la transición animada (TransicionAscensor).</param>
+        public void CompletarNivel(Transform ascensor = null)
         {
             if (Terminado) return;
             Terminado = true;
@@ -100,6 +102,7 @@ namespace Nexus
                 if (Cinematica.Final != null) Cinematica.Final.ReproducirFinal(Victoria);
                 else Victoria();
             }
+            else if (ascensor != null) TransicionAscensor.Iniciar(ascensor, escenaSiguiente);
             else StartCoroutine(CargarSiguiente());
         }
 

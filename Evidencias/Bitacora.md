@@ -2234,3 +2234,57 @@ licencia de Pixabay.
 - Neyder herido suena con el quejido masculino y Deisy con el femenino.
 - La pieza de Victoria suena y se corta al volver al menú, donde entra el piano del menú.
 - 0 errores en la consola.
+
+### 6.11 Transición animada entre niveles en el ascensor — 18/11/2026 · [Diseño] · [Programación] · [Arte]
+
+**Observación del equipo:** al pulsar E en el ascensor, el siguiente nivel aparecía de inmediato, sin
+ninguna transición.
+
+**Qué se hizo** (`TransicionAscensor.cs`). Los survival horror clásicos esconden la carga de cada zona
+detrás de una animación (las puertas de Resident Evil, los ascensores de Dino Crisis). En Nexus ahora
+se baja en el ascensor, en tres partes:
+
+1. **Entrar (unos 3 s):**
+   - Barras de cine; la cámara toma el plano de interés del ascensor y se acerca despacio.
+   - Las puertas se recogen hacia los marcos y aparece la cabina oscura con su luz de techo, que
+     parpadea al encenderse y se derrama sobre el piso del pasillo.
+   - El técnico camina hacia ella con los mismos controles tipo tanque de las cinemáticas, y la pantalla
+     se funde a negro.
+2. **Viaje (unos 6,5 s, se puede saltar con Enter, Esc, Espacio, Start o tocando la pantalla):**
+   - Cabina de montacargas armada con primitivas y con los materiales del propio ascensor (metal,
+     franjas de peligro, panel de terminal), 300 m por debajo del nivel, donde no llega otra luz.
+   - Cámara fija en una esquina del techo, como en los clásicos.
+   - Arranca con un tirón, el motor vibra todo el viaje y frena de golpe.
+   - El indicador del panel pasa de **-1** a **-2** (o de -2 a -3) parpadeando, con "BAJANDO".
+   - La luz del techo falla en dos momentos y, cada 1,3 s, la luz de un piso barre la cabina de abajo
+     hacia arriba: una luz puntual que sube por fuera de las puertas.
+   - Abajo aparece el nombre del nivel al que se llega.
+3. **Llegada:** el nivel siguiente se carga detrás de la pantalla negra y aparece con el ruido de las
+   puertas y un fundido, mientras se retiran las barras.
+
+![Las cuatro partes: entrar, viaje en el piso -1, cambio a -2 y llegada al Nivel 2](capturas/114_transicion-ascensor.png)
+
+**Sonido:**
+- Una grabación de montacargas industrial de Pixabay, de 35 s, se cortó en tres partes: puertas
+  (1,8 s), arranque y marcha (8 s) y frenada (3,5 s). Se agregó a `procesar_pixabay.sh`.
+- Durante el viaje, la música baja, el ambiente se apaga y la sirena de la alarma se oye lejos, como
+  si quedara en el piso de arriba.
+
+**Dificultades superadas:**
+- **La cabina no se veía al abrir las puertas.** El ascensor está a 2 cm de la pared, así que el fondo
+  oscuro quedaba detrás de la pared. Ahora se mide con un rayo dónde empieza la pared y el fondo se
+  dibuja justo delante. Además es negro mate y sin la textura de remaches: debe leerse como un hueco.
+- **Las puertas no tienen dónde esconderse** (al otro lado está la pared): cada hoja se encoge hacia su
+  marco, como si se recogiera dentro de él.
+- **El indicador de piso salía al revés** (texto en espejo): el texto 3D se giró hacia el centro de la
+  cabina.
+- Mientras dura la transición, el jugador no puede usar armas, inventario, habilidad ni interactuar;
+  los androides y el temporizador se detienen. Todo se restablece al llegar al nivel nuevo.
+
+**Prueba en modo Play** ([`prueba_ascensor.cs`](herramientas/prueba_ascensor.cs)):
+- **Nivel 1 → Nivel 2:** 11,7 s en total (3,0 s entrando y 6,7 s de viaje).
+- **Nivel 2 → Nivel 3:** 11,5 s.
+- En los dos casos, al llegar el jugador recupera el control, los androides y el temporizador
+  siguen, la mezcla de audio vuelve a la normalidad, no queda ni la cabina ni el objeto de la
+  transición, y hay 0 errores en la consola.
+- El Nivel 3 termina con la cinemática del reinicio y la Victoria, así que no usa el ascensor.

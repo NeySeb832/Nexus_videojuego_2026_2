@@ -32,6 +32,10 @@ namespace Nexus
         bool final;
 
         public static bool Activo => inst != null;
+        /// <summary>Mezcla apagada (viaje en el ascensor entre niveles).</summary>
+        public static bool Amortiguado { get; set; }
+        /// <summary>El clip de un efecto (para fuentes propias, como el motor del ascensor).</summary>
+        public static AudioClip Clip(Sfx tipo) => inst == null ? null : inst.banco.Clip(tipo);
         /// <summary>Para pruebas: nombre del clip de música que suena y volúmenes de las capas.</summary>
         public static string Estado => inst == null ? "sin audio" :
             $"musica={inst.musica.clip?.name}:{inst.musica.volume:0.00} tension={inst.tension.volume:0.00} jefe={inst.jefe.volume:0.00} alarma={inst.alarma.volume:0.00} ambiente={inst.ambiente.volume:0.00}";
@@ -41,7 +45,7 @@ namespace Nexus
         /// prueba a la otra. Se limpian aquí para no apuntar al gestor de la prueba anterior.
         /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Reiniciar() => inst = null;
+        static void Reiniciar() { inst = null; Amortiguado = false; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Crear()
@@ -149,6 +153,12 @@ namespace Nexus
             if (menu)
             {
                 Fundir(musica, 0.55f, 0.5f); Fundir(tension, 0f, 1f); Fundir(jefe, 0f, 1f); Fundir(alarma, 0f, 2f); Fundir(ambiente, 0f, 1f);
+                return;
+            }
+            if (Amortiguado)
+            {
+                // Dentro del ascensor: la música baja y la alarma del piso de arriba se aleja
+                Fundir(musica, 0.16f, 0.5f); Fundir(ambiente, 0f, 0.8f); Fundir(tension, 0f, 1f); Fundir(jefe, 0f, 1f); Fundir(alarma, 0.04f, 0.4f);
                 return;
             }
             bool persecucion = false;

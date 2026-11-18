@@ -32,7 +32,7 @@ namespace Nexus
                 return;
             }
             jugador.GetComponent<ControladorJugador>().PuedeMoverse = false;
-            nivel.CompletarNivel();
+            nivel.CompletarNivel(transform);   // con el ascensor: transición animada al nivel siguiente
         }
     }
 }

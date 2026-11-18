@@ -25,7 +25,8 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
 - Armas (bayoneta, pistola y escopeta) que se obtienen al registrar los cadáveres de quienes
   entraron antes, con notas que cuentan la historia; animaciones de escopeta propias (IK).
 - Cinemáticas con el motor del juego: la entrada al centro de datos, la alarma al extraer el disco y
-  el reinicio final.
+  el reinicio final. Entre niveles se baja en el ascensor: viaje en la cabina con cámara fija e
+  indicador de piso mientras el nivel siguiente carga detrás.
 - Nivel 3 con un puzzle de válvulas (orden por presión, distinto en cada partida) y un jefe final,
   la unidad prototipo SENTINEL-Ω.
 - Música y efectos de sonido de **Pixabay** (autores en

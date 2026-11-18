@@ -9,7 +9,8 @@ namespace Nexus
         AndroideDetecta, AndroidePaso, AndroideDespierta, AndroideDestruido,
         JugadorPaso, JugadorHerido, Puerta, Recoger, UIBlip, TerminalBeep,
         ValvulaGiro, Vapor, JefeCarga, JefeDescarga, Expendedora, Senuelo, Victoria, GameOver,
-        JugadoraHerida   // quejido de Deisy (al final para no mover los números de los demás)
+        JugadoraHerida,  // quejido de Deisy (al final para no mover los números de los demás)
+        AscensorPuertas, AscensorMarcha, AscensorParada   // transición entre niveles
     }
 
     /// <summary>
