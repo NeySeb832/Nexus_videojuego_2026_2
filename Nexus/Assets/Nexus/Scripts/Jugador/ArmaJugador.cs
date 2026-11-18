@@ -121,7 +121,7 @@ namespace Nexus
             Equipar(tipo, true);
         }
 
-        bool TieneArma(TipoArma a) => a != TipoArma.Ninguna && inventario != null && inventario.Tiene(ObjetoDe(a));
+        public bool TieneArma(TipoArma a) => a != TipoArma.Ninguna && inventario != null && inventario.Tiene(ObjetoDe(a));
 
         /// <summary>Al recoger un arma: si no lleva una de fuego en la mano, se la equipa.</summary>
         public void AlRecoger(TipoColeccionable t)
@@ -217,7 +217,7 @@ namespace Nexus
             if (recargar) Recargar();
         }
 
-        void Ciclar(int paso)
+        public void Ciclar(int paso)
         {
             for (int i = 1; i <= 4; i++)
             {

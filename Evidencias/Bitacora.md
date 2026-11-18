@@ -2288,3 +2288,45 @@ se baja en el ascensor, en tres partes:
   siguen, la mezcla de audio vuelve a la normalidad, no queda ni la cabina ni el objeto de la
   transición, y hay 0 errores en la consola.
 - El Nivel 3 termina con la cinemática del reinicio y la Victoria, así que no usa el ascensor.
+
+### 3.16 Controles táctiles para Android y el navegador del celular — 18/11/2026 · [Diseño] · [Programación]
+
+**Por qué:** el APK y la versión web se pueden abrir en un celular, que no tiene teclado ni mando. Los
+controles táctiles hacían falta para que esas versiones se puedan jugar.
+
+**Cómo son** (`ControlesTactiles.cs`):
+- Siguen el estilo del HUD: anillos finos y texto, sin recuadros.
+- Se crean solos cuando el juego corre en un dispositivo móvil (`Application.isMobilePlatform`, que
+  también reconoce el navegador del celular).
+- Solo se ven mientras el jugador tiene el control. Se ocultan en el menú, en las cinemáticas, los
+  diálogos, el inventario, el ascensor y la pantalla final.
+- **Izquierda:**
+  - Joystick que aparece donde se apoya el pulgar. Arriba y abajo avanza y retrocede, a los lados
+    gira: los mismos controles tipo tanque del teclado. Tiene una zona muerta pequeña para no moverse
+    por accidente.
+  - **CORRER**, que se deja activado.
+  - **INVENTARIO**.
+- **Derecha:**
+  - **INTERACTUAR** y **HABILIDAD**. La habilidad se atenúa mientras se recarga.
+  - **ARMA** cambia entre las armas que se tengan.
+  - **ATACAR** con el cuchillo o **DISPARAR** con la pistola o la escopeta.
+  - **APUNTAR** (se deja activado) y **RECARGAR**, que solo aparecen con un arma de fuego.
+  - **Apuntado asistido:** DISPARAR sin estar apuntando apunta solo al androide más cercano, dispara
+    y vuelve a bajar el arma.
+- El menú, el inventario, los diálogos, la pantalla final y saltar cinemáticas ya funcionaban con
+  toques, porque usan botones de la interfaz o aceptan cualquier toque.
+- Los botones usan las mismas entradas que las pruebas automáticas (`PulsacionSimulada`,
+  `DisparoSimulado`...). Así no se duplicó la lógica del juego.
+
+![Controles táctiles con la pistola equipada y APUNTAR activado](capturas/115_controles-tactiles.png)
+
+**Prueba en modo Play** (forzando los controles en el editor):
+- El joystick hacia arriba hace caminar al técnico a 1,8 m/s y, con CORRER activado, a 5 m/s:
+  igual que con el teclado.
+- Al soltar el dedo se detiene.
+- Sin armas solo aparecen CORRER, INVENTARIO, INTERACTUAR y HABILIDAD.
+- Con el cuchillo aparece ATACAR. Con el botón ARMA pasa a la pistola y aparecen DISPARAR, APUNTAR
+  y RECARGAR.
+- APUNTAR levanta y baja el arma.
+- El botón INVENTARIO lo abre y los controles se ocultan; al cerrarlo vuelven.
+- 0 errores en la consola.

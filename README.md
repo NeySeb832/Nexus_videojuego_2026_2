@@ -51,21 +51,21 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
 3. La primera apertura tarda varios minutos (Unity regenera la carpeta `Library`).
 4. Escena inicial: `Assets/Nexus/Escenas/00_Menu.unity`.
 
-**Controles tipo tanque (teclado / mando):**
+**Controles tipo tanque (teclado / mando / pantalla táctil):**
 
-| Acción | Teclado | Mando |
-|---|---|---|
-| Avanzar / retroceder | W / S | Stick izquierdo arriba / abajo |
-| Girar | A / D | Stick izquierdo a los lados |
-| Correr | Shift | Presionar el stick |
-| Media vuelta rápida | Shift + S | — |
-| Interactuar | E | Y / triángulo |
-| Habilidad | Q | X / cuadrado |
-| Inventario | TAB / I | Start |
-| Equipar cuchillo / pistola / escopeta | 1 / 2 / 3 (0 guarda el arma) | Cruceta |
-| Apuntar | Clic derecho / K | LT |
-| Disparar o acuchillar | Clic izquierdo / J | RT |
-| Recargar | R | RB |
+| Acción | Teclado | Mando | Táctil (celular) |
+|---|---|---|---|
+| Avanzar / retroceder | W / S | Stick izquierdo arriba / abajo | Joystick (mitad izquierda) arriba / abajo |
+| Girar | A / D | Stick izquierdo a los lados | Joystick a los lados |
+| Correr | Shift | Presionar el stick | CORRER (se deja activado) |
+| Media vuelta rápida | Shift + S | — | CORRER + joystick abajo |
+| Interactuar | E | Y / triángulo | INTERACTUAR |
+| Habilidad | Q | X / cuadrado | HABILIDAD |
+| Inventario | TAB / I | Start | INVENTARIO |
+| Equipar cuchillo / pistola / escopeta | 1 / 2 / 3 (0 guarda el arma) | Cruceta | ARMA (cambia a la siguiente) |
+| Apuntar | Clic derecho / K | LT | APUNTAR (se deja activado) |
+| Disparar o acuchillar | Clic izquierdo / J | RT | DISPARAR / ATACAR (sin apuntar, apunta solo) |
+| Recargar | R | RB | RECARGAR |
 
 Las cámaras son fijas y cambian solas cuando el personaje sale del cuadro.
 

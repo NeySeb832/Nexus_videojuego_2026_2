@@ -75,8 +75,14 @@ namespace Nexus
         /// <summary>Giro pedido por el jugador en este cuadro (-1 a 1), para soltar el apuntado automático.</summary>
         public float EntradaGiro { get; private set; }
 
-        Vector2 LeerEntrada() => EntradaSimulada ?? (accionMover != null ? accionMover.ReadValue<Vector2>() : Vector2.zero);
-        bool LeerCorrer() => CorrerSimulado ?? (accionCorrer != null && accionCorrer.IsPressed());
+        Vector2 LeerEntrada()
+        {
+            if (EntradaSimulada.HasValue) return EntradaSimulada.Value;
+            // Joystick táctil (Android / navegador del celular) si se está usando
+            if (ControlesTactiles.Mover.sqrMagnitude > 0.0004f) return ControlesTactiles.Mover;
+            return accionMover != null ? accionMover.ReadValue<Vector2>() : Vector2.zero;
+        }
+        bool LeerCorrer() => CorrerSimulado ?? (ControlesTactiles.Correr || (accionCorrer != null && accionCorrer.IsPressed()));
 
         void Awake()
         {
