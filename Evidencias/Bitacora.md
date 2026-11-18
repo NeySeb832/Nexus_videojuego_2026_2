@@ -2092,3 +2092,42 @@ entre el final y el inicio de los bucles, que si es grande se oye como un clic a
 - La sirena sí lo tenía: su filtro arrancaba "en frío". Ahora se generan 3 s y se usan los 2
   últimos, con el filtro en marcha y la fase completa en cada ciclo.
 - También se bajó el rumor de fondo de la música de exploración, que tapaba el bordón y las campanas.
+
+### 5.2 Rediseño del sonido hacia el survival horror — 17/11/2026 · [Arte] · [Dificultad superada]
+
+**Observación del equipo:** los sonidos de los androides eran pitidos y los golpes sonaban como un
+zumbido de abeja o una notificación de celular: no daban miedo. La referencia pedida fueron los
+survival horror clásicos (Resident Evil, Dino Crisis, Parasite Eve), con su atmósfera de tensión
+constante.
+
+**Qué se cambió** (en `ConstructorAudio.cs`, con piezas de síntesis nuevas):
+
+| Pieza nueva | Cómo se construye | Dónde se usa |
+|---|---|---|
+| Distorsión | Saturación suave (tangente hiperbólica) | Motores, gruñidos, descargas |
+| Gruñido mecánico | Dos sierras graves con vibrato errático, por dos filtros de "formantes" (como una garganta) y saturadas: una máquina que respira, casi una voz | Detección, encendido, carga del jefe |
+| Chirrido de cuerdas | Ruido por una resonancia muy estrecha que barre hacia el agudo, como un arco que raspa | Detección |
+| Clúster orquestal | Sierras graves en La, Si bemol, Mi y Fa (intervalos disonantes), filtradas y saturadas | Detección |
+| Motor | Sierras graves saturadas que suben o bajan, con un "tartamudeo" | Encendido y caída de las unidades |
+| Gemido de metal | Ruido por una resonancia estrechísima que se desliza lentamente | Ambiente de exploración |
+
+| Sonido | Antes | Ahora |
+|---|---|---|
+| Un androide te detecta | Dos pitidos agudos | **Golpe de terror:** clúster orquestal grave, bombo sordo, chirrido de cuerdas y el gruñido de la unidad |
+| Una unidad se enciende | Barrido limpio y un pitido | Escape hidráulico, servos que rechinan a tirones, motor que arranca, golpe seco y gruñido |
+| Una unidad cae | Barrido descendente | Chispazos, motor que se apaga arrastrándose, choque de chatarra y golpe al suelo |
+| Pisada del androide | Golpe con un tono agudo | Golpe más grave y pesado, metal grave y siseo hidráulico |
+| Te golpean | Golpe con zumbido (onda cuadrada de 120 Hz) | Impacto seco en el cuerpo, crujido y una descarga eléctrica de ruido saturado |
+| Bala en el blindaje | Campanilla metálica aguda | Golpe seco, chispas cortas y metal grave |
+| Recoger un objeto | Dos notas agudas (tipo notificación) | Roce de tela o papel y dos golpes graves y apagados |
+| Interfaz y terminales | Pitidos | Clics de máquina de escribir sobre el zumbido de un monitor viejo |
+| Ambiente de exploración | Campanas lejanas | Gemidos de metal bajo tensión y golpes sordos en algún lugar del edificio |
+| Carga del jefe | Tono que sube | Rugido mecánico que crece, con siseo de presión |
+
+![Las nuevas formas de onda: exploración, detección, encendido, caída, golpe recibido, impacto, carga del jefe y objeto recogido](capturas/110_audio-terror-formas-de-onda.png)
+
+**Para que no se amontonen:**
+- Hay una separación mínima entre sonidos del mismo tipo. Con la alarma, todas las unidades
+  detectan al técnico a la vez; antes habrían sonado seis golpes de terror encimados.
+- En la prueba, seis detecciones seguidas sonaron como **una**.
+- Los motores, gruñidos y chirridos terminan con una salida de 30 ms para no cortarse con un clic.

@@ -169,11 +169,18 @@ namespace Nexus.Herramientas
                 y += a * ((Sierra(faseA) + Sierra(faseB)) * 0.5f - y);
                 b[i] += y * 0.16f;
             }
-            // Pings metálicos lejanos, con eco
-            var pings = new float[b.Length];
-            for (int k = 0; k < 8; k++) Metal(pings, sr, 3 + 8 * k + rnd.NextDouble() * 2.5, new[] { 660.0, 880, 990, 587.3 }[k % 4], 0.06f, 1.6);
-            Eco(pings, sr, 0.37, 0.35f);
-            for (int i = 0; i < b.Length; i++) b[i] += pings[i];
+            // La estructura "gime": metal bajo tensión que cruje a lo lejos, y golpes sordos en algún
+            // lugar del edificio (en vez de campanas: el lugar está vivo y no es amable)
+            var lejos = new float[b.Length];
+            for (int k = 0; k < 7; k++)
+            {
+                double t0 = 2 + 9 * k + rnd.NextDouble() * 3, f1 = 140 + rnd.NextDouble() * 120;
+                GemidoMetal(lejos, sr, rnd, t0, 2.5 + rnd.NextDouble() * 2, f1, f1 * (0.75 + rnd.NextDouble() * 0.15), 0.05f);
+            }
+            for (int k = 0; k < 3; k++) Golpe(lejos, sr, 8 + 20 * k + rnd.NextDouble() * 4, 55, 30, 0.6, 0.12f);
+            Eco(lejos, sr, 0.41, 0.4f);
+            var lpLejos = new Polo(1800, sr);
+            for (int i = 0; i < b.Length; i++) b[i] += lpLejos.Bajo(lejos[i]);
             var r = Bucle(b, sr, L, X); Normalizar(r, 0.8f); return r;
         }
 
@@ -371,34 +378,106 @@ namespace Nexus.Herramientas
             Normalizar(b, 0.75f); return b;
         }
 
+        // ---------- Piezas del terror (survival horror clásico) ----------
+        static float Dist(float x, float k) => (float)Math.Tanh(k * x);
+
+        /// <summary>
+        /// Gruñido mecánico: sierras graves con un vibrato errático, por dos filtros de "formantes"
+        /// (como una garganta) y saturadas. Suena a máquina que respira, casi una voz.
+        /// </summary>
+        static void Grunido(float[] b, int sr, System.Random rnd, double t0, double dur, double f1, double f2, float amp, double ataque, double tau)
+        {
+            var bp1 = new PasaBanda(sr); bp1.Ajustar(420, 3); var bp2 = new PasaBanda(sr); bp2.Ajustar(980, 4);
+            double fase = 0, desvio = 0;
+            for (int i = (int)(t0 * sr); i < b.Length && i < (int)((t0 + dur) * sr); i++)
+            {
+                double t = i / (double)sr - t0, k = Math.Min(1, t / dur);
+                desvio = desvio * 0.999 + (rnd.NextDouble() - 0.5) * 0.9;     // vibrato errático
+                double f = f1 * Math.Pow(f2 / f1, k) + desvio;
+                fase += f / sr;
+                float s = Sierra(fase) + Sierra(fase * 1.012) * 0.7f + (float)(rnd.NextDouble() - 0.5) * 0.3f;
+                float g = bp1.Proc(s) * 1.4f + bp2.Proc(s);
+                float env = (float)(t < ataque ? t / ataque : Math.Exp(-(t - ataque) / tau));
+                float salida = (float)Math.Min(1, (dur - t) / 0.03);   // sin cortes bruscos al final
+                b[i] += Dist(g * 2.2f, 1.8f) * env * amp * salida;
+            }
+        }
+
+        /// <summary>Chirrido de cuerdas: ruido por una resonancia estrecha que barre hacia el agudo.</summary>
+        static void Chirrido(float[] b, int sr, System.Random rnd, double t0, double dur, double f1, double f2, float amp)
+        {
+            var bp = new PasaBanda(sr);
+            for (int i = (int)(t0 * sr); i < b.Length && i < (int)((t0 + dur) * sr); i++)
+            {
+                double t = i / (double)sr - t0, k = t / dur;
+                bp.Ajustar(f1 * Math.Pow(f2 / f1, k), 14);
+                float env = (float)(t < 0.02 ? t / 0.02 : Math.Exp(-(t - 0.02) / (dur * 0.45)));
+                b[i] += bp.Proc((float)(rnd.NextDouble() * 2 - 1)) * env * amp * 4f * (float)Math.Min(1, (dur - t) / 0.03);
+            }
+        }
+
+        /// <summary>Golpe orquestal disonante: cuerdas y metales graves en clúster (La, Si bemol, Mi, Fa).</summary>
+        static void Cluster(float[] b, int sr, double t0, float amp, double tau)
+        {
+            double[] f = { 55, 58.27, 82.41, 87.31, 110, 116.54 };
+            var lp = new Polo(900, sr);
+            for (int i = (int)(t0 * sr); i < b.Length; i++)
+            {
+                double t = i / (double)sr - t0;
+                if (t > tau * 7) break;
+                float s = 0;
+                foreach (var x in f) s += Sierra(x * t) + Sierra(x * 1.006 * t);
+                b[i] += Dist(lp.Bajo(s) * 0.4f, 1.5f) * Caida(t, tau) * Ataque(t, 0.008) * amp;
+            }
+        }
+
+        /// <summary>Metal bajo tensión: una resonancia muy estrecha que se desliza (gemidos de la estructura).</summary>
+        static void GemidoMetal(float[] b, int sr, System.Random rnd, double t0, double dur, double f1, double f2, float amp)
+        {
+            var bp1 = new PasaBanda(sr); var bp2 = new PasaBanda(sr);
+            for (int i = (int)(t0 * sr); i < b.Length && i < (int)((t0 + dur) * sr); i++)
+            {
+                double t = i / (double)sr - t0, k = t / dur;
+                double f = f1 + (f2 - f1) * k;
+                bp1.Ajustar(f, 40); bp2.Ajustar(f * 2.13, 35);
+                float x = (float)(rnd.NextDouble() * 2 - 1);
+                float env = (float)Math.Sin(Math.PI * k) * (float)(0.7 + 0.3 * Math.Sin(DosPi * 3.1 * t));
+                b[i] += (bp1.Proc(x) * 6f + bp2.Proc(x) * 3f) * env * amp;
+            }
+        }
+
+        /// <summary>Impacto de bala en el blindaje: golpe seco, chispa corta y metal grave, sin campanilla.</summary>
         static float[] ImpactoMetal()
         {
-            int sr = SrEfecto; var b = Buf(0.5, sr); var rnd = new System.Random(28);
-            Ruido(b, sr, rnd, 0, 0.004, 0.8f, 9000, 1500);
-            Metal(b, sr, 0, 1250, 0.6f, 0.15);
-            Metal(b, sr, 0, 1870, 0.3f, 0.1);
-            Normalizar(b, 0.8f); return b;
+            int sr = SrEfecto; var b = Buf(0.45, sr); var rnd = new System.Random(28);
+            Ruido(b, sr, rnd, 0, 0.006, 0.9f, 4000);
+            Golpe(b, sr, 0, 130, 60, 0.04, 0.6f);
+            Metal(b, sr, 0, 380, 0.3f, 0.09);
+            for (int k = 0; k < 6; k++) Ruido(b, sr, rnd, 0.01 + rnd.NextDouble() * 0.12, 0.003, 0.25f, 9000, 3500);
+            Normalizar(b, 0.85f); return b;
         }
 
+        /// <summary>
+        /// Te detectó: "golpe de terror" al estilo de los survival horror. Clúster orquestal grave,
+        /// bombo sordo, chirrido de cuerdas y el gruñido mecánico de la unidad.
+        /// </summary>
         static float[] AndroideDetecta()
         {
-            int sr = SrEfecto; var b = Buf(0.5, sr); var lp = new Polo(4000, sr);
-            for (int i = 0; i < b.Length; i++)
-            {
-                double t = i / (double)sr;
-                float s = t < 0.12 ? Cuadrada(1400 * t) : (t > 0.16 && t < 0.34 ? Cuadrada(1000 * t) : 0f);
-                b[i] = lp.Bajo(s) * 0.4f;
-            }
-            Normalizar(b, 0.7f); return b;
+            int sr = SrEfecto; var b = Buf(1.8, sr); var rnd = new System.Random(40);
+            Cluster(b, sr, 0, 0.55f, 0.45);
+            Golpe(b, sr, 0, 62, 30, 0.35, 0.9f);
+            Chirrido(b, sr, rnd, 0.0, 0.7, 1700, 3300, 0.35f);
+            Grunido(b, sr, rnd, 0.05, 1.3, 70, 52, 0.55f, 0.06, 0.45);
+            Normalizar(b, 0.95f); return b;
         }
 
+        /// <summary>Pisada pesada de la unidad: golpe grave, chasquido de metal y siseo hidráulico.</summary>
         static float[] AndroidePaso()
         {
-            int sr = SrEfecto; var b = Buf(0.4, sr); var rnd = new System.Random(29);
-            Golpe(b, sr, 0, 75, 45, 0.06, 0.8f);
-            Metal(b, sr, 0, 430, 0.25f, 0.08);
-            Ruido(b, sr, rnd, 0, 0.02, 0.25f, 3000, 400);
-            for (int i = 0; i < b.Length; i++) { double t = i / (double)sr; b[i] += Seno(900, t) * Caida(t, 0.1) * 0.04f; }
+            int sr = SrEfecto; var b = Buf(0.45, sr); var rnd = new System.Random(29);
+            Golpe(b, sr, 0, 58, 34, 0.08, 1f);
+            Metal(b, sr, 0, 190, 0.35f, 0.12);
+            Ruido(b, sr, rnd, 0.03, 0.05, 0.12f, 9000, 3000, 0.01);
             Normalizar(b, 0.8f); return b;
         }
 
@@ -416,19 +495,52 @@ namespace Nexus.Herramientas
             return b;
         }
 
-        static float[] AndroideDespierta()
+        /// <summary>Motor grave y saturado que sube o baja (arranque y apagado de una unidad).</summary>
+        static void Motor(float[] b, int sr, System.Random rnd, double t0, double dur, double f1, double f2, float amp, bool sube)
         {
-            int sr = SrEfecto; var b = Barrido(1.5, 150, 1600, 1.1, 0.5f, sr, true, 0.08);
-            for (int i = (int)(1.15 * sr); i < (int)(1.27 * sr); i++) { double t = i / (double)sr; b[i] += Cuadrada(1800 * t) * 0.25f; }
-            Normalizar(b, 0.75f); return b;
+            var lp = new Polo(550, sr); double fase = 0;
+            for (int i = (int)(t0 * sr); i < b.Length && i < (int)((t0 + dur) * sr); i++)
+            {
+                double t = i / (double)sr - t0, k = t / dur;
+                double f = f1 * Math.Pow(f2 / f1, k) * (1 + (rnd.NextDouble() - 0.5) * 0.02);
+                fase += f / sr;
+                float env = sube ? (float)(0.25 + 0.75 * k) : (float)(1 - k * 0.8);
+                // Tartamudeo: el motor "engancha" y se suelta
+                float gate = 0.65f + 0.35f * Cuadrada(f * 0.11 * t);
+                b[i] += Dist(lp.Bajo(Sierra(fase) + Sierra(fase * 1.5) * 0.4f) * 1.6f, 2f) * env * gate * amp * (float)Math.Min(1, (dur - t) / 0.03);
+            }
         }
 
+        /// <summary>Una unidad se enciende: escape hidráulico, servos que rechinan, motor que arranca y un golpe seco.</summary>
+        static float[] AndroideDespierta()
+        {
+            int sr = SrEfecto; var b = Buf(1.9, sr); var rnd = new System.Random(41); var bp = new PasaBanda(sr); bp.Ajustar(700, 2);
+            Ruido(b, sr, rnd, 0, 0.25, 0.55f, 11000, 2500, 0.01);                 // escape hidráulico
+            double fase = 0;
+            for (int i = (int)(0.15 * sr); i < (int)(1.2 * sr); i++)               // servos rechinando, a tirones
+            {
+                double t = i / (double)sr;
+                fase += (110 + 25 * Math.Sin(DosPi * 1.7 * t) + (rnd.NextDouble() - 0.5) * 30) / sr;
+                float tiron = ((int)(t * 9) % 3 == 0) ? 0.25f : 1f;
+                b[i] += bp.Proc(Sierra(fase)) * tiron * 0.5f;
+            }
+            Motor(b, sr, rnd, 0.1, 1.15, 42, 96, 0.55f, true);
+            Golpe(b, sr, 1.25, 70, 38, 0.12, 1f);
+            Metal(b, sr, 1.25, 260, 0.3f, 0.2);
+            Grunido(b, sr, rnd, 1.28, 0.6, 58, 50, 0.35f, 0.04, 0.25);
+            Normalizar(b, 0.85f); return b;
+        }
+
+        /// <summary>Una unidad cae: chispazos, el motor se apaga arrastrándose, choque de chatarra y golpe al suelo.</summary>
         static float[] AndroideDestruido()
         {
-            int sr = SrEfecto; var b = Barrido(1.7, 1400, 60, 1.2, 0.6f, sr, true, 0.2); var rnd = new System.Random(30);
-            for (int k = 0; k < 40; k++) { double t0 = rnd.NextDouble() * 1.1; Ruido(b, sr, rnd, t0, 0.004, 0.35f * (float)(1 - t0), 8000, 1000); }
-            Golpe(b, sr, 1.15, 90, 40, 0.15, 0.8f);
-            Normalizar(b, 0.85f); return b;
+            int sr = SrEfecto; var b = Buf(2.2, sr); var rnd = new System.Random(30);
+            for (int k = 0; k < 55; k++) { double t0 = rnd.NextDouble() * 1.4; Ruido(b, sr, rnd, t0, 0.004, 0.4f * (float)(1 - t0 / 1.6), 9000, 2500); }
+            Motor(b, sr, rnd, 0, 1.4, 120, 28, 0.6f, false);
+            foreach (var (t0, f) in new[] { (0.9, 230.0), (0.97, 310.0), (1.05, 410.0) }) Metal(b, sr, t0, f, 0.35f, 0.25);
+            Ruido(b, sr, rnd, 0.9, 0.2, 0.5f, 2500);
+            Golpe(b, sr, 1.1, 65, 32, 0.25, 1f);
+            Normalizar(b, 0.9f); return b;
         }
 
         static float[] JugadorPaso()
@@ -440,13 +552,18 @@ namespace Nexus.Herramientas
             Normalizar(b, 0.6f); return b;
         }
 
+        /// <summary>El androide golpea al técnico: impacto seco en el cuerpo, crujido y una descarga áspera.</summary>
         static float[] JugadorHerido()
         {
-            int sr = SrEfecto; var b = Buf(0.7, sr); var rnd = new System.Random(32); var bp = new PasaBanda(sr); bp.Ajustar(800, 1);
-            Golpe(b, sr, 0, 70, 40, 0.12, 0.9f);
-            Ruido(b, sr, rnd, 0, 0.08, 0.6f, 1500);
-            for (int i = 0; i < b.Length; i++) { double t = i / (double)sr; b[i] += bp.Proc(Cuadrada(120 * t)) * Caida(t, 0.25) * 0.5f; }
-            Normalizar(b, 0.85f); return b;
+            int sr = SrEfecto; var b = Buf(0.8, sr); var rnd = new System.Random(32);
+            Golpe(b, sr, 0, 78, 32, 0.1, 1f);                     // el golpe en el cuerpo
+            Ruido(b, sr, rnd, 0, 0.06, 0.8f, 500);                  // carne y ropa: ruido sordo
+            Ruido(b, sr, rnd, 0.004, 0.015, 0.6f, 3500, 900);       // crujido
+            for (int k = 0; k < 8; k++) Ruido(b, sr, rnd, 0.01 + rnd.NextDouble() * 0.05, 0.004, 0.35f, 6000, 1500);
+            var zap = new float[b.Length];                          // descarga eléctrica: ruido saturado, no un tono
+            Ruido(zap, sr, rnd, 0.02, 0.12, 0.6f, 7000, 2000, 0.005);
+            for (int i = 0; i < b.Length; i++) b[i] += Dist(zap[i] * 3f, 2f) * 0.25f;
+            Normalizar(b, 0.9f); return b;
         }
 
         static float[] Puerta()
@@ -465,33 +582,36 @@ namespace Nexus.Herramientas
             Normalizar(b, 0.75f); return b;
         }
 
+        /// <summary>Recoger algo: roce de tela o papel y un golpe grave y apagado (nada de campanitas).</summary>
         static float[] Recoger()
         {
-            int sr = SrEfecto; var b = Buf(0.55, sr);
+            int sr = SrEfecto; var b = Buf(0.7, sr); var rnd = new System.Random(42);
+            Ruido(b, sr, rnd, 0, 0.05, 0.3f, 6000, 1500, 0.02);
+            Ruido(b, sr, rnd, 0.09, 0.04, 0.25f, 5000, 1200, 0.015);
             for (int i = 0; i < b.Length; i++)
             {
                 double t = i / (double)sr;
-                b[i] += (Seno(1318.5, t) + Seno(2637, t) * 0.2f) * (t < 0.12 ? Caida(t, 0.08) : 0f) * 0.4f;
-                b[i] += (Seno(1975.5, t - 0.1) + Seno(3951, t - 0.1) * 0.2f) * Caida(t - 0.1, 0.15) * (t >= 0.1 ? 0.4f : 0f);
+                b[i] += (Seno(98, t) + Seno(196, t) * 0.4f) * Caida(t - 0.02, 0.22) * Ataque(t - 0.02, 0.004) * 0.45f;
+                b[i] += (Seno(146.83, t) + Seno(293.66, t) * 0.3f) * Caida(t - 0.12, 0.3) * Ataque(t - 0.12, 0.004) * 0.35f;
             }
             Normalizar(b, 0.6f); return b;
         }
 
+        /// <summary>Navegar por la interfaz: un clic mecánico corto, como una tecla vieja.</summary>
         static float[] UIBlip()
         {
-            int sr = SrEfecto; var b = Buf(0.09, sr);
-            for (int i = 0; i < b.Length; i++) { double t = i / (double)sr; b[i] = Seno(1200, t) * Caida(t, 0.02) * Ataque(t, 0.002); }
-            Normalizar(b, 0.45f); return b;
+            int sr = SrEfecto; var b = Buf(0.1, sr); var rnd = new System.Random(43);
+            Clic(b, sr, rnd, 0, 0.6f, 1800);
+            Golpe(b, sr, 0, 160, 110, 0.015, 0.3f);
+            Normalizar(b, 0.4f); return b;
         }
 
+        /// <summary>Terminal o mensaje del sistema: golpes de máquina de escribir sobre un zumbido de monitor viejo.</summary>
         static float[] TerminalBeep()
         {
-            int sr = SrEfecto; var b = Buf(0.45, sr); var lp = new Polo(5000, sr);
-            for (int i = 0; i < b.Length; i++)
-            {
-                double t = i / (double)sr, x = t % 0.12;
-                b[i] = t < 0.36 && x < 0.05 ? lp.Bajo(Cuadrada(1600 * t)) * 0.3f : lp.Bajo(0);
-            }
+            int sr = SrEfecto; var b = Buf(0.4, sr); var rnd = new System.Random(44);
+            foreach (var t0 in new[] { 0.0, 0.07, 0.12, 0.21 }) { Clic(b, sr, rnd, t0, 0.7f, 2200); Golpe(b, sr, t0, 140, 90, 0.02, 0.25f); }
+            for (int i = 0; i < b.Length; i++) { double t = i / (double)sr; b[i] += (Seno(60, t) + Seno(120, t) * 0.5f) * Caida(t, 0.2) * 0.12f; }
             Normalizar(b, 0.45f); return b;
         }
 
@@ -520,15 +640,19 @@ namespace Nexus.Herramientas
 
         static float[] JefeCarga()
         {
-            int sr = SrEfecto; var b = Buf(2.3, sr); var lp = new Polo(800, sr); double fase = 0;
+            // Rugido que crece: gruñido mecánico grave que sube, siseo de presión y un trémolo cada vez más rápido
+            int sr = SrEfecto; var b = Buf(2.3, sr); var rnd = new System.Random(45);
+            Grunido(b, sr, rnd, 0, 2.25, 45, 140, 0.8f, 2.0, 0.15);
+            var sis = new float[b.Length];
+            Ruido(sis, sr, rnd, 0, 3, 0.4f, 12000, 3000, 2.0);
             for (int i = 0; i < b.Length; i++)
             {
                 double t = i / (double)sr, k = Math.Min(1, t / 2.2);
-                double f = 120 * Math.Pow(1400.0 / 120, k); fase += f / sr;
-                float trem = (float)(0.6 + 0.4 * Math.Sin(DosPi * (4 + 16 * k) * t));
-                b[i] = lp.Bajo(Sierra(fase)) * (float)(0.2 + 0.8 * k) * trem;
+                float trem = (float)(0.6 + 0.4 * Math.Sin(DosPi * (3 + 14 * k) * t));
+                b[i] = (b[i] + sis[i] * (float)k) * trem;
             }
-            Normalizar(b, 0.8f); return b;
+            Golpe(b, sr, 0, 50, 30, 0.8, 0.5f);
+            Normalizar(b, 0.85f); return b;
         }
 
         static float[] JefeDescarga()
@@ -552,7 +676,15 @@ namespace Nexus.Herramientas
 
         static float[] Senuelo()
         {
-            int sr = SrEfecto; var b = Barrido(0.22, 2200, 2700, 0.18, 0.4f, sr, false, 0.02);
+            // Señal falsa de red: ráfaga de estática de radio con un tono grave que "llama"
+            int sr = SrEfecto; var b = Buf(0.35, sr); var rnd = new System.Random(46);
+            var est = new float[b.Length];
+            Ruido(est, sr, rnd, 0, 0.12, 0.6f, 4000, 700, 0.01);
+            for (int i = 0; i < b.Length; i++)
+            {
+                double t = i / (double)sr;
+                b[i] = est[i] * (0.6f + 0.4f * Cuadrada(28 * t)) + Seno(311, t) * Caida(t, 0.1) * 0.12f;
+            }
             Normalizar(b, 0.5f); return b;
         }
 

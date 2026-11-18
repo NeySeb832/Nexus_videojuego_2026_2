@@ -152,11 +152,26 @@ namespace Nexus
         // ======================= API =======================
 
         /// <summary>Efecto en 3D desde un punto del mundo (o en 2D si no se da posición).</summary>
+        /// <summary>
+        /// Separación mínima entre dos sonidos del mismo tipo: si varios androides te detectan a la vez
+        /// (la alarma), suena un solo golpe de terror y no seis encimados.
+        /// </summary>
+        static readonly Dictionary<Sfx, float> separacion = new Dictionary<Sfx, float>
+        {
+            [Sfx.AndroideDetecta] = 3f, [Sfx.AndroideDespierta] = 0.5f, [Sfx.AndroideDestruido] = 0.3f, [Sfx.JugadorHerido] = 0.3f
+        };
+        readonly Dictionary<Sfx, float> ultimoSonido = new Dictionary<Sfx, float>();
+
         public static void Efecto(Sfx tipo, Vector3? posicion = null, float volumen = 1f, float variacionTono = 0.06f)
         {
             if (inst == null) return;
             var clip = inst.banco.Clip(tipo);
             if (clip == null) return;
+            if (separacion.TryGetValue(tipo, out float minimo))
+            {
+                if (inst.ultimoSonido.TryGetValue(tipo, out float antes) && Time.unscaledTime - antes < minimo) return;
+                inst.ultimoSonido[tipo] = Time.unscaledTime;
+            }
             if (posicion == null)
             {
                 inst.interfaz.pitch = 1f + Random.Range(-variacionTono, variacionTono);
