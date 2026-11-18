@@ -5,7 +5,10 @@ Videojuego de terror y sigilo en tercera persona hecho en **Unity 6** para el tr
 Nexus Corp.: la refrigeración falló, la actualización CERBERUS 7.1 volvió hostiles a los androides
 de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del colapso térmico.
 
-**Equipo:** Neyder y Deisy. Sus avatares 3D son los dos personajes jugables.
+**Equipo:** Neyder Sebastián Orozco Villamil y Deisy Lorena Jiménez Martínez. Sus avatares 3D son
+los dos personajes jugables.
+**Universidad Central** · Modelado 3D y Video Juegos (43391312) · Docente: Mg. Carlos Iván Pinzón
+Romero · Semestre 2026-2.
 
 ## Características
 
@@ -74,3 +77,4 @@ Las cámaras son fijas y cambian solas cuando el personaje sale del cuadro.
 - [Bitácora de desarrollo](Evidencias/Bitacora.md)
 - [Requisitos del curso y su estado](Evidencias/Requisitos.md)
 - [Diseño de niveles](Evidencias/Diseno_Niveles.md)
+- [Créditos de modelos](Evidencias/Creditos_Modelos.md) y [de audio](Evidencias/Creditos_Audio.md)

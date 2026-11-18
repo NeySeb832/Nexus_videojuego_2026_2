@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38219e8d2ab58e54ead872e521bdc2da, type: 3}
   m_Name: Creditos
   m_EditorClassIdentifier: Assembly-CSharp::Nexus.CreditosNexus
-  institucion: "[COMPLETAR: Nombre de la instituci\xF3n]"
-  programa: "[COMPLETAR: Programa acad\xE9mico]"
-  materia: Modelado 3D y Videojuegos
-  docente: '[COMPLETAR: Nombre del docente]'
-  periodo: "[COMPLETAR: Semestre] \xB7 2026"
-  logos: []
+  institucion: Universidad Central
+  programa: 
+  materia: Modelado 3D y Video Juegos (43391312)
+  docente: "Mg. Carlos Iv\xE1n Pinz\xF3n Romero"
+  periodo: Semestre 2026-2
+  logos:
+  - {fileID: 21300000, guid: faf66f3d63e64f44d924c508381c869c, type: 3}
   integrantes:
-  - nombreCompleto: 'Neyder [COMPLETAR: apellidos]'
+  - nombreCompleto: "Neyder Sebasti\xE1n Orozco Villamil"
     rol: "Desarrollo \xB7 Modelo A (T\xE9cnico de Redes)"
-  - nombreCompleto: 'Deisy [COMPLETAR: apellidos]'
+  - nombreCompleto: "Deisy Lorena Jim\xE9nez Mart\xEDnez"
     rol: "Desarrollo \xB7 Modelo B (Analista de Sistemas)"
-  recursos: "Motor: Unity 6 (Universal Render Pipeline)\nAvatares de los integrantes: Avaturn\nAnimaciones y androide (Y Bot): Mixamo \xB7 Adobe\nOperadores SWAT y empleado (cad\xE1veres): Mixamo \xB7 Adobe\nArmas (bayoneta M9, pistola M9, escopeta Remington 870): Sketchfab \xB7 [COMPLETAR: autores y licencias]\nAnimaciones de escopeta y cinem\xE1ticas: creadas para este proyecto\nConversi\xF3n de modelos: Blender\nTexturas, shaders, interfaz y efectos visuales: generados por c\xF3digo para este proyecto\nM\xFAsica: Pixabay \xB7 leberch, DELOSound, Montogoronto y PaulYudin\nEfectos de sonido: Pixabay \xB7 freesound_community, ALEXIS_GAMING_CAM, AudioPapkin, SoundEffectsParty, Yodguard, zehendrew, ZenoWaves, spinopel, DRAGON-STUDIO, Finntastico y u_xjrmmgxfru (licencia de contenido de Pixabay)\nAsistencia de programaci\xF3n: Claude Code (Anthropic)"
+  recursos: "Motor: Unity 6 (Universal Render Pipeline)\nAvatares de los integrantes: Avaturn\nAnimaciones y androide (Y Bot): Mixamo \xB7 Adobe\nOperadores SWAT y empleado (cad\xE1veres): Mixamo \xB7 Adobe\nArmas: \xABM9 Bayonet\xBB de Atilla Kutluay Erdo\u011Fay, \xABBeretta M9A1\xBB de Hung Do y \xABRemington 870 Shotgun\xBB de Andrei Milin \xB7 Sketchfab, licencia CC BY 4.0 (adaptados para el juego)\nAnimaciones de escopeta y cinem\xE1ticas: creadas para este proyecto\nConversi\xF3n de modelos: Blender\nTexturas, shaders, interfaz y efectos visuales: generados por c\xF3digo para este proyecto\nM\xFAsica: Pixabay \xB7 leberch, DELOSound, Montogoronto y PaulYudin\nEfectos de sonido: Pixabay \xB7 freesound_community, ALEXIS_GAMING_CAM, AudioPapkin, SoundEffectsParty, Yodguard, zehendrew, ZenoWaves, spinopel, DRAGON-STUDIO, Finntastico y u_xjrmmgxfru (licencia de contenido de Pixabay)\nAsistencia de programaci\xF3n: Claude Code (Anthropic)"

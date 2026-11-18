@@ -198,7 +198,7 @@ namespace Nexus.Herramientas
             var bCred = Opcion("Boton_Creditos", pTitulo, "CRÉDITOS", new Vector2(0, 0.5f), new Vector2(100, -110), 520, TextAlignmentOptions.Left);
             var bSalir = Opcion("Boton_Salir", pTitulo, "SALIR", new Vector2(0, 0.5f), new Vector2(100, -180), 520, TextAlignmentOptions.Left);
             var tAmb = Texto("Ambiente", pTitulo, "ALERTA  ·  TEMPERATURA DEL NÚCLEO 78%  ·  ANDROIDES SENTINEL ACTIVOS", 16, Rojo, TextAlignmentOptions.Right, new Vector2(1, 0), new Vector2(-60, 40), new Vector2(1000, 24));
-            Texto("Pie", pTitulo, "TRABAJO FINAL  ·  MODELADO 3D Y VIDEOJUEGOS  ·  2026", 14, gris, TextAlignmentOptions.Left, new Vector2(0, 0), new Vector2(60, 40), new Vector2(800, 22));
+            Texto("Pie", pTitulo, "UNIVERSIDAD CENTRAL  ·  MODELADO 3D Y VIDEO JUEGOS  ·  2026-2", 14, gris, TextAlignmentOptions.Left, new Vector2(0, 0), new Vector2(60, 40), new Vector2(800, 22));
             var mLogo = Icono("Marco_Logo", pTitulo, marco, new Vector2(1, 1), new Vector2(-60, -40), new Vector2(240, 120));
             mLogo.type = Image.Type.Sliced; mLogo.preserveAspect = false; mLogo.color = new Color(0.4f, 0.9f, 1f, 0.25f);
             var logoInst = Icono("Logo_Institucion", mLogo.rectTransform, null, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(220, 100));

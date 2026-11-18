@@ -203,21 +203,31 @@ namespace Nexus
                 return;
             }
             var sb = new System.Text.StringBuilder();
+            // Las líneas vacías en los datos (p. ej. sin programa académico) no dejan un hueco
+            void Linea(string s, string prefijo = "") { if (!string.IsNullOrWhiteSpace(s)) sb.Append(prefijo).Append(s).Append('\n'); }
             sb.Append("<size=70%><color=#8ef3ff>TRABAJO FINAL</color></size>\n");
             sb.Append($"<size=130%><b>{datos.materia.ToUpperInvariant()}</b></size>\n");
-            sb.Append($"{datos.institucion}\n{datos.programa}\n");
-            sb.Append($"Docente: {datos.docente}\n{datos.periodo}\n\n");
+            Linea(datos.institucion); Linea(datos.programa);
+            Linea(datos.docente, "Docente: "); Linea(datos.periodo);
+            sb.Append('\n');
             sb.Append("<size=70%><color=#8ef3ff>DESARROLLADO POR</color></size>\n");
             foreach (var p in datos.integrantes)
                 sb.Append($"<b>{p.nombreCompleto}</b>\n<size=75%><color=#9fb3bb>{p.rol}</color></size>\n");
             sb.Append("\n<size=70%><color=#8ef3ff>HERRAMIENTAS Y RECURSOS</color></size>\n");
             sb.Append($"<size=80%>{datos.recursos}</size>");
             textoCreditos.text = sb.ToString();
+            // Logos en la esquina superior derecha (abajo los taparía el texto de los recursos)
             for (int i = 0; i < logosCreditos.Length; i++)
             {
                 bool hay = datos.logos != null && i < datos.logos.Length && datos.logos[i] != null;
                 logosCreditos[i].gameObject.SetActive(hay);
-                if (hay) logosCreditos[i].sprite = datos.logos[i];
+                if (!hay) continue;
+                logosCreditos[i].sprite = datos.logos[i];
+                logosCreditos[i].preserveAspect = true;
+                var rt = logosCreditos[i].rectTransform;
+                rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(1f, 1f);
+                rt.anchoredPosition = new Vector2(-60f, -40f - i * 175f);
+                rt.sizeDelta = new Vector2(260f, 160f);
             }
         }
 
@@ -226,7 +236,13 @@ namespace Nexus
             bool hay = datos != null && datos.logos != null && datos.logos.Length > 0 && datos.logos[0] != null;
             logoInstitucion.gameObject.SetActive(hay);
             textoSinLogo.gameObject.SetActive(!hay);
-            if (hay) logoInstitucion.sprite = datos.logos[0];
+            // Con el logo real ya no hace falta el recuadro que marcaba su lugar
+            var marco = logoInstitucion.transform.parent != null ? logoInstitucion.transform.parent.GetComponent<Image>() : null;
+            if (marco != null) marco.enabled = !hay;
+            if (!hay) return;
+            logoInstitucion.sprite = datos.logos[0];
+            logoInstitucion.preserveAspect = true;
+            logoInstitucion.rectTransform.sizeDelta = new Vector2(290f, 175f);
         }
 
         // ======================= Continuar / cargar =======================

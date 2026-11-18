@@ -12784,7 +12784,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "TRABAJO FINAL  \xB7  MODELADO 3D Y VIDEOJUEGOS  \xB7  2026"
+  m_text: "UNIVERSIDAD CENTRAL  \xB7  MODELADO 3D Y VIDEO JUEGOS  \xB7  2026-2"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 0769122f0d70d704cbe32df5af2fd32d, type: 2}

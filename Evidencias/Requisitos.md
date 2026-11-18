@@ -11,7 +11,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 | 1.2 | Mínimo 3 Canvas diferenciados | Canvas 1 Menú (inicio, selector, objetivo, créditos) · Canvas 2 HUD · Canvas 3 Game Over / Victoria | 3, 6 | ✅ Canvas 1 menú (título, selector, briefing, créditos), Canvas 2 HUD, Canvas 3 Game Over / Victoria, y además el inventario (bitácora 3.4, 3.5, 3.6 y 6.4) |
 | 1.3 | Selector de personajes con Avatar Humanoid | Modelo A y Modelo B = avatares 3D de los dos integrantes, configurados como Humanoid y con un único Animator compartido | 2 | ✅ selector 3D en el menú; el nivel usa el avatar elegido (probado con Deisy, bitácora 6.4) |
 | 1.4 | Música de fondo con componentes de audio | `AudioSource` con música en bucle por capas + ambiente de sala de servidores | 5 | ✅ música por capas (menú, exploración, tensión, jefe, sirena, victoria) y 30 efectos de Pixabay, recortados y nivelados (bitácora 5.4 y 6.11); créditos de audio en `Creditos_Audio.md` |
-| 1.5 | Créditos de la materia e imagen institucional | Panel de créditos (materia, docente, integrantes, recursos usados) y logo institucional en la pantalla de título y en los créditos. Los datos se editan en `Assets/Nexus/Datos/Creditos.asset` | 6 | 🟨 panel y espacio para logos listos; faltan los datos reales y los logos |
+| 1.5 | Créditos de la materia e imagen institucional | Panel de créditos (materia, docente, integrantes, recursos usados) y logo institucional en la pantalla de título y en los créditos. Los datos se editan en `Assets/Nexus/Datos/Creditos.asset` | 6 | ✅ datos reales (Universidad Central, docente, semestre 2026-2, integrantes), logo de la universidad en el título y en los créditos, autores de modelos y audio (bitácora 6.12) |
 | 1.6 | Explicación breve del objetivo | Pantalla de *briefing* antes del Nivel 1 + resumen del objetivo al inicio de cada nivel | 6 | ✅ briefing de misión en el menú + objetivo en el HUD al empezar el nivel (bitácora 6.4) |
 | 1.7 | Timer en pantalla | Temporizador de refrigeración (cuenta atrás) en el HUD | 3 | ✅ |
 | 1.8 | Sistema de vidas/salud | 3 "Oportunidades de Evasión": aparecen en pantalla al cambiar y siempre en el inventario | 3 | ✅ |
@@ -39,9 +39,11 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 ## Datos pendientes de los integrantes
 
 - [x] Avatares 3D de los dos integrantes (Modelo A y Modelo B): Neyder y Deisy, de Avaturn
-- [ ] Nombres completos de los integrantes
-- [ ] Nombre de la institución, programa, docente y semestre (para los créditos, en `Assets/Nexus/Datos/Creditos.asset`)
-- [ ] Logos institucionales en PNG, idealmente con fondo transparente
+- [x] Nombres completos de los integrantes: Neyder Sebastián Orozco Villamil y Deisy Lorena Jiménez Martínez
+- [x] Institución, docente y semestre: Universidad Central · Mg. Carlos Iván Pinzón Romero · 2026-2 · materia 43391312
+- [ ] Programa académico (opcional; si se da, se agrega en `Assets/Nexus/Datos/Creditos.asset`)
+- [x] Logo de la Universidad Central (versión con letras claras para los fondos oscuros del juego)
+- [x] Autores y licencias de los modelos de las armas ([Creditos_Modelos.md](Creditos_Modelos.md))
 - [ ] Decidir si se mantiene la línea "Asistencia de programación: Claude Code (Anthropic)" en los créditos
 - [x] Fecha de entrega: miércoles 18/11/2026
 - [x] Animaciones de Mixamo

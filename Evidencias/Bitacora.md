@@ -2367,3 +2367,57 @@ táctiles) se compilaron las versiones de entrega con los mismos perfiles de los
 - Publicar la versión web en línea para embeberla en el artículo de Niixer.
 - Volver a compilar cuando estén los datos reales de los créditos: nombres completos, institución,
   docente, semestre, logos y autores de las armas.
+
+### 6.12 Créditos con los datos reales y logo de la Universidad Central — 18/11/2026 · [Diseño] · [Arte]
+
+**Datos del equipo:**
+- Integrantes: Neyder Sebastián Orozco Villamil y Deisy Lorena Jiménez Martínez.
+- Institución: Universidad Central.
+- Materia: Modelado 3D y Video Juegos (43391312).
+- Docente: Mg. Carlos Iván Pinzón Romero.
+- Semestre: 2026-2.
+
+**Qué se cambió:**
+- **Créditos** (`Assets/Nexus/Datos/Creditos.asset`): los datos anteriores reemplazan los
+  "[COMPLETAR]". Si un dato queda vacío (no se dio el programa académico), su línea ya no deja un
+  hueco en pantalla.
+- **Autores de las armas:**
+  - Venían en un documento con capturas de las páginas de Sketchfab.
+  - La licencia de cada modelo se confirmó en la API pública de Sketchfab: los tres son **CC BY 4.0**
+    (piden citar al autor y permiten uso comercial).
+  - Quedaron en los créditos del juego y en [Creditos_Modelos.md](Creditos_Modelos.md): «M9 Bayonet»
+    de Atilla Kutluay Erdoğay, «Beretta M9A1» de Hung Do y «Remington 870 Shotgun» de Andrei Milin.
+- **Logo:**
+  - El original trae las letras negras sobre fondo transparente; sobre los fondos oscuros del juego no
+    se leerían.
+  - Con ffmpeg se hizo una versión con las letras claras (`Logo_UCentral_Negativo.png`): solo cambian
+    los píxeles grises y oscuros, y se conservan el verde, el rojo y la transparencia. El original
+    también quedó en el proyecto, para fondos claros como los manuales.
+  - El logo se ve en la esquina superior derecha de la pantalla de título, sin el recuadro que
+    marcaba su lugar, y arriba a la derecha en los créditos. Abajo lo habría tapado el texto de los
+    recursos.
+- **Pie de la pantalla de título:** "UNIVERSIDAD CENTRAL · MODELADO 3D Y VIDEO JUEGOS · 2026-2".
+
+![Pantalla de título con el logo de la Universidad Central](capturas/118_titulo-logo-universidad.png)
+
+![Créditos completos: materia, universidad, docente, integrantes, autores de modelos y audio](capturas/119_creditos-completos.png)
+
+**Prueba:**
+- Los créditos ocupan 708 de los 720 px disponibles, sin desbordarse.
+- La fuente tiene todos los caracteres especiales (tildes, «», la ğ de Erdoğay): ninguno sale como un
+  cuadro vacío.
+- Después se recompilaron las tres versiones (entrada 7.6).
+
+### 7.6 Builds de entrega con los créditos reales — 18/11/2026 · [Programación]
+
+Con los créditos y el logo de la entrada 6.12 se volvieron a compilar las tres versiones:
+
+| Plataforma | Archivo de entrega | Tamaño | Tiempo | Resultado |
+|---|---|---|---|---|
+| Windows | `Builds/Entrega/Nexus_Windows.zip` | 97 MB | 1 min | ✅ 0 errores |
+| Android | `Builds/Entrega/Nexus.apk` | 75 MB | 2 min | ✅ 0 errores |
+| Web (WebGL) | `Builds/Entrega/Nexus_Web.zip` (y `Builds/Web`) | 68 MB | 10 min | ✅ 0 errores; en el navegador se ven el logo y el pie nuevo, sin errores en la consola |
+
+- Estas compilaciones fueron mucho más rápidas que las de la entrada 7.5: Unity reutilizó todo lo
+  que no cambió, y esta vez solo cambiaron los créditos, el menú y el logo.
+- Al terminar, el editor volvió a Windows como plataforma de trabajo.
