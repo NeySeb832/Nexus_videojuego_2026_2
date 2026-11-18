@@ -23,9 +23,9 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 
 | # | Plataforma | Entregable | Fase | Estado |
 |---|---|---|---|---|
-| 2.1 | Windows | Ejecutable `.exe` en carpeta comprimida | 7 | 🟨 build de prueba OK (11/11) |
-| 2.2 | Web (WebGL) | Build publicado en línea, embebido en el artículo, con botón de pantalla completa | 7 | 🟨 build de prueba OK, botón de pantalla completa verificado (11/11) |
-| 2.3 | Android | Archivo `.apk` instalable | 7 | 🟨 APK de prueba compila (11/11), falta probar en celular |
+| 2.1 | Windows | Ejecutable `.exe` en carpeta comprimida | 7 | ✅ build final `Builds/Entrega/Nexus_Windows.zip`, probado (bitácora 7.5) |
+| 2.2 | Web (WebGL) | Build publicado en línea, embebido en el artículo, con botón de pantalla completa | 7 | 🟨 build final probado en el navegador, con botón de pantalla completa (7.5); falta publicarlo en línea |
+| 2.3 | Android | Archivo `.apk` instalable | 7 | 🟨 APK final con controles táctiles `Builds/Entrega/Nexus.apk` (3.16, 7.5); falta probarlo en un celular |
 
 ## 3. Entregables de producción y documentación
 

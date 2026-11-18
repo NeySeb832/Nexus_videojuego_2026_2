@@ -2330,3 +2330,40 @@ controles táctiles hacían falta para que esas versiones se puedan jugar.
 - APUNTAR levanta y baja el arma.
 - El botón INVENTARIO lo abre y los controles se ocultan; al cerrarlo vuelven.
 - 0 errores en la consola.
+
+### 7.5 Builds finales en las tres plataformas — 18/11/2026 · [Programación] · [Dificultad superada]
+
+Con el juego completo (tres niveles, jefe, audio de Pixabay, transición en el ascensor y controles
+táctiles) se compilaron las versiones de entrega con los mismos perfiles de los builds de prueba
+(7.1 a 7.3).
+
+| Plataforma | Archivo de entrega | Tamaño | Tiempo | Resultado |
+|---|---|---|---|---|
+| Android | `Builds/Entrega/Nexus.apk` | 75 MB | 5,5 min | ✅ 0 errores |
+| Windows | `Builds/Entrega/Nexus_Windows.zip` (carpeta con `Nexus.exe`) | 97 MB comprimido, 217 MB descomprimido | 5 min | ✅ 0 errores; el .exe arrancó y corrió sin errores en su registro (Direct3D 11) |
+| Web (WebGL) | `Builds/Web` y `Builds/Entrega/Nexus_Web.zip` | 69 MB | 12 min | ✅ 0 errores; probado en el navegador: menú, selector, informe de misión y Nivel 1, sin errores en la consola |
+
+- Los builds de prueba del 11/11 tardaron 7, 13 y 20 minutos; ahora fueron más rápidos gracias a la
+  caché de IL2CPP.
+- Las advertencias son todas inofensivas: funciones de Unity marcadas como obsoletas, *shaders*
+  de depuración que se descartan y avisos de TextMeshPro al compilar a C++.
+- El paquete de control desde la terminal (Pipeline) **no** se incluye en los builds.
+- El .zip de Windows deja fuera la carpeta `Nexus_BackUpThisFolder_ButDontShipItWithYourGame`.
+  Unity la genera para depurar y avisa que no se distribuya.
+
+**Dificultad superada:**
+- El primer intento del build de Windows terminó al instante, con resultado "Unknown" y 0 ms. Se
+  había pedido justo después de cambiar de plataforma: Unity recompiló los scripts para Windows y
+  descartó el build que estaba en cola.
+- Se repitió con el editor ya libre y compiló bien.
+- Desde entonces, antes de cada build se espera a que el editor termine de compilar.
+
+![El build WebGL final: menú principal en el navegador, con el botón de pantalla completa](capturas/116_build-webgl-final-menu.jpg)
+
+![El build WebGL final: la cinemática de entrada del Nivel 1](capturas/117_build-webgl-final-nivel1.jpg)
+
+**Pendiente:**
+- Instalar el APK en un celular Android y jugarlo con los controles táctiles.
+- Publicar la versión web en línea para embeberla en el artículo de Niixer.
+- Volver a compilar cuando estén los datos reales de los créditos: nombres completos, institución,
+  docente, semestre, logos y autores de las armas.
