@@ -65,9 +65,9 @@ namespace Nexus.Herramientas
     ///        P  panel fusibles n  nota           D  Disco Duro en pedestal
     ///        R  puerta roja    B  puerta azul    X  puerta sin energía  L  puerta libre
     ///        E  ascensor    A  androide
-    ///        k  tarjeta roja   a  tarjeta azul   f  fusible   u  USB   m  Speedmax
-    ///        c  Chocorramo     g  cartucho de refrigerante
-    ///        V  máquina de bebidas (Speedmax)    Y  máquina de snacks (Chocorramo)
+    ///        k  tarjeta roja   a  tarjeta azul   f  fusible   u  USB   m  bebida energética
+    ///        c  barrita de proteína     g  cartucho de refrigerante
+    ///        V  máquina de bebidas energéticas    Y  máquina de barritas de proteína
     ///        M  mesa de cafetería con sillas     W  isla de escritorios     b  estiba de cajas
     ///        C  cuchillo   H  pistola   Z  escopeta   h  balas de pistola (12)   z  cartuchos (4)
     ///        K  cadáver que se registra (ver DefNivel.Cadaveres: lleva un arma o munición y una nota)
@@ -377,8 +377,8 @@ namespace Nexus.Herramientas
                 'a' => ("Coleccionables/Tarjeta_Acceso_Azul", TipoColeccionable.TarjetaAzul, "Tarjeta de acceso azul"),
                 'f' => ("Coleccionables/Fusible", TipoColeccionable.Fusible, "Fusible de repuesto"),
                 'u' => ("Coleccionables/Memoria_USB", TipoColeccionable.USB, "Memoria USB de respaldo"),
-                'm' => ("Coleccionables/Speedmax", TipoColeccionable.Speedmax, "Speedmax"),
-                'c' => ("Coleccionables/Chocorramo", TipoColeccionable.Chocorramo, "Chocorramo"),
+                'm' => ("Coleccionables/Bebida_Energetica", TipoColeccionable.BebidaEnergetica, "Bebida energética"),
+                'c' => ("Coleccionables/Barrita_Proteina", TipoColeccionable.BarritaProteina, "Barrita de proteína"),
                 'g' => ("Coleccionables/Cartucho_Refrigerante", TipoColeccionable.Refrigerante, "Cartucho de refrigerante"),
                 'C' => ("Coleccionables/Cuchillo", TipoColeccionable.Cuchillo, "Bayoneta M9"),
                 'H' => ("Coleccionables/Pistola", TipoColeccionable.Pistola, "Pistola M9"),

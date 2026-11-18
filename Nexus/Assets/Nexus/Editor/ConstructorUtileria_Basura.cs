@@ -51,7 +51,7 @@ namespace Nexus.Herramientas
                 bool aplastada = rnd.NextDouble() < 0.4;
                 Cil("Lata", v, new Vector3(R(rnd, -0.5f, 0.5f), aplastada ? 0.012f : 0.033f, R(rnd, -0.5f, 0.5f)), 0.033f, aplastada ? 0.03f : 0.12f, "M_Lata_Energetica", new Vector3(0f, rnd.Next(0, 360), aplastada ? 0f : 90f));
             }
-            Caja("Envoltura", v, new Vector3(R(rnd, -0.4f, 0.4f), 0.01f, R(rnd, -0.4f, 0.4f)), new Vector3(0.13f, 0.02f, 0.05f), "M_Ponque", new Vector3(0f, rnd.Next(0, 360), 0f));
+            Caja("Envoltura", v, new Vector3(R(rnd, -0.4f, 0.4f), 0.01f, R(rnd, -0.4f, 0.4f)), new Vector3(0.13f, 0.02f, 0.05f), "M_Barrita_Proteina", new Vector3(0f, rnd.Next(0, 360), 0f));
             Terminar(raiz, false, false);
         }
 

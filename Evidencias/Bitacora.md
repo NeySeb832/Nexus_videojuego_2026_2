@@ -2131,3 +2131,22 @@ constante.
   detectan al técnico a la vez; antes habrían sonado seis golpes de terror encimados.
 - En la prueba, seis detecciones seguidas sonaron como **una**.
 - Los motores, gruñidos y chirridos terminan con una salida de 30 ms para no cortarse con un clic.
+
+### 6.10 Objetos de curación con nombres genéricos — 17/11/2026 · [Diseño] · [Arte]
+
+**Pedido del equipo:** el "Speedmax" pasa a llamarse **Bebida energética** y el "Chocorramo",
+**Barrita de proteína**. Así el juego no usa nombres de marcas reales.
+
+- **Textos:** inventario, avisos, máquinas expendedoras ("Sacar barrita de proteína de la
+  máquina"), la nota de la cafetería y el cadáver del ingeniero Ríos.
+- **Nombres internos:** el tipo de objeto (`BebidaEnergetica`, `BarritaProteina`), los prefabs y los
+  íconos del inventario. Los números del tipo no cambiaron, así que las partidas guardadas siguen
+  funcionando.
+- **Modelo:** la envoltura del ponqué, que recordaba a la de un producto real, se cambió por una
+  envoltura de barrita deportiva de diseño propio: grafito, bordes plateados de sellado, franja
+  diagonal turquesa y un panel claro de información, sin marcas ni texto. La lata de bebida
+  energética ya era de diseño propio.
+- Se regeneraron los objetos, la utilería (máquinas y envolturas tiradas), la interfaz y los tres
+  niveles. En la prueba en modo Play, las máquinas y el inventario muestran los nombres nuevos.
+
+![La bebida energética y la nueva barrita de proteína](capturas/111_bebida-energetica-y-barrita.png)

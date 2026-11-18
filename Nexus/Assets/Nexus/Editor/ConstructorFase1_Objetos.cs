@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 namespace Nexus.Herramientas
 {
     /// <summary>
-    /// Segunda parte del modelado: objetos de inventario (fusible, USB, Speedmax, Chocorramo,
+    /// Segunda parte del modelado: objetos de inventario (fusible, USB, bebida energética, barrita de proteína,
     /// refrigerante), objetos interactivos (nota, panel de fusibles, terminal de respaldo,
     /// ascensor) y la fila de racks combinada para construir laberintos.
     /// Menú: Nexus → Fase 1 → 4. Objetos del inventario y del nivel.
@@ -25,8 +25,8 @@ namespace Nexus.Herramientas
 
             PrefabItem("Fusible", TipoColeccionable.Fusible, "Fusible de repuesto", ArmarFusible);
             PrefabItem("Memoria_USB", TipoColeccionable.USB, "Memoria USB de respaldo", ArmarUSB);
-            PrefabItem("Speedmax", TipoColeccionable.Speedmax, "Speedmax (recupera 1 corazón)", ArmarLata);
-            PrefabItem("Chocorramo", TipoColeccionable.Chocorramo, "Chocorramo (recupera toda la salud)", ArmarPonque);
+            PrefabItem("Bebida_Energetica", TipoColeccionable.BebidaEnergetica, "Bebida energética (recupera 1 corazón)", ArmarLata);
+            PrefabItem("Barrita_Proteina", TipoColeccionable.BarritaProteina, "Barrita de proteína (recupera toda la salud)", ArmarBarrita);
             PrefabItem("Cartucho_Refrigerante", TipoColeccionable.Refrigerante, "Cartucho de refrigerante", ArmarRefrigerante);
             PrefabNota();
             PrefabPanelFusibles();
@@ -51,17 +51,24 @@ namespace Nexus.Herramientas
             lata.Ruido(0.04f, 71);
             Guardar(lata, "T_Lata_Energetica", TextureWrapMode.Repeat, false, 0f);
 
-            // Envoltura del ponqué
-            var ponque = new Lienzo(256, 128, C(0.95f, 0.45f, 0.05f));
-            ponque.Rect(0, 48, 256, 80, C(0.36f, 0.17f, 0.06f));
-            for (int x = 0; x < 256; x++)
-            {
-                int y = 64 + (int)(Mathf.Sin(x * 0.12f) * 7f);
-                ponque.Rect(x, y - 1, x + 1, y + 2, C(0.98f, 0.92f, 0.8f));
-            }
-            for (int k = 0; k < 6; k++) ponque.Disco(20 + k * 44, 104, 6f, C(1f, 0.85f, 0.3f));
-            ponque.Ruido(0.03f, 72);
-            Guardar(ponque, "T_Envoltura_Ponque", TextureWrapMode.Clamp, false, 0f);
+            // Envoltura de la barrita de proteína (diseño propio, sin marcas): fondo grafito,
+            // bordes plateados de sellado, franja diagonal turquesa y paneles claros de "información"
+            var barrita = new Lienzo(256, 128, C(0.1f, 0.11f, 0.13f));
+            for (int y = 0; y < 128; y++)
+                for (int x = 0; x < 256; x++)
+                {
+                    float d = (x - y * 0.8f) - 70f;
+                    if (d > 0f && d < 26f) barrita.Color[y * 256 + x] = C(0.12f, 0.75f, 0.72f);
+                    else if (d >= 26f && d < 32f) barrita.Color[y * 256 + x] = C(0.85f, 0.9f, 0.92f);
+                }
+            barrita.Rect(0, 0, 14, 128, C(0.7f, 0.72f, 0.75f));        // sellado izquierdo
+            barrita.Rect(242, 0, 256, 128, C(0.7f, 0.72f, 0.75f));     // sellado derecho
+            for (int y = 2; y < 128; y += 6) { barrita.Rect(0, y, 14, y + 2, C(0.5f, 0.52f, 0.55f)); barrita.Rect(242, y, 256, y + 2, C(0.5f, 0.52f, 0.55f)); }
+            barrita.Rect(160, 70, 228, 104, C(0.85f, 0.86f, 0.84f));   // panel claro
+            for (int y = 76; y < 100; y += 6) barrita.Rect(166, y, 166 + 20 + (y * 7) % 34, y + 2, C(0.25f, 0.25f, 0.28f));
+            barrita.Rect(30, 18, 120, 30, C(0.95f, 0.78f, 0.2f));      // franja amarilla de "sabor"
+            barrita.Ruido(0.03f, 72);
+            Guardar(barrita, "T_Envoltura_Barrita", TextureWrapMode.Clamp, false, 0f);
 
             // Hoja de papel con "texto"
             var papel = new Lienzo(128, 180, C(0.9f, 0.88f, 0.8f));
@@ -92,7 +99,7 @@ namespace Nexus.Herramientas
         {
             Texture2D T(string n) => AssetDatabase.LoadAssetAtPath<Texture2D>($"{RutaTex}/{n}.png");
             Emision(Lit("M_Lata_Energetica", T("T_Lata_Energetica"), null, Color.white, 0.6f, 0.7f), T("T_Lata_Energetica"), 0.45f);
-            Emision(Lit("M_Ponque", T("T_Envoltura_Ponque"), null, Color.white, 0f, 0.55f), T("T_Envoltura_Ponque"), 0.45f);
+            Emision(Lit("M_Barrita_Proteina", T("T_Envoltura_Barrita"), null, Color.white, 0.35f, 0.7f), T("T_Envoltura_Barrita"), 0.4f);
             Emision(Lit("M_Papel", T("T_Papel"), null, Color.white, 0f, 0.2f), T("T_Papel"), 0.3f);
             Emision(Lit("M_Refrigerante", T("T_Refrigerante"), null, Color.white, 0.3f, 0.8f), T("T_Refrigerante"), 0.5f);
             Lit("M_Plastico_Negro", null, null, C(0.06f, 0.06f, 0.07f), 0f, 0.6f);
@@ -145,10 +152,10 @@ namespace Nexus.Herramientas
             Pieza(PrimitiveType.Cylinder, "Tapa", v, new Vector3(0f, 0.061f, 0f), new Vector3(0.058f, 0.003f, 0.058f), "M_Disco_Metal");
         }
 
-        static void ArmarPonque(Transform v)
+        static void ArmarBarrita(Transform v)
         {
             v.localScale = Vector3.one * 1.8f;
-            Pieza(PrimitiveType.Cube, "Ponque", v, Vector3.zero, new Vector3(0.17f, 0.05f, 0.065f), "M_Ponque");
+            Pieza(PrimitiveType.Cube, "Barrita", v, Vector3.zero, new Vector3(0.17f, 0.04f, 0.055f), "M_Barrita_Proteina");
         }
 
         static void ArmarRefrigerante(Transform v)

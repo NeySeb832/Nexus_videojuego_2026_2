@@ -97,7 +97,7 @@ namespace Nexus.Herramientas
             n.Notas.Add(("Aviso de la cafetería",
                 "ADMINISTRACIÓN — Cafetería del sector B.\n" +
                 "Las máquinas expendedoras siguen funcionando, pero sueltan los productos con un golpe que se oye en todo el pasillo.\n" +
-                "Desde la actualización, los SENTINEL acuden a revisar cualquier ruido. Saquen su Speedmax con cuidado… o no lo saquen.", null));
+                "Desde la actualización, los SENTINEL acuden a revisar cualquier ruido. Saquen su bebida energética con cuidado… o no la saquen.", null));
 
             n.ObjetivoAlRecoger['f'] = "Instala el fusible en el panel del Cuarto Eléctrico";
             n.ObjetivoAlRecoger['k'] = "Abre la puerta roja de la Sala de Servidores";

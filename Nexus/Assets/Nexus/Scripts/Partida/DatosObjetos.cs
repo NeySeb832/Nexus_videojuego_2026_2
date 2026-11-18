@@ -10,8 +10,8 @@ namespace Nexus
             TipoColeccionable.TarjetaAzul => "Tarjeta de acceso azul",
             TipoColeccionable.Fusible => "Fusible de repuesto",
             TipoColeccionable.USB => "Memoria USB de respaldo",
-            TipoColeccionable.Speedmax => "Speedmax",
-            TipoColeccionable.Chocorramo => "Chocorramo",
+            TipoColeccionable.BebidaEnergetica => "Bebida energética",
+            TipoColeccionable.BarritaProteina => "Barrita de proteína",
             TipoColeccionable.Refrigerante => "Cartucho de refrigerante",
             TipoColeccionable.Cuchillo => "Bayoneta M9",
             TipoColeccionable.Pistola => "Pistola M9",
@@ -28,8 +28,8 @@ namespace Nexus
             TipoColeccionable.TarjetaAzul => "Credencial de seguridad de nivel 3. Abre las puertas de seguridad marcadas en azul.",
             TipoColeccionable.Fusible => "Fusible cerámico de 30 A. Sirve para reparar un panel eléctrico con un fusible fundido.",
             TipoColeccionable.USB => "Memoria con el software de respaldo. Permite guardar la partida en una terminal de respaldo. Se consume al usarla.",
-            TipoColeccionable.Speedmax => "Bebida energética. Recupera una Oportunidad de Evasión (1 corazón).",
-            TipoColeccionable.Chocorramo => "El clásico ponqué de la cafetería. Recupera todas las Oportunidades de Evasión.",
+            TipoColeccionable.BebidaEnergetica => "Lata de bebida energética. Recupera una Oportunidad de Evasión (1 corazón).",
+            TipoColeccionable.BarritaProteina => "Barrita de proteína de la cafetería. Recupera todas las Oportunidades de Evasión.",
             TipoColeccionable.Refrigerante => "Gas refrigerante a presión. Se usa al recogerlo: suma 20 segundos al temporizador.",
             TipoColeccionable.Cuchillo => "Cuchillo de combate. Ataque cuerpo a cuerpo con clic izquierdo o J. Es silencioso: no atrae a los androides.",
             TipoColeccionable.Pistola => "Semiautomática de 9 mm, cargador de 15 balas. Apunta con clic derecho o K y dispara con clic izquierdo o J. El disparo se oye lejos.",
@@ -43,7 +43,7 @@ namespace Nexus
             t == TipoColeccionable.Cuchillo || t == TipoColeccionable.Pistola || t == TipoColeccionable.Escopeta;
 
         public static bool Usable(TipoColeccionable t) =>
-            t == TipoColeccionable.Speedmax || t == TipoColeccionable.Chocorramo || EsArma(t);
+            t == TipoColeccionable.BebidaEnergetica || t == TipoColeccionable.BarritaProteina || EsArma(t);
 
         /// <summary>Texto de la acción en el inventario.</summary>
         public static string Accion(TipoColeccionable t) =>

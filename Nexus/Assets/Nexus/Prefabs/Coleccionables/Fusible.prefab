@@ -392,3 +392,4 @@ MonoBehaviour:
   objetivoAlRecoger: 
   dialogoAlRecoger: []
   sonidoRecoger: {fileID: 0}
+  cantidad: 1

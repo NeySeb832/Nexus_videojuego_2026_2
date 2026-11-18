@@ -342,6 +342,7 @@ MonoBehaviour:
   objetivoAlRecoger: 
   dialogoAlRecoger: []
   sonidoRecoger: {fileID: 0}
+  cantidad: 1
 --- !u!1 &2467973233542600237
 GameObject:
   m_ObjectHideFlags: 0

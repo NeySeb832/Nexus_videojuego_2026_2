@@ -19,7 +19,7 @@ namespace Nexus.Herramientas
         {
             "Coleccionables/Disco_Duro_Maestro", "Coleccionables/Tarjeta_Acceso_Roja", "Coleccionables/Tarjeta_Acceso_Azul",
             "Coleccionables/Cartucho_Refrigerante", "Coleccionables/Fusible", "Coleccionables/Memoria_USB",
-            "Coleccionables/Speedmax", "Coleccionables/Chocorramo",
+            "Coleccionables/Bebida_Energetica", "Coleccionables/Barrita_Proteina",
             "Coleccionables/Cuchillo", "Coleccionables/Pistola", "Coleccionables/Escopeta",
             "Coleccionables/Balas_Pistola", "Coleccionables/Cartuchos_Escopeta"
         };   // mismo orden que el enum TipoColeccionable

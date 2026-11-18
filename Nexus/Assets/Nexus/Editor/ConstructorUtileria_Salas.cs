@@ -63,8 +63,8 @@ namespace Nexus.Herramientas
                 {
                     if (rota && rnd.NextDouble() < 0.6) continue;
                     float x = -0.38f + c * 0.16f;
-                    if (producto == TipoColeccionable.Chocorramo)
-                        Caja("Ponque", tmp, new Vector3(x, y + 0.025f, -0.6f), new Vector3(0.13f, 0.05f, 0.045f), "M_Ponque", new Vector3(0f, 0f, 0f));
+                    if (producto == TipoColeccionable.BarritaProteina)
+                        Caja("Barrita", tmp, new Vector3(x, y + 0.025f, -0.6f), new Vector3(0.13f, 0.05f, 0.045f), "M_Barrita_Proteina", new Vector3(0f, 0f, 0f));
                     else
                         Cil("Lata", tmp, new Vector3(x, y + 0.06f, -0.6f), 0.033f, 0.12f, "M_Lata_Energetica");
                     Cil("Espiral", tmp, new Vector3(x, y + 0.05f, -0.45f), 0.045f, 0.22f, "M_Disco_Metal", new Vector3(90f, 0f, 0f));
@@ -135,7 +135,7 @@ namespace Nexus.Herramientas
             // Restos de la última comida
             Caja("Bandeja", v, new Vector3(0.1f, 0.765f, 0.05f), new Vector3(0.4f, 0.015f, 0.3f), "M_Utl_PlasticoGris", new Vector3(0f, 20f, 0f));
             Cil("Vaso", v, new Vector3(-0.2f, 0.8f, -0.1f), 0.035f, 0.11f, "M_Utl_Blanco");
-            Caja("Envoltura", v, new Vector3(0.05f, 0.782f, 0.1f), new Vector3(0.13f, 0.02f, 0.05f), "M_Ponque", new Vector3(0f, 35f, 0f));
+            Caja("Envoltura", v, new Vector3(0.05f, 0.782f, 0.1f), new Vector3(0.13f, 0.02f, 0.05f), "M_Barrita_Proteina", new Vector3(0f, 35f, 0f));
             Cil("Lata", v, new Vector3(0.25f, 0.79f, -0.2f), 0.033f, 0.12f, "M_Lata_Energetica", new Vector3(0f, 0f, 90f));
             // Sillas plásticas alrededor (una volcada)
             ArmarSillaPlastica(v, new Vector3(0f, 0f, -0.65f), 0f, Vector3.zero);

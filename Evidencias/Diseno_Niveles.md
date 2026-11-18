@@ -12,8 +12,8 @@ distintas. La dificultad sube en cada nivel: más androides, más rápidos y men
 | 🟥 / 🟦 Tarjeta de acceso | Abre las puertas de su color |
 | 🔌 Fusible | Objeto de puzle: devuelve la energía a una zona |
 | 📄 Nota | Historia (*lore*) y pistas, por ejemplo códigos |
-| ⚡ Speedmax | Recupera parte de la salud |
-| 🍫 Chocorramo | Recupera toda la salud |
+| ⚡ Bebida energética | Recupera parte de la salud |
+| 🍫 Barrita de proteína | Recupera toda la salud |
 | ❄️ Cartucho de refrigerante | Coleccionable con contador: suma segundos al temporizador |
 | 🔑 USB de respaldo | Se gasta al guardar en una terminal de respaldo |
 | 🖥️ Terminal | Cuadros de diálogo con alertas e instrucciones |

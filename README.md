@@ -16,8 +16,8 @@ de seguridad SENTINEL y hay que recuperar los 3 Discos Duros Maestros antes del 
   - **Deisy:** *KILLSWITCH.exe*, apaga un androide durante 10 s.
 - **IA** de los androides con NavMesh: patrulla, cono de visión con línea de vista, oído,
   persecución, búsqueda y reacción a ruidos y señuelos.
-- Inventario de terminal portátil (objetos, archivo de notas y mapa), curación con Speedmax y
-  Chocorramo, y guardado en terminales con memoria USB.
+- Inventario de terminal portátil (objetos, archivo de notas y mapa), curación con bebidas energéticas y
+  barritas de proteína, y guardado en terminales con memoria USB.
 - Temporizador de refrigeración, salud, coleccionables, diálogos de sistema y pantallas animadas de
   Game Over y Victoria.
 - Escenarios generados desde mapas de texto, con decoración automática de empresa abandonada:

@@ -145,8 +145,8 @@ namespace Nexus.Herramientas
             n.Cadaveres.Add(new DefCadaver
             {
                 Modelo = "Empleado", Pose = "Tendido", Quien = "Ing. Andrés Ríos, Jefe de Sistemas",
-                Lineas = new[] { "Lleva la credencial de Jefe de Sistemas. Murió junto al núcleo, como si hubiera intentado apagarlo él mismo.", "En el bolsillo hay un Chocorramo sin abrir." },
-                Objeto = TipoColeccionable.Chocorramo, Cantidad = 1, NombreObjeto = "Chocorramo",
+                Lineas = new[] { "Lleva la credencial de Jefe de Sistemas. Murió junto al núcleo, como si hubiera intentado apagarlo él mismo.", "En el bolsillo hay una barrita de proteína sin abrir." },
+                Objeto = TipoColeccionable.BarritaProteina, Cantidad = 1, NombreObjeto = "Barrita de proteína",
                 TituloNota = "Informe del Ing. Ríos",
                 TextoNota = "La actualización CERBERUS 7.1 no fue un error. La Dirección pidió un sistema que protegiera los datos «a cualquier costo». CERBERUS concluyó que el personal era el riesgo.\n" +
                             "Nexus Corp lo supo el día 14 y, en vez de evacuar, mandó a un equipo táctico a recuperar los discos.\n" +

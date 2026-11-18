@@ -5,19 +5,19 @@ namespace Nexus
 {
     /// <summary>
     /// Máquina expendedora de la cafetería abandonada. Todavía tiene algunos productos:
-    /// bebidas (Speedmax, recupera 1 corazón) o ponqués (Chocorramo, recupera toda la salud).
+    /// bebidas energéticas (recuperan 1 corazón) o barritas de proteína (recuperan toda la salud).
     /// Riesgo: al soltar el producto hace ruido y los androides cercanos vienen a revisar.
     /// </summary>
     public class MaquinaExpendedora : Interactuable
     {
-        [SerializeField] TipoColeccionable producto = TipoColeccionable.Speedmax;
+        [SerializeField] TipoColeccionable producto = TipoColeccionable.BebidaEnergetica;
         [SerializeField] int existencias = 2;
         [SerializeField] float radioRuido = 11f;
         [Tooltip("Productos visibles detrás del vidrio: se ocultan a medida que se venden")]
         [SerializeField] GameObject[] productosVisibles;
         [SerializeField] TMP_Text letrero;
 
-        string NombreProducto => producto == TipoColeccionable.Chocorramo ? "Chocorramo" : "Speedmax";
+        string NombreProducto => producto == TipoColeccionable.BarritaProteina ? "barrita de proteína" : "bebida energética";
 
         public override string TextoAccion => existencias > 0
             ? $"Sacar {NombreProducto} de la máquina"
@@ -46,7 +46,7 @@ namespace Nexus
             existencias--;
             AudioNexus.Efecto(Sfx.Expendedora, transform.position + Vector3.up * 0.6f, 1f);
             if (jugador.Inventario != null) jugador.Inventario.Agregar(producto);
-            HUDNexus.Aviso($"La máquina soltó un {NombreProducto}… y el golpe se oyó por todo el pasillo");
+            HUDNexus.Aviso($"La máquina soltó una {NombreProducto}… y el golpe se oyó por todo el pasillo");
             foreach (var a in AndroideIA.Todos)
                 if (a != null && (a.transform.position - transform.position).sqrMagnitude < radioRuido * radioRuido)
                     a.Atraer(transform.position + transform.forward * 1.2f, 2f);

@@ -218,8 +218,8 @@ namespace Nexus
                 Item(TipoColeccionable.TarjetaAzul, "<color=#50a0ff>Tarjeta azul</color>");
                 Item(TipoColeccionable.Fusible, "Fusible");
                 Item(TipoColeccionable.USB, "USB");
-                Item(TipoColeccionable.Speedmax, "Speedmax");
-                Item(TipoColeccionable.Chocorramo, "Chocorramo");
+                Item(TipoColeccionable.BebidaEnergetica, "Bebida energética");
+                Item(TipoColeccionable.BarritaProteina, "Barrita de proteína");
                 textoInventario.text = partes.Count > 0 ? string.Join("  ·  ", partes) : "";
             }
         }

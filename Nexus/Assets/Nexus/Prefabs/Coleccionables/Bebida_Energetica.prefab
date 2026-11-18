@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 8344513599413891012}
   - component: {fileID: 917914871705565737}
   m_Layer: 0
-  m_Name: Speedmax
+  m_Name: Bebida_Energetica
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -248,10 +248,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Nexus.Coleccionable
   tipo: 6
-  nombreVisible: "Speedmax (recupera 1 coraz\xF3n)"
+  nombreVisible: "Bebida energ\xE9tica (recupera 1 coraz\xF3n)"
   objetivoAlRecoger: 
   dialogoAlRecoger: []
   sonidoRecoger: {fileID: 0}
+  cantidad: 1
 --- !u!1 &8649874375870419744
 GameObject:
   m_ObjectHideFlags: 0

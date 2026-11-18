@@ -52,9 +52,9 @@ namespace Nexus.Herramientas
             PrefabDispensadorAgua();
 
             // Cafetería
-            PrefabMaquina("Maquina_Bebidas", TipoColeccionable.Speedmax, 2, new Color(0.04f, 0.32f, 0.12f), "NEXUS FRESH", false);
-            PrefabMaquina("Maquina_Snacks", TipoColeccionable.Chocorramo, 1, new Color(0.45f, 0.12f, 0.03f), "SNACK·BYTE", false);
-            PrefabMaquina("Maquina_Rota", TipoColeccionable.Speedmax, 0, new Color(0.2f, 0.07f, 0.06f), "FUERA DE SERVICIO", true);
+            PrefabMaquina("Maquina_Bebidas", TipoColeccionable.BebidaEnergetica, 2, new Color(0.04f, 0.32f, 0.12f), "NEXUS FRESH", false);
+            PrefabMaquina("Maquina_Snacks", TipoColeccionable.BarritaProteina, 1, new Color(0.45f, 0.12f, 0.03f), "SNACK·BYTE", false);
+            PrefabMaquina("Maquina_Rota", TipoColeccionable.BebidaEnergetica, 0, new Color(0.2f, 0.07f, 0.06f), "FUERA DE SERVICIO", true);
             PrefabMesaCafeteria();
             PrefabSillaPlastica();
             PrefabMeson();

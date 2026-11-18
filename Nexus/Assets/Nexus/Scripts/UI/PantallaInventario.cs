@@ -234,7 +234,7 @@ namespace Nexus
             }
             var vida = jugador != null ? jugador.GetComponent<VidaJugador>() : null;
             if (vida == null) return;
-            int curar = t == TipoColeccionable.Chocorramo ? EstadoPartida.SaludMaxima : 1;
+            int curar = t == TipoColeccionable.BarritaProteina ? EstadoPartida.SaludMaxima : 1;
             if (!vida.Curar(curar))
             {
                 textoAccion.text = "TUS OPORTUNIDADES YA ESTÁN AL MÁXIMO";

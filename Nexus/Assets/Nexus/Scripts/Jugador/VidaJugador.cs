@@ -7,7 +7,7 @@ namespace Nexus
     /// "Oportunidades de Evasión": el técnico tiene 3 corazones. Cada vez que un androide lo
     /// alcanza pierde uno, recibe un empujón y queda unos segundos invulnerable.
     /// Con 1 corazón camina herido; con 0 muere y salta la pantalla de Game Over.
-    /// El Speedmax recupera 1 corazón y el Chocorramo los recupera todos.
+    /// La bebida energética recupera 1 corazón y la barrita de proteína los recupera todos.
     /// </summary>
     public class VidaJugador : MonoBehaviour
     {

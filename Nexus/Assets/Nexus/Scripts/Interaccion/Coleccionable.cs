@@ -11,8 +11,8 @@ namespace Nexus
         Refrigerante,
         Fusible,
         USB,
-        Speedmax,
-        Chocorramo,
+        BebidaEnergetica,
+        BarritaProteina,
         // Armas y munición (al final: los números de los anteriores no cambian)
         Cuchillo,
         Pistola,
