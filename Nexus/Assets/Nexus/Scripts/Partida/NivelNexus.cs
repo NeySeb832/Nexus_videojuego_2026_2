@@ -92,8 +92,14 @@ namespace Nexus
         {
             if (Terminado) return;
             Terminado = true;
-            if (string.IsNullOrEmpty(escenaSiguiente)) HUDNexus.MostrarFinal(true, "SISTEMA RESTAURADO",
-                "Los tres Discos Duros Maestros forzaron el reinicio manual. Nexus está a salvo.");
+            if (string.IsNullOrEmpty(escenaSiguiente))
+            {
+                // Último nivel: la cinemática del reinicio manual y luego la pantalla de victoria
+                void Victoria() => HUDNexus.MostrarFinal(true, "SISTEMA RESTAURADO",
+                    "Los tres Discos Duros Maestros forzaron el reinicio manual. Nexus está a salvo y los registros del día 14 ya son públicos.");
+                if (Cinematica.Final != null) Cinematica.Final.ReproducirFinal(Victoria);
+                else Victoria();
+            }
             else StartCoroutine(CargarSiguiente());
         }
 

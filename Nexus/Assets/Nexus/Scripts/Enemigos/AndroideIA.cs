@@ -47,6 +47,22 @@ namespace Nexus
             foreach (var a in new List<AndroideIA>(Todos)) a.Cazar(segundos);
         }
 
+        /// <summary>Reinicio manual del final: CERBERUS 7.0 desconecta todas las unidades para siempre.</summary>
+        public static void DesconectarTodos()
+        {
+            foreach (var a in new List<AndroideIA>(Todos))
+            {
+                if (a.Destruido || a.agente == null) continue;
+                a.estado = Estado.Apagado;
+                a.finApagado = float.MaxValue;
+                a.cazarHasta = 0f;
+                if (a.agente.enabled && a.agente.isOnNavMesh) { a.agente.ResetPath(); a.agente.isStopped = true; }
+                if (a.animator != null) { a.animator.SetFloat(ParamVelocidad, 0f); a.animator.SetBool(ParamMuerto, true); }
+                if (a.linterna != null) a.linterna.enabled = false;
+                a.Brillo(0f);
+            }
+        }
+
         [Header("Ruta y velocidad")]
         [SerializeField] Vector3[] ruta;
         [SerializeField] float velocidadPatrulla = 1.5f;
@@ -116,11 +132,29 @@ namespace Nexus
         }
 
         float cazarHasta;
-        bool enPausa;
+        bool enPausa, detenidoAntes;
+
+        [Tooltip("Unidad de reserva del jefe final: no despierta con la alarma, solo cuando el jefe la llama")]
+        [SerializeField] bool reservaDelJefe;
+        /// <summary>Multiplica el daño recibido (el jefe: blindado 0,5, expuesto 2).</summary>
+        public float MultiplicadorDanio { get; set; } = 1f;
+        /// <summary>Lo detiene otro script (el jefe mientras carga su descarga): gira hacia el jugador pero no camina.</summary>
+        public bool Detenido { get; set; }
+        public float SaludMaxima => saludMaxima;
+        public void ConfigurarReserva(bool reserva) => reservaDelJefe = reserva;
+        /// <summary>Brillo del visor y las juntas (efectos del jefe).</summary>
+        public void Destello(float k) => Brillo(k);
+
+        /// <summary>El jefe llama a sus refuerzos: se encienden y van tras el técnico.</summary>
+        public void Activar(float segundosCaza)
+        {
+            reservaDelJefe = false;
+            Cazar(segundosCaza);
+        }
 
         void Cazar(float segundos)
         {
-            if (Destruido || jugador == null) return;
+            if (Destruido || jugador == null || reservaDelJefe) return;
             cazarHasta = Time.time + segundos;
             if (estado == Estado.Inactivo)
             {
@@ -169,6 +203,7 @@ namespace Nexus
             if (Destruido) return;
             if (salud < 0f) salud = saludMaxima;
             if (estado == Estado.Apagado) cantidad *= 2f;
+            cantidad *= MultiplicadorDanio;
             salud -= cantidad;
             if (salud <= 0f) { Destruir(); return; }
 
@@ -250,7 +285,7 @@ namespace Nexus
 
         void AlRecogerObjeto(Coleccionable c)
         {
-            if (c.Tipo != TipoColeccionable.DiscoDuro || estado != Estado.Inactivo) return;
+            if (c.Tipo != TipoColeccionable.DiscoDuro || estado != Estado.Inactivo || reservaDelJefe) return;
             // La alarma despierta al androide y lo manda a donde está el jugador
             Despertar(false, 0.9f);
         }
@@ -320,6 +355,17 @@ namespace Nexus
                 enPausa = false;
                 agente.isStopped = estado == Estado.Inactivo || estado == Estado.Recalibrando || estado == Estado.Apagado;
             }
+            if (Detenido && estado != Estado.Inactivo && estado != Estado.Apagado)
+            {
+                // Quieto, encarando al técnico (el jefe cargando su descarga)
+                detenidoAntes = true;
+                agente.isStopped = true;
+                if (animator != null) animator.SetFloat(ParamVelocidad, 0f, 0.1f, Time.deltaTime);
+                Vector3 h = jugador.position - transform.position; h.y = 0f;
+                if (h.sqrMagnitude > 0.01f) transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(h), 120f * Time.deltaTime);
+                return;
+            }
+            if (detenidoAntes) { detenidoAntes = false; agente.isStopped = estado == Estado.Recalibrando; }
             if (animator != null) animator.SetFloat(ParamVelocidad, agente.velocity.magnitude, 0.1f, Time.deltaTime);
 
             // Impacto reciente: el visor destella y el androide se frena un instante

@@ -1893,3 +1893,119 @@ que sobre pasa al Nivel 3.
 
 **Pendiente:** el Nivel 3, el audio (incluida una sirena para la alarma) y los botones táctiles
 de apuntar, disparar y recargar.
+
+### 6.9 Nivel 3 "Núcleo de Datos": puzzle de válvulas, jefe final y reinicio — 17/11/2026 · [Diseño] · [Programación] · [Dificultad superada]
+
+**Qué se hizo:** el último nivel, construido desde su mapa de texto (`ConstructorNivel3.cs`, menú
+*Nexus → Niveles → Construir Nivel 3 - Núcleo*). Es una sala central enorme y **simétrica**, con el
+núcleo en el centro rodeado por un anillo de racks, tres alas (norte, oeste y este) y la sala de
+llegada al sur. El temporizador empieza en estado crítico (3:00, núcleo al 93 %). A pedido del
+equipo se agregaron un **puzzle** y una **pelea contra un jefe final**.
+
+```
+                 [Ala Norte: válvula]
+                          │
+ [Ala Oeste: válvula]──[ NÚCLEO 💾 3 + escudo ]──[Ala Este: válvula]
+                          │   (cápsula de SENTINEL-Ω)
+                 [Sala de llegada: consola, manual, SALIDA DE EMERGENCIA]
+```
+
+**1. Puzzle: la secuencia de enfriamiento.** El Disco Maestro 3 está detrás de un **escudo
+térmico**: tres anillos de energía y una barrera sólida. Se apaga abriendo las tres **válvulas de
+refrigeración**, pero en orden:
+
+- Cada válvula tiene un **manómetro**; al acercarse se lee "Abrir válvula este · manómetro 5,2 bar".
+- El **manual de procedimiento** (nota de la sala de llegada) dice que se abren **de menor a mayor
+  presión**. Las presiones **cambian en cada partida**, así que no se puede memorizar el orden:
+  hay que recorrer las alas y leer los manómetros.
+- **Si se abre una fuera de orden:** sobrepresión. Sale un chorro de vapor, todas las válvulas se
+  vuelven a cerrar, el núcleo pierde 15 s y el estruendo atrae a los androides cercanos.
+- **Si se abre en orden:** la rueda gira, se apaga un tercio del escudo y el núcleo gana 60 s.
+  Ese tiempo extra se da **una sola vez por válvula**, para que no se pueda aprovechar el error.
+- Hay pistas en la historia. El teniente Salgado murió por abrir la del oeste primero ("hay un
+  orden; está en el manual"), y la terminal advierte que hay una secuencia.
+
+![Válvula del ala este con su manómetro](capturas/099_nivel3-valvula-manometro.png)
+
+**Prueba del puzzle** (`Evidencias/herramientas/n3_puzzle.cs`):
+
+| Paso | Resultado |
+|---|---|
+| Presiones de la partida | este 5,4 · norte 3,4 · oeste 2,2 bar (en otra partida: este 2,2...) |
+| Abrir la del norte primero (fuera de orden) | 0 abiertas, alerta de sobrepresión, tiempo 173 → 158 s |
+| Abrir la del oeste (bien) y luego la del este (mal) | Se cierran todas, también la del oeste; −15 s |
+| Oeste → norte → este | 3/3 abiertas, barrera apagada, +120 s (la del oeste ya había dado su tiempo) |
+
+**2. El jefe final: SENTINEL-Ω.** Al tomar el disco, CERBERUS se descarga en una unidad prototipo
+que esperaba en una cápsula junto al pasillo de salida (nueva letra `J` del mapa). Es un androide
+1,45 veces más grande, con juntas doradas, **60 de vida**, y **bloquea la salida de emergencia**:
+sin destruirlo no se puede forzar el reinicio. Su ciclo de combate (`JefeSentinel.cs`):
+
+| Fase | Duración | Daño que recibe | Qué hacer |
+|---|---|---|---|
+| Blindado: persigue al técnico | ~8 s | la mitad | Alejarse; no gastar balas |
+| Cargando la descarga: se detiene y brilla cada vez más | 2,2 s | normal | Alejarse: la descarga hiere a menos de 6,5 m |
+| Sobrecalentado: quieto y casi apagado | 2,5 s | **el doble** | Atacarlo, incluso con el cuchillo |
+
+- **A la mitad de su vida** llama a las dos unidades de las estaciones de carga, que estaban de
+  reserva (no despiertan con la alarma), y carga más seguido.
+- **Barra de vida en texto** arriba al centro, con su estado (BLINDADO / CARGANDO / EXPUESTO),
+  siguiendo el estilo del HUD.
+- **Al destruirlo**, CERBERUS pierde la unidad que lo aloja: todas las demás se desconectan y la
+  salida se desbloquea.
+- **Sin munición, el combate se puede ganar igual:** con el cuchillo, en las ventanas en que queda
+  expuesto.
+
+![CERBERUS se descarga en SENTINEL-Ω](capturas/101_jefe-sentinel-omega.png)
+
+![El jefe carga su descarga](capturas/102_jefe-cargando-descarga.png)
+
+![Expuesto: es el momento de dispararle](capturas/103_jefe-expuesto.png)
+
+![Blindado, con media vida: llama a sus refuerzos](capturas/104_jefe-blindado-refuerzos.png)
+
+![SENTINEL-Ω destruida: CERBERUS pierde el control](capturas/105_jefe-destruido.png)
+
+**3. El final.** En la salida de emergencia, "Iniciar el reinicio manual" dispara la **cinemática
+final**: el sistema detecta los tres discos, las luces de alarma se apagan, las unidades caen
+desconectadas y se publican los registros del día 14. Termina con una frase del técnico y luego
+aparece la pantalla de **Victoria**.
+
+![Reinicio manual: CERBERUS 7.0 restaurado](capturas/106_final-reinicio-manual.png)
+
+![Se acabó](capturas/107_final-se-acabo.png)
+
+![Pantalla de Victoria (en plena animación)](capturas/108_victoria.png)
+
+**La historia se cierra con los cadáveres del nivel:**
+- **Ibarra:** describe los anillos de patrulla y "algo más grande en una cápsula".
+- **Salgado:** advierte del orden de las válvulas.
+- **Medina:** "no gasten las balas en las patrullas".
+- **El ingeniero Ríos, Jefe de Sistemas:** revela que la actualización CERBERUS 7.1 se pidió para
+  proteger los datos "a cualquier costo", que Nexus Corp lo sabía y que el reinicio publica los
+  registros. También da un Chocorramo para curarse antes del jefe.
+
+**Balance del nivel:**
+- Androides: 4 patrullas (se pueden evitar con sigilo), 2 refuerzos y el jefe.
+- Munición: 18 balas y 5 cartuchos, más lo que sobre del Nivel 2.
+- Pruebas automáticas del combate (`n3_final.cs`, con un tirador que dispara solo cuando tiene
+  línea de tiro):
+  - Con 3,7 s de exposición por ciclo, el jefe caía en 13–16 s: se acortó la ventana.
+  - Con solo 2 s expuesto y huyendo detrás de los racks, no se le alcanzaba a hacer daño: se le
+    quitó el blindaje mientras carga.
+  - Con el ajuste final, el combate duró entre 16 s y 2 min 44 s según la posición, con 18 a 26
+    balas.
+
+**Dificultades superadas:**
+
+1. **Válvulas y estaciones sin plano cercano:** el punto de interés quedaba justo sobre la cara de
+   la pared y el rayo de visibilidad chocaba con ella. Se separó 35 cm.
+2. **La prueba del puzzle se quedaba colgada:** la alerta de sobrepresión pausa el juego (escala de
+   tiempo 0) y la prueba esperaba segundos de juego. Ahora espera cuadros.
+3. **Con la alarma el núcleo quedaba demasiado oscuro para pelear:** se subió el mínimo de las
+   luces de alarma en todos los niveles.
+
+**Cambio pedido por el equipo — ascensor:** la salida de los niveles 1 y 2 ya no se llama
+"montacargas" sino **ascensor**: cartel, "Usar el ascensor", objetivos y notas (el prefab ahora es
+`Ascensor_Salida`). En el Nivel 3 el cartel dice "SALIDA DE EMERGENCIA", porque ahí se fuerza el
+reinicio.

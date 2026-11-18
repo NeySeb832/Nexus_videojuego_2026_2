@@ -31,7 +31,7 @@ namespace Nexus.Herramientas
                 ObjetivoInicial = "Revisa la terminal",
                 Tiempo = 480f,
                 TemperaturaInicial = 86f,
-                TextoSalida = "Usar montacargas",
+                TextoSalida = "Usar el ascensor",
                 Niebla = 0.035f,
                 DialogoDisco = new[]
                 {
@@ -105,7 +105,7 @@ namespace Nexus.Herramientas
             // ---- Objetivos al recoger ----
             n.ObjetivoAlRecoger['k'] = "Abre la puerta roja de la Oficina de Control (noroeste)";
             n.ObjetivoAlRecoger['a'] = "Abre la puerta azul del Núcleo de Datos (norte)";
-            n.ObjetivoAlRecoger['D'] = "Alarma activa. Escapa por el montacargas (sur)";
+            n.ObjetivoAlRecoger['D'] = "Alarma activa. Escapa por el ascensor (sur)";
 
             // ---- Terminal (la 'T' del mapa) ----
             n.Terminales.Add(("TERMINAL · SECTOR DE ALMACENAMIENTO", new[]
@@ -195,7 +195,7 @@ namespace Nexus.Herramientas
                 Objeto = TipoColeccionable.Pistola, NombreObjeto = "Pistola M9",
                 Extra = TipoColeccionable.BalasPistola, CantidadExtra = 9, NombreExtra = "balas",
                 TituloNota = "Registro de la Unidad Táctica — Vargas",
-                TextoNota = "03:10. Entramos seis por la rampa de carga. El contratista habló de «drones de vigilancia con un fallo». No son drones.\n" +
+                TextoNota = "03:10. Entramos siete por la rampa de carga. El contratista habló de «drones de vigilancia con un fallo». No son drones.\n" +
                             "El 9 mm apenas los frena: hay que meterles medio cargador en el pecho para tumbarlos. Nada de disparos a lo loco.\n" +
                             "Perdimos a Castro en el pasillo B. Ortiz siguió hacia el núcleo con la escopeta. Yo ya no puedo caminar."
             });
@@ -224,7 +224,7 @@ namespace Nexus.Herramientas
                 TituloNota = "Nota del guía",
                 TextoNota = "Me ofrecí a guiar al equipo táctico por los pasillos de almacenamiento: nadie conoce este laberinto como yo.\n" +
                             "Cuando nos atacaron, el sargento me dio una caja de balas «por si acaso». No sé disparar.\n" +
-                            "La salida es el montacargas de la Sala de Inicio, al sur. El disco está en el Núcleo, al norte. Todo lo demás es laberinto."
+                            "La salida es el ascensor de la Sala de Inicio, al sur. El disco está en el Núcleo, al norte. Todo lo demás es laberinto."
             });
 
             return n;

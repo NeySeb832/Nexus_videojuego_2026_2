@@ -9,7 +9,7 @@ namespace Nexus.Herramientas
     /// <summary>
     /// Segunda parte del modelado: objetos de inventario (fusible, USB, Speedmax, Chocorramo,
     /// refrigerante), objetos interactivos (nota, panel de fusibles, terminal de respaldo,
-    /// montacargas) y la fila de racks combinada para construir laberintos.
+    /// ascensor) y la fila de racks combinada para construir laberintos.
     /// Menú: Nexus → Fase 1 → 4. Objetos del inventario y del nivel.
     /// </summary>
     public static partial class ConstructorFase1
@@ -31,7 +31,7 @@ namespace Nexus.Herramientas
             PrefabNota();
             PrefabPanelFusibles();
             PrefabTerminalRespaldo();
-            PrefabMontacargas();
+            PrefabAscensor();
             PrefabFilaRacks();
             AssetDatabase.SaveAssets();
         }
@@ -229,10 +229,10 @@ namespace Nexus.Herramientas
             Guardar(raiz, "Interactivos");
         }
 
-        /// <summary>Montacargas (salida del nivel). Se apoya en la pared por +Z; frente hacia -Z.</summary>
-        static void PrefabMontacargas()
+        /// <summary>Ascensor (salida del nivel). Se apoya en la pared por +Z; frente hacia -Z.</summary>
+        static void PrefabAscensor()
         {
-            var raiz = new GameObject("Montacargas_Salida");
+            var raiz = new GameObject("Ascensor_Salida");
             var zona = raiz.AddComponent<BoxCollider>();
             zona.isTrigger = true; zona.size = new Vector3(2.8f, 2.5f, 2.2f); zona.center = new Vector3(0f, 1.25f, -1.2f);
             raiz.AddComponent<SalidaNivel>();
@@ -250,7 +250,7 @@ namespace Nexus.Herramientas
             tmp.rectTransform.sizeDelta = new Vector2(2f, 0.25f);
             tmp.fontSize = 1.6f; tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = new Color(0.4f, 1f, 0.5f);
-            tmp.text = "MONTACARGAS";
+            tmp.text = "ASCENSOR";
             Pieza(PrimitiveType.Cube, "Boton", raiz.transform, new Vector3(1.6f, 1.2f, -0.05f), new Vector3(0.14f, 0.24f, 0.06f), "M_Terminal");
             Pieza(PrimitiveType.Cube, "Boton_Luz", raiz.transform, new Vector3(1.6f, 1.25f, -0.085f), new Vector3(0.06f, 0.06f, 0.01f), "M_Neon_Verde");
             Guardar(raiz, "Interactivos");

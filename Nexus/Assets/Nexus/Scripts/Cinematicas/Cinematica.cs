@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Nexus
 {
-    public enum AccionPlano { Ninguna, Caminar, Correr, MirarAlrededor, AbrirPuerta, CerrarPuerta, Alarma, DespertarAndroide }
+    public enum AccionPlano { Ninguna, Caminar, Correr, MirarAlrededor, AbrirPuerta, CerrarPuerta, Alarma, DespertarAndroide, Restaurar }
     public enum ReferenciaPlano { Mundo, Jugador, Androide }
 
     /// <summary>
@@ -42,15 +42,17 @@ namespace Nexus
     /// </summary>
     public class Cinematica : MonoBehaviour
     {
-        public enum Momento { AlEmpezarNivel, AlExtraerDisco }
+        public enum Momento { AlEmpezarNivel, AlExtraerDisco, AlTerminarJuego }
 
         public static bool EnCurso { get; private set; }
         public static Cinematica Actual { get; private set; }
+        /// <summary>Cinemática del final del juego (reinicio manual), si el nivel tiene una.</summary>
+        public static Cinematica Final { get; private set; }
         /// <summary>Para pruebas automáticas: salta la cinemática en curso.</summary>
         public static bool SaltoSimulado { get; set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Reiniciar() { EnCurso = false; Actual = null; SaltoSimulado = false; }
+        static void Reiniciar() { EnCurso = false; Actual = null; Final = null; SaltoSimulado = false; }
 
         [SerializeField] Momento momento;
         [SerializeField] PlanoCinematica[] planos;
@@ -80,8 +82,20 @@ namespace Nexus
 
         public void ConfigurarInicio(Vector3 pos, float giro) { conInicio = true; inicio = pos; giroInicio = giro; }
 
-        void OnEnable() { if (momento == Momento.AlExtraerDisco) Coleccionable.AlRecoger += AlRecoger; }
-        void OnDisable() { Coleccionable.AlRecoger -= AlRecoger; if (Actual == this) { EnCurso = false; Actual = null; } }
+        void OnEnable()
+        {
+            if (momento == Momento.AlExtraerDisco) Coleccionable.AlRecoger += AlRecoger;
+            if (momento == Momento.AlTerminarJuego) Final = this;
+        }
+        void OnDisable()
+        {
+            Coleccionable.AlRecoger -= AlRecoger;
+            if (Actual == this) { EnCurso = false; Actual = null; }
+            if (Final == this) Final = null;
+        }
+
+        /// <summary>Final del juego: se reproduce y al terminar se llama a "alTerminar" (pantalla de victoria).</summary>
+        public void ReproducirFinal(Action alTerminar) => StartCoroutine(Reproducir(alTerminar));
 
         void Start()
         {
@@ -109,9 +123,9 @@ namespace Nexus
         }
 
         // ======================= Reproducción =======================
-        IEnumerator Reproducir()
+        IEnumerator Reproducir(Action alTerminar = null)
         {
-            if (hecha || jugador == null || planos == null || planos.Length == 0) yield break;
+            if (hecha || jugador == null || planos == null || planos.Length == 0) { alTerminar?.Invoke(); yield break; }
             hecha = true;
             if (momento == Momento.AlEmpezarNivel) EstadoPartida.MarcarIntro(gameObject.scene.name);
             yield return null;   // deja que el resto del nivel termine de arrancar
@@ -149,6 +163,7 @@ namespace Nexus
             if (momento == Momento.AlExtraerDisco) AndroideIA.AlarmaGeneral(segundosCaza);
             if (!string.IsNullOrEmpty(objetivoAlTerminar)) HUDNexus.Objetivo(objetivoAlTerminar);
             EnCurso = false; Actual = null;
+            alTerminar?.Invoke();
         }
 
         IEnumerator Plano(PlanoCinematica p)
@@ -205,6 +220,7 @@ namespace Nexus
                 case AccionPlano.DespertarAndroide:
                     if (p.androide < androides.Count && androides[p.androide] != null) androides[p.androide].DespertarEnCinematica();
                     break;
+                case AccionPlano.Restaurar: Restaurar(); break;
             }
             return null;
         }
@@ -231,6 +247,17 @@ namespace Nexus
             puerta.Cerrar(true);
         }
 
+        bool restaurado;
+
+        /// <summary>Reinicio manual: vuelve la luz normal y todas las unidades SENTINEL se desconectan.</summary>
+        void Restaurar()
+        {
+            if (restaurado) return;
+            restaurado = true;
+            AlarmaNivel.Desactivar();
+            AndroideIA.DesconectarTodos();
+        }
+
         void Alarma()
         {
             if (alarmaHecha) return;
@@ -255,6 +282,7 @@ namespace Nexus
                     else if (a == AccionPlano.AbrirPuerta && puerta != null) puerta.Abrir();
                     else if (a == AccionPlano.CerrarPuerta) CerrarPuerta();
                     else if (a == AccionPlano.Alarma) Alarma();
+                    else if (a == AccionPlano.Restaurar) Restaurar();
                 }
             }
         }

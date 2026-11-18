@@ -48,12 +48,13 @@ namespace Nexus.Herramientas
         public Dictionary<char, string> ObjetivoAlRecoger = new Dictionary<char, string>();
         public string[] DialogoDisco;
         public string ObjetivoPanel;
-        public string TextoSalida = "Usar montacargas";
+        public string TextoSalida = "Usar el ascensor";
         public float Niebla = 0.03f;
         public Color Ambiente = new Color(0.15f, 0.16f, 0.2f);
         public List<DefCadaver> Cadaveres = new List<DefCadaver>();   // 'K' del mapa, en orden de lectura
         public bool Intro;                                             // cinemática de entrada por la puerta 'I'
         public float VelAlarma = 3.6f;                                 // velocidad de caza de los androides de las estaciones 'Q'
+        public float SegundosPorValvula = 60f;                         // tiempo que suma cada válvula de refrigeración 'O'
     }
 
     /// <summary>
@@ -63,7 +64,7 @@ namespace Nexus.Herramientas
     ///        S  inicio         T  terminal       G  terminal de guardado
     ///        P  panel fusibles n  nota           D  Disco Duro en pedestal
     ///        R  puerta roja    B  puerta azul    X  puerta sin energía  L  puerta libre
-    ///        E  montacargas    A  androide
+    ///        E  ascensor    A  androide
     ///        k  tarjeta roja   a  tarjeta azul   f  fusible   u  USB   m  Speedmax
     ///        c  Chocorramo     g  cartucho de refrigerante
     ///        V  máquina de bebidas (Speedmax)    Y  máquina de snacks (Chocorramo)
@@ -72,6 +73,9 @@ namespace Nexus.Herramientas
     ///        K  cadáver que se registra (ver DefNivel.Cadaveres: lleva un arma o munición y una nota)
     ///        Q  estación de carga con un androide anclado que despierta con la alarma del disco
     ///        I  puerta de servicio por la que entran los técnicos (cinemática de entrada; luego se sella)
+    ///        O  válvula de refrigeración: si hay válvulas, el disco queda tras un escudo térmico
+    ///           que se apaga al abrirlas todas, en orden de menor a mayor presión (Nivel 3)
+    ///        J  cápsula del jefe final SENTINEL-Ω: despierta con el disco y bloquea la salida
     /// Zonas: cada letra agrupa celdas en una sala con su cámara fija y sus luces.
     /// El resto de muebles, basura y efectos los pone el decorador según el tema de cada sala
     /// (ver ConstructorNiveles_Decoracion.cs).
@@ -132,7 +136,7 @@ namespace Nexus.Herramientas
             PuntosInteres.Clear();
             ReiniciarHistoria();
             // Si hay androides que despierta la alarma, la extracción del disco se cuenta con una cinemática
-            conCinematicaAlarma = def.Mapa.Any(f => f.Contains('Q')) || def.Androides.Any(a => a.ConAlarma);
+            conCinematicaAlarma = def.Mapa.Any(f => f.Contains('Q') || f.Contains('J')) || def.Androides.Any(a => a.ConAlarma);
 
             var escena = EditorSceneManager.OpenScene($"Assets/Nexus/Escenas/{def.Escena}.unity", OpenSceneMode.Single);
             foreach (var go in escena.GetRootGameObjects()) Object.DestroyImmediate(go);
@@ -236,11 +240,15 @@ namespace Nexus.Herramientas
                         case 'E':
                         {
                             var d = MuroVecino(c) ?? Vector2Int.up;
-                            var salida = Poner("Interactivos/Montacargas_Salida", p + Dir3(d) * (Celda / 2f - 0.12f), Yaw(d), objetos);
+                            var salida = Poner("Interactivos/Ascensor_Salida", p + Dir3(d) * (Celda / 2f - 0.12f), Yaw(d), objetos);
                             RegistrarInteres(salida.transform.position, -Dir3(d), c, salida, 1.3f, 3.2f);
                             var s = salida.GetComponent<SalidaNivel>();
                             s.Configurar(def.TextoSalida, "No responde. Primero extrae el Disco Duro Maestro de este nivel.");
                             EditorUtility.SetDirty(s);
+                            // Último nivel: no es un ascensor sino la salida de emergencia del reinicio
+                            if (string.IsNullOrEmpty(def.EscenaSiguiente))
+                                foreach (var t in salida.GetComponentsInChildren<TMPro.TMP_Text>(true))
+                                    if (t.text.ToUpperInvariant().Contains("ASCENSOR")) { t.text = "SALIDA DE EMERGENCIA"; t.fontSize *= 0.62f; EditorUtility.SetDirty(t); }
                             break;
                         }
                         case 'n':
@@ -271,6 +279,7 @@ namespace Nexus.Herramientas
                             var col = disco.GetComponent<Coleccionable>();
                             col.Configurar(TipoColeccionable.DiscoDuro, "Disco Duro Maestro", conCinematicaAlarma ? null : ObjetivoDe('D'), conCinematicaAlarma ? null : def.DialogoDisco);
                             EditorUtility.SetDirty(col);
+                            if (def.Mapa.Any(f => f.Contains('O'))) CrearEscudo(p, objetos);
                             break;
                         }
                         case 'V': case 'Y':
@@ -297,6 +306,8 @@ namespace Nexus.Herramientas
                         case 'K': CeldasCadaver.Add((c, p)); break;
                         case 'Q': CeldasEstacion.Add((c, p)); break;
                         case 'I': PonerEntrada(c, p, objetos, geo); break;
+                        case 'O': CeldasValvula.Add((c, p)); break;
+                        case 'J': CeldaJefe = (c, p); break;
                         default:
                             PonerItem(ch, c, p, objetos);
                             break;
@@ -305,6 +316,7 @@ namespace Nexus.Herramientas
 
             ColocarCadaveres(objetos);
             ColocarEstaciones(objetos);
+            ColocarValvulas(objetos);
 
             foreach (var panel in paneles)
             {
@@ -341,6 +353,7 @@ namespace Nexus.Herramientas
             CrearJugador(inicio, rotInicio);
             ColocarAndroides();
             ColocarAndroidesEstacion();
+            ColocarJefe();
             CrearCinematicas(raiz.transform, null);
             PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Nexus/Prefabs/UI/UI_Nivel.prefab"));
 

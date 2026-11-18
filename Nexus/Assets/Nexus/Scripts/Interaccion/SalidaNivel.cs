@@ -3,14 +3,14 @@ using UnityEngine;
 namespace Nexus
 {
     /// <summary>
-    /// Salida del nivel (montacargas, escaleras o salida de emergencia). Solo funciona cuando el
+    /// Salida del nivel (ascensor, escaleras o salida de emergencia). Solo funciona cuando el
     /// jugador ya extrajo el Disco Duro Maestro de este nivel.
     /// </summary>
     public class SalidaNivel : Interactuable
     {
-        [SerializeField] string mensajeSinDisco = "El montacargas no responde. Primero extrae el Disco Duro Maestro de este nivel.";
+        [SerializeField] string mensajeSinDisco = "El ascensor no responde. Primero extrae el Disco Duro Maestro de este nivel.";
 
-        void Reset() => textoAccion = "Usar montacargas";
+        void Reset() => textoAccion = "Usar el ascensor";
 
         public void Configurar(string accion, string sinDisco)
         {
@@ -24,6 +24,11 @@ namespace Nexus
             if (!nivel.DiscoObtenido)
             {
                 HUDNexus.Aviso(mensajeSinDisco);
+                return;
+            }
+            if (JefeSentinel.Instancia != null && !JefeSentinel.Derrotado)
+            {
+                HUDNexus.Aviso("BLOQUEADA. La unidad SENTINEL-Ω mantiene el bloqueo de CERBERUS: destrúyela.");
                 return;
             }
             jugador.GetComponent<ControladorJugador>().PuedeMoverse = false;

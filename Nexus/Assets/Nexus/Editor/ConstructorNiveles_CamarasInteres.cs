@@ -7,7 +7,7 @@ namespace Nexus.Herramientas
 {
     /// <summary>
     /// Cámaras de interés: un plano cercano por cada objeto importante del nivel (terminales,
-    /// notas, paneles, puertas, máquinas, montacargas, disco y objetos para recoger).
+    /// notas, paneles, puertas, máquinas, ascensor, disco y objetos para recoger).
     ///
     /// En los survival horror la cámara también guía al jugador: al acercarse a algo que se puede
     /// usar, corta a un plano en 3/4 que muestra el objeto y al técnico frente a él. El constructor

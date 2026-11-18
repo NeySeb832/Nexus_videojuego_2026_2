@@ -23,7 +23,7 @@ namespace Nexus.Herramientas
                 EscenaSiguiente = "02_Almacenamiento",
                 // El Nivel 1 no tiene armas de fuego: solo la bayoneta que lleva el cadáver de Ramírez en
                 // la cafetería. Al sacar el disco, la alarma despierta a las 4 unidades de las estaciones
-                // de carga (Q) y hay que huir hasta el montacargas de la cafetería, al otro lado del nivel.
+                // de carga (Q) y hay que huir hasta el ascensor de la cafetería, al otro lado del nivel.
                 Mapa = new[]
                 {
                     "###############",
@@ -38,7 +38,7 @@ namespace Nexus.Herramientas
                     "#mg.#...#.GQ###",   // estación de carga junto a la terminal de respaldo
                     "#####.|.#######",
                     "#####...###V.Y#",   // cafetería: máquinas expendedoras en la pared norte
-                    "###.T...n.#.ME#",   // sala de mantenimiento: terminal y nota | montacargas (salida)
+                    "###.T...n.#.ME#",   // sala de mantenimiento: terminal y nota | ascensor (salida)
                     "##I.b.S...L..n#",   // puerta de servicio por la que entran los técnicos
                     "###Qm...b.#KM.#",   // estación de carga | Ramírez, con la bayoneta, en la cafetería
                     "###############",
@@ -101,7 +101,7 @@ namespace Nexus.Herramientas
 
             n.ObjetivoAlRecoger['f'] = "Instala el fusible en el panel del Cuarto Eléctrico";
             n.ObjetivoAlRecoger['k'] = "Abre la puerta roja de la Sala de Servidores";
-            n.ObjetivoAlRecoger['D'] = "¡Huye al montacargas de la cafetería!";
+            n.ObjetivoAlRecoger['D'] = "¡Huye al ascensor de la cafetería!";
             n.Intro = true;
             n.VelAlarma = 3.5f;   // el técnico corriendo (5 m/s) puede dejarlos atrás
 
@@ -117,7 +117,7 @@ namespace Nexus.Herramientas
                 TituloNota = "Tableta de Mendoza",
                 TextoNota = "02:58. Llegué a la sala B-1. El Disco Maestro 1 sigue en su bahía.\n" +
                             "Si lo saco, CERBERUS dispara la alarma general y despierta a todas las unidades ancladas en las estaciones de carga del sector.\n" +
-                            "La única salida que el sistema no controla es el montacargas de servicio de la cafetería. Si alguien termina esto por mí: tome el disco y corra. No se detenga."
+                            "La única salida que el sistema no controla es el ascensor de servicio de la cafetería. Si alguien termina esto por mí: tome el disco y corra. No se detenga."
             });
             n.Cadaveres.Add(new DefCadaver
             {
@@ -139,7 +139,7 @@ namespace Nexus.Herramientas
                 "ALERTA: Extracción no autorizada del Disco Maestro 1 (1/3).",
                 "Protocolo SENTINEL: unidades redirigidas a la Sala de Servidores B-1. Abandone la zona de inmediato."
             };
-            n.TextoSalida = "Usar montacargas";
+            n.TextoSalida = "Usar el ascensor";
 
             // Androides (columna, fila del mapa). Tutorial: uno lento y predecible rodeando los racks
             // del pasillo. Los otros cuatro están anclados en sus estaciones de carga ('Q') hasta la alarma.

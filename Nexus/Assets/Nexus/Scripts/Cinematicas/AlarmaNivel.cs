@@ -16,11 +16,29 @@ namespace Nexus
 
         readonly List<(Light luz, Color color, float intensidad, float fase)> luces = new List<(Light, Color, float, float)>();
 
+        static AlarmaNivel instancia;
+
         public static void Activar()
         {
             if (Activa) return;
             Activa = true;
-            new GameObject("Alarma_Nivel").AddComponent<AlarmaNivel>();
+            instancia = new GameObject("Alarma_Nivel").AddComponent<AlarmaNivel>();
+        }
+
+        /// <summary>Fin de la alarma (reinicio manual): las luces vuelven a su color y los fluorescentes a titilar.</summary>
+        public static void Desactivar()
+        {
+            if (instancia == null) return;
+            foreach (var (luz, color, intensidad, _) in instancia.luces)
+            {
+                if (luz == null) continue;
+                luz.color = color; luz.intensity = intensidad;
+                var parpadeo = luz.GetComponent<LuzParpadeante>();
+                if (parpadeo != null) parpadeo.enabled = true;
+            }
+            Destroy(instancia.gameObject);
+            instancia = null;
+            Activa = false;
         }
 
         void Start()
@@ -45,7 +63,7 @@ namespace Nexus
                 if (luz == null) continue;
                 float pulso = 0.5f + 0.5f * Mathf.Sin((Time.time * 4.2f) + fase);
                 luz.color = Color.Lerp(color, new Color(1f, 0.08f, 0.05f), 0.85f);
-                luz.intensity = intensidad * Mathf.Lerp(0.25f, 1.15f, pulso);
+                luz.intensity = intensidad * Mathf.Lerp(0.5f, 1.2f, pulso);
             }
         }
     }

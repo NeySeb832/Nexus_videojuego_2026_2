@@ -7,7 +7,7 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 
 | # | Requisito | Cómo lo cumple Nexus | Fase | Estado |
 |---|---|---|---|---|
-| 1.1 | Mínimo 3 niveles jugables con progresión lógica | Mantenimiento (tutorial) → Almacenamiento (laberinto) → Núcleo (clímax). Un disco por nivel; el nivel siguiente se desbloquea al extraerlo | 6 | 🟨 Nivel 1 completo y probado (6 salas + 2 cruces); Nivel 2 integrado (bitácora 6.6); falta el Nivel 3 |
+| 1.1 | Mínimo 3 niveles jugables con progresión lógica | Mantenimiento (tutorial) → Almacenamiento (laberinto) → Núcleo (clímax). Un disco por nivel; el nivel siguiente se desbloquea al extraerlo | 6 | ✅ Nivel 1 (bitácora 6.3, 6.8), Nivel 2 (6.6, 6.8) y Nivel 3 con puzzle, jefe final y victoria (6.9); falta una partida completa de corrido de los tres |
 | 1.2 | Mínimo 3 Canvas diferenciados | Canvas 1 Menú (inicio, selector, objetivo, créditos) · Canvas 2 HUD · Canvas 3 Game Over / Victoria | 3, 6 | ✅ Canvas 1 menú (título, selector, briefing, créditos), Canvas 2 HUD, Canvas 3 Game Over / Victoria, y además el inventario (bitácora 3.4, 3.5, 3.6 y 6.4) |
 | 1.3 | Selector de personajes con Avatar Humanoid | Modelo A y Modelo B = avatares 3D de los dos integrantes, configurados como Humanoid y con un único Animator compartido | 2 | ✅ selector 3D en el menú; el nivel usa el avatar elegido (probado con Deisy, bitácora 6.4) |
 | 1.4 | Música de fondo con componentes de audio | `AudioSource` con música ambiental en bucle + capa de zumbido de ventiladores | 5 | ⬜ |
@@ -57,4 +57,6 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 | Cadáveres que se registran | Las armas y la munición se obtienen de quienes cayeron antes (empleados y operadores SWAT), con notas que cuentan la historia previa a la misión | Bitácora 2.7, 3.13 |
 | Animaciones de escopeta propias | Clips Humanoid creados músculo por músculo + IK de manos: agarre, apuntar, retroceso, bombeo y recarga cartucho a cartucho | Bitácora 3.14 |
 | Cinemáticas | Entrada del técnico al centro de datos y alarma al extraer el disco (luces rojas, androides que salen de sus estaciones de carga), con subtítulos y opción de saltar | Bitácora 6.7 |
+| Puzzle de válvulas | Secuencia de enfriamiento por presión (cambia en cada partida); un error cierra todas, quita tiempo y atrae androides | Bitácora 6.9 |
+| Jefe final | SENTINEL-Ω: ciclo blindado / carga / expuesto, llama refuerzos a media vida y bloquea la salida; cinemática del reinicio antes de la Victoria | Bitácora 6.9 |
 | Huida y balance | Nivel 1 solo con cuchillo y huida hasta la cafetería; Nivel 2 con 7 androides y munición contada (~15 % de margen) | Bitácora 6.8 |
