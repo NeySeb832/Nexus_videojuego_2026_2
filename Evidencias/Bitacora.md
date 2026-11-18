@@ -2150,3 +2150,25 @@ constante.
   niveles. En la prueba en modo Play, las máquinas y el inventario muestran los nombres nuevos.
 
 ![La bebida energética y la nueva barrita de proteína](capturas/111_bebida-energetica-y-barrita.png)
+
+### 5.3 Error al volver a entrar a Play: MissingReferenceException — 17/11/2026 · [Programación] · [Dificultad superada]
+
+**Problema:** el equipo vio en la consola *"The object of type 'AudioSource' has been destroyed but
+you are still trying to access it"*. Según la traza, venía del gestor de audio, al cargar una
+escena.
+
+**Causa:**
+- El gestor se suscribía al evento estático `SceneManager.sceneLoaded` de Unity y nunca se daba de
+  baja.
+- El proyecto entra a Play sin recargar el dominio (para que sea rápido), así que esa suscripción
+  sobrevivía de una prueba a la siguiente.
+- En la siguiente prueba, al cargar una escena, Unity llamaba al gestor de la prueba anterior, que ya
+  estaba destruido.
+
+**Solución:**
+- El gestor se da de baja del evento al destruirse.
+- Su referencia estática se limpia al entrar a Play.
+- Antes de tocar sus fuentes de audio, comprueba que siguen existiendo.
+
+**Prueba:** tres entradas a Play seguidas, cada una con un cambio del menú al Nivel 1: 0 errores,
+un solo gestor de audio, y la música pasa del tema del menú al de exploración.

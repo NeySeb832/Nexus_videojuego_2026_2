@@ -36,6 +36,13 @@ namespace Nexus
         public static string Estado => inst == null ? "sin audio" :
             $"musica={inst.musica.clip?.name}:{inst.musica.volume:0.00} tension={inst.tension.volume:0.00} jefe={inst.jefe.volume:0.00} alarma={inst.alarma.volume:0.00} ambiente={inst.ambiente.volume:0.00}";
 
+        /// <summary>
+        /// El proyecto entra a Play sin recargar el dominio: los campos estáticos sobreviven de una
+        /// prueba a la otra. Se limpian aquí para no apuntar al gestor de la prueba anterior.
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void Reiniciar() => inst = null;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Crear()
         {
@@ -75,12 +82,23 @@ namespace Nexus
                 s.minDistance = 2.5f; s.maxDistance = 30f; s.dopplerLevel = 0f;
                 fuentes.Add(s);
             }
-            SceneManager.sceneLoaded += (_, __) => AlCargarEscena();
+            SceneManager.sceneLoaded += EscenaCargada;
             AlCargarEscena();
+        }
+
+        // El evento de Unity es estático: hay que darse de baja al destruirse (al salir de Play), si no
+        // en la siguiente prueba llamaría a este objeto ya destruido (MissingReferenceException)
+        void EscenaCargada(Scene escena, LoadSceneMode modo) => AlCargarEscena();
+
+        void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= EscenaCargada;
+            if (inst == this) inst = null;
         }
 
         void AlCargarEscena()
         {
+            if (this == null || musica == null) return;   // por seguridad: objeto ya destruido
             final = false;
             bool menu = SceneManager.GetActiveScene().name.Contains("Menu");
             var clip = menu ? banco.musicaMenu : banco.musicaExploracion;
