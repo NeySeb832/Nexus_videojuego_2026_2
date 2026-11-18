@@ -18,11 +18,12 @@ Las entradas llevan etiquetas que corresponden a las secciones del artículo de 
 | 0 | Preparación del entorno y del proyecto | Completada |
 | 1 | Modelado de objetos (racks, discos, tarjetas, puertas, terminales) | Completada |
 | 2 | Personajes Humanoid y selector de personaje | Completada (avatares, animaciones y selector) |
-| 3 | Sistemas de juego (movimiento, cámaras fijas, vidas, temporizador, HUD, diálogos, inventario) | Completada (falta controles táctiles) |
+| 3 | Sistemas de juego (movimiento, cámaras fijas, vidas, temporizador, HUD, diálogos, inventario) | Completada (incluye controles táctiles) |
 | 4 | Inteligencia artificial de los androides | Completada (androides y jefe final SENTINEL-Ω) |
 | 5 | Audio | Completada (música y efectos de Pixabay, mezcla por capas) |
 | 6 | Construcción de los 3 niveles y menús | Completada (3 niveles, menú y cinemáticas; falta una partida completa de corrido) |
-| 7 | Exportación a PC, WebGL y Android | Pendiente |
+| 7 | Exportación a PC, WebGL y Android | Completada (versión web en línea; falta probar el APK en un celular) |
+| 8 | Documentación y artículo de Niixer | En curso (manuales y documento listos; artículo en borrador, falta el video) |
 
 ---
 
@@ -2472,3 +2473,73 @@ Están en la carpeta `Documentacion/`, con sus PDF ya compilados:
   - Lleva 87 figuras convertidas a JPEG, para que el PDF pese 6 MB.
   - Del documento de la compañera se tomaron el diseño y la construcción del Nivel 2 y una de
     sus capturas.
+
+### 8.2 Versión web en línea y artículo de Niixer — 18/11/2026 · [Diseño] · [Programación]
+
+**Versión web publicada en GitHub Pages:** https://neyseb832.github.io/Nexus_videojuego_2026_2/
+
+- **Rama `gh-pages`:** contiene solo el build WebGL final (`Build/`), una página propia
+  (`Documentacion/niixer/web/index.html`), la portada `poster.jpg` y `.nojekyll`. GitHub Pages
+  la publica sola al subir la rama.
+- **La página propia reemplaza la plantilla de Unity** y está pensada para ir dentro de un iframe:
+  - El juego ocupa todo el marco y conserva la proporción 16:9.
+  - Muestra una portada con la pantalla de título y el botón **JUGAR**. Los 70 MB del juego solo
+    se descargan al pulsarlo, así que el artículo carga rápido.
+  - La pantalla de carga tiene el estilo de Nexus: título, barra cian y porcentaje.
+  - El botón **PANTALLA COMPLETA** pone el juego en pantalla completa. Si el navegador no lo
+    permite (por ejemplo, en un iPhone), abre el juego en una pestaña nueva.
+  - Si algo falla al descargar o iniciar, el error se muestra dentro del marco.
+- GitHub Pages sirve los archivos sin compresión HTTP. El build usa la descompresión de respaldo
+  de Unity, así que funciona igual.
+
+**Artículo de Niixer** (borrador, entrada 94987):
+
+- **Título:** "Nexus: Protocolo de emergencia, un survival horror hecho en Unity 6 paso a paso".
+- **Fuente:** el texto está en `Documentacion/niixer/articulo.html`, con marcadores para las
+  imágenes, el juego y el video. Unas 9 000 palabras.
+- **Estructura:**
+  - autores, asignatura, docente y semestre;
+  - índice con enlaces;
+  - ficha del proyecto;
+  - la idea y las mecánicas;
+  - requisitos y planeación por fases;
+  - las fases 0 a 7 en detalle, con tablas, el fragmento de código de la visión de los
+    androides y el mapa de texto del Nivel 1;
+  - dificultades superadas;
+  - resultados frente a los requisitos;
+  - **Juega Nexus**: el juego embebido y la tabla de controles;
+  - **Video de sustentación**: un texto provisional hasta tener el video;
+  - conclusiones, créditos y referencias.
+- **Imágenes:**
+  - Se subieron 81 a la biblioteca de medios de Niixer, cada una con su texto alternativo. Son
+    copias de las capturas de la bitácora con el prefijo `nexus-`.
+  - Cada imagen se amplía al hacer clic.
+- **Cómo se armó la entrada:**
+  - El HTML se convirtió en bloques de Gutenberg con el propio editor de WordPress: 236 bloques
+    (párrafos, títulos con ancla, imágenes con pie, listas, 12 tablas y 2 bloques de código).
+  - El juego va en un bloque HTML con un iframe 16:9 que permite pantalla completa.
+  - Los títulos llevan tamaño propio (26 px y 20 px). El tema de Niixer los dibuja casi del
+    tamaño del texto.
+- **Metadatos:**
+  - Categorías: Videojuegos, Unity, 3D y Mixamo.
+  - 18 etiquetas: Unity, Unity 6, Survival horror, WebGL, Android, Avatar Humanoid, Avaturn,
+    Adobe Mixamo, Blender 3D, sketchfab y otras.
+  - Imagen destacada: la pantalla de título.
+  - Extracto y palabra clave de Yoast ("videojuego en Unity").
+
+**Prueba en la vista previa:**
+- Las 81 imágenes cargaron, las tablas y el código se ven bien y los enlaces del índice llevan a
+  su sección.
+- Dentro del artículo, JUGAR descargó el juego y llegó al menú principal sin errores.
+- **No se pudo comprobar la pantalla completa:** los dos navegadores automatizados rechazan las
+  peticiones de pantalla completa ("not granted"), también fuera de Niixer. El iframe sí tiene
+  el permiso. Falta probarlo con un clic real.
+
+![El artículo en la vista previa de Niixer, con la imagen destacada y las categorías](capturas/120_articulo-niixer-portada.jpg)
+
+![El juego corriendo dentro del artículo, con el botón de pantalla completa](capturas/121_articulo-niixer-juego-embebido.jpg)
+
+**Pendiente:**
+- Agregar el video de sustentación cuando esté grabado.
+- Probar el botón de pantalla completa con un clic real.
+- Publicar la entrada.

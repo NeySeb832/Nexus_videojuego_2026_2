@@ -12,3 +12,6 @@
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+# Copias de las capturas de Evidencias/ para subirlas a Niixer (ya están en su biblioteca de medios)
+niixer/imagenes/

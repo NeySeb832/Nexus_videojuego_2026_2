@@ -1,0 +1,724 @@
+<p><strong>Nexus: Protocolo de emergencia</strong> es un videojuego 3D de terror y sigilo en tercera persona que desarrollamos en <strong>Unity 6</strong> como trabajo final de la asignatura <strong>Modelado 3D y Video Juegos</strong> de la <strong>Universidad Central</strong>. En este artículo contamos, paso a paso y con capturas de cada etapa, cómo lo construimos: desde la configuración del proyecto y el modelado del centro de datos, hasta los avatares de los integrantes como personajes jugables, la inteligencia artificial de los androides, el audio, los tres niveles, las cinemáticas y la exportación a Windows, navegador web y Android. Al final del artículo puedes jugar la versión web.</p>
+
+<p><strong>Autores:</strong> Neyder Sebastián Orozco Villamil y Deisy Lorena Jiménez Martínez.<br><strong>Asignatura:</strong> Modelado 3D y Video Juegos (43391312) · <strong>Docente:</strong> Mg. Carlos Iván Pinzón Romero · <strong>Semestre:</strong> 2026-2.</p>
+
+<figure><img src="{{img:nexus-118_titulo-logo-universidad.jpg}}" alt="Pantalla de título de Nexus: Protocolo de emergencia, videojuego survival horror en Unity"><figcaption>Pantalla de título de Nexus, con los avatares de los dos integrantes como personajes jugables.</figcaption></figure>
+
+<h2 id="contenido">Contenido</h2>
+<ul>
+<li><a href="#ficha">Ficha del proyecto</a></li>
+<li><a href="#idea">La idea: un survival horror en un centro de datos</a></li>
+<li><a href="#planeacion">Requisitos y planeación por fases</a></li>
+<li><a href="#fase0">Fase 0: preparación del entorno</a></li>
+<li><a href="#fase1">Fase 1: modelado del centro de datos</a></li>
+<li><a href="#fase2">Fase 2: personajes y animación</a></li>
+<li><a href="#fase3">Fase 3: sistemas de juego</a></li>
+<li><a href="#fase4">Fase 4: inteligencia artificial de los androides</a></li>
+<li><a href="#fase5">Fase 5: audio</a></li>
+<li><a href="#fase6">Fase 6: niveles, cinemáticas y menús</a></li>
+<li><a href="#fase7">Fase 7: exportación a Windows, web y Android</a></li>
+<li><a href="#dificultades">Dificultades superadas</a></li>
+<li><a href="#resultados">Resultados</a></li>
+<li><a href="#jugar">Juega Nexus</a></li>
+<li><a href="#video">Video de sustentación</a></li>
+<li><a href="#conclusiones">Conclusiones</a></li>
+<li><a href="#creditos">Créditos y referencias</a></li>
+</ul>
+
+<h2 id="ficha">Ficha del proyecto</h2>
+<table>
+<thead><tr><th>Elemento</th><th>Detalle</th></tr></thead>
+<tbody>
+<tr><td>Título</td><td>Nexus: Protocolo de emergencia</td></tr>
+<tr><td>Género</td><td>Terror y sigilo en tercera persona (survival horror)</td></tr>
+<tr><td>Motor</td><td>Unity 6.6 (6000.6.3f1) con Universal Render Pipeline (URP)</td></tr>
+<tr><td>Lenguaje</td><td>C#</td></tr>
+<tr><td>Plataformas</td><td>Windows (.exe), navegador web (WebGL) y Android (.apk)</td></tr>
+<tr><td>Niveles</td><td>3: Cuarto de Mantenimiento, Pasillos de Almacenamiento y Núcleo de Datos</td></tr>
+<tr><td>Duración de una partida</td><td>Entre 15 y 20 minutos</td></tr>
+<tr><td>Personajes jugables</td><td>Los avatares 3D de los dos integrantes del equipo, configurados como Avatar Humanoid</td></tr>
+<tr><td>Herramientas</td><td>Unity, Blender, Avaturn, Mixamo, Sketchfab, Pixabay, FFmpeg, Git y GitHub</td></tr>
+<tr><td>Código fuente</td><td><a href="https://github.com/NeySeb832/Nexus_videojuego_2026_2" target="_blank" rel="noopener">github.com/NeySeb832/Nexus_videojuego_2026_2</a></td></tr>
+</tbody>
+</table>
+
+<h2 id="idea">La idea: un survival horror en un centro de datos</h2>
+
+<p>Nexus Corp. es una empresa de tecnología cuyo centro de datos queda fuera de control durante el turno de la noche. La actualización de seguridad <strong>CERBERUS 7.1</strong>, instalada el día 14, altera a los androides de seguridad <strong>SENTINEL</strong>, que empiezan a tratar a cualquier humano como una anomalía, y al mismo tiempo falla el sistema de refrigeración. El técnico de guardia —Neyder o Deisy, según la elección del jugador— entra al complejo por una puerta de servicio que se sella detrás de él. Para forzar el reinicio manual del sistema debe recuperar los <strong>tres Discos Duros Maestros</strong>, uno en cada sector, antes de que la temperatura del núcleo llegue al 100 %.</p>
+
+<p>Durante el recorrido el técnico encuentra los cuerpos de un equipo técnico y de una unidad táctica que entraron antes que él. Sus notas, que quedan guardadas en el inventario, revelan poco a poco que la empresa conocía el fallo. El juego termina cuando el técnico, con los tres discos, fuerza el reinicio y los registros del día 14 se hacen públicos.</p>
+
+<p>Tomamos como referencia los survival horror clásicos, como <em>Resident Evil</em> (Capcom, 1996), <em>Dino Crisis</em> (Capcom, 1999) y <em>Parasite Eve</em> (Square, 1998): <strong>cámaras fijas</strong> que encuadran cada sala, <strong>controles tipo tanque</strong>, recursos escasos, un inventario con objetos y notas, y una atmósfera de tensión constante en la que el jugador oye a los enemigos antes de verlos.</p>
+
+<table>
+<thead><tr><th>Mecánica</th><th>Cómo funciona en Nexus</th></tr></thead>
+<tbody>
+<tr><td>Cámaras fijas</td><td>Cada sala tiene sus ángulos y el juego cambia al más adecuado cuando el personaje sale del cuadro o se acerca a un objeto importante</td></tr>
+<tr><td>Controles tipo tanque</td><td>El personaje avanza hacia donde mira y gira sobre sí mismo, sin depender del ángulo de la cámara</td></tr>
+<tr><td>Sigilo</td><td>Los androides ven con un cono de visión que se bloquea con los racks y oyen al técnico cuando corre o dispara</td></tr>
+<tr><td>Temporizador</td><td>La refrigeración se agota; los cartuchos de refrigerante y las válvulas suman tiempo</td></tr>
+<tr><td>Salud</td><td>Tres oportunidades de evasión, que se recuperan con bebidas energéticas y barritas de proteína</td></tr>
+<tr><td>Objetivos encadenados</td><td>Fusibles, tarjetas de acceso, puertas sin energía, válvulas y discos que obligan a explorar</td></tr>
+<tr><td>Inventario y notas</td><td>Una terminal portátil con objetos, archivo de notas y mapa del nivel</td></tr>
+<tr><td>Guardado</td><td>En las terminales de respaldo, gastando una memoria USB</td></tr>
+<tr><td>Habilidades</td><td>Una habilidad distinta para cada personaje</td></tr>
+<tr><td>Combate</td><td>Bayoneta, pistola y escopeta con munición limitada; disparar hace ruido</td></tr>
+</tbody>
+</table>
+
+<h2 id="planeacion">Requisitos y planeación por fases</h2>
+
+<p>La asignatura pedía un juego 3D en Unity con al menos tres niveles con progresión lógica, tres Canvas diferenciados, un selector de personajes con avatares Humanoid, música de fondo, créditos con la imagen institucional, una explicación del objetivo, temporizador, sistema de vidas o salud, coleccionables con contador, enemigos con inteligencia artificial autónoma y cuadros de diálogo narrativos, todo exportado a Windows, web y Android.</p>
+
+<p>Para cumplirlo organizamos el trabajo en ocho fases. Cada fase terminaba con una parte jugable que probábamos en el editor antes de seguir, así que el juego estuvo en estado ejecutable durante todo el desarrollo. Las compilaciones de prueba para las tres plataformas las hicimos desde el primer día, para descubrir a tiempo cualquier limitación de exportación. Todo el proceso quedó registrado en una bitácora con capturas numeradas, que es la base de este artículo.</p>
+
+<table>
+<thead><tr><th>Fase</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td>0. Preparación del entorno</td><td>Unity y sus módulos, estructura del proyecto, ajustes y perfiles de compilación, repositorio</td></tr>
+<tr><td>1. Modelado del entorno</td><td>Texturas y sombreadores propios, objetos del centro de datos, utilería y decoración automática</td></tr>
+<tr><td>2. Personajes y animación</td><td>Avatares de los integrantes, sistema Humanoid, animaciones de Mixamo y animaciones hechas por código</td></tr>
+<tr><td>3. Sistemas de juego</td><td>Cámaras, controles, salud, temporizador, HUD, diálogos, inventario, guardado, habilidades, armas y controles táctiles</td></tr>
+<tr><td>4. Inteligencia artificial</td><td>Androides con máquina de estados y jefe final</td></tr>
+<tr><td>5. Audio</td><td>Música y efectos, mezcla por capas y sonido 3D</td></tr>
+<tr><td>6. Niveles y menús</td><td>Constructor de niveles, tres niveles, cinemáticas, transición entre niveles, menú y pantallas finales</td></tr>
+<tr><td>7. Exportación</td><td>Compilación y pruebas en Windows, WebGL y Android</td></tr>
+</tbody>
+</table>
+
+<p>Una decisión marcó todo el proyecto: <strong>construir el contenido con código</strong>. En lugar de colocar objetos a mano, cada parte del juego tiene una herramienta de editor escrita en C# dentro del menú <em>Nexus</em> de Unity, que genera texturas, materiales, prefabs, niveles, interfaz, animaciones o configuraciones a partir de datos. Si cambiábamos una medida o un color, bastaba con volver a ejecutar la herramienta para que todo lo que dependía de eso se reconstruyera. Así pudimos hacer escenarios grandes y coherentes siendo solo dos personas.</p>
+
+<h2 id="fase0">Fase 0: preparación del entorno</h2>
+
+<h3>Unity 6, URP y los módulos de exportación</h3>
+
+<p>Creamos el proyecto en <strong>Unity 6.6</strong> con la plantilla <em>Universal 3D</em>, que usa el <strong>Universal Render Pipeline (URP)</strong>, el sistema de renderizado recomendado para juegos que se exportan a móviles y navegadores: permite iluminación, materiales con emisión y posprocesado con un costo controlado. Además del soporte para Windows y Web, instalamos los módulos de Android (<em>Android Build Support</em>, <em>Android SDK &amp; NDK Tools</em> y <em>OpenJDK</em>), necesarios para generar el APK. Al proyecto añadimos los paquetes <em>Input System</em> (teclado, mando y pantalla táctil), <em>AI Navigation</em> (mallas de navegación para los enemigos), <em>uGUI</em> y <em>TextMeshPro</em> (interfaz y texto en 3D).</p>
+
+<h3>Estructura del proyecto y escenas</h3>
+
+<p>Todo el contenido propio quedó dentro de <code>Assets/Nexus</code>, con una carpeta por tipo de recurso: escenas, scripts, herramientas de editor, prefabs, materiales, texturas, modelos, animaciones, audio, interfaz, datos y perfiles de compilación. El juego tiene cuatro escenas que se cargan en este orden: <code>00_Menu</code>, <code>01_Mantenimiento</code>, <code>02_Almacenamiento</code> y <code>03_Nucleo</code>.</p>
+
+<figure><img src="{{img:nexus-003_estructura-carpetas-y-escenas.jpg}}" alt="Estructura de carpetas del proyecto Nexus en Unity y escenas del juego"><figcaption>Estructura de carpetas del proyecto y escenas del juego.</figcaption></figure>
+
+<h3>Ajustes del reproductor y perfiles de compilación</h3>
+
+<p>En <em>Project Settings → Player</em> configuramos el nombre del producto y de la empresa, y los ajustes de cada plataforma: en Windows, ventana redimensionable; en Android, el identificador <code>com.nexusteam.nexus</code>, el compilador IL2CPP con arquitectura ARM64, Android 8.0 como versión mínima y orientación solo horizontal; en Web, compresión con descompresión de respaldo para que el juego funcione en cualquier servidor. Android y Web usan el nivel de calidad <em>Mobile</em>, y Windows el nivel <em>PC</em>.</p>
+
+<figure><img src="{{img:nexus-004_player-settings-android.jpg}}" alt="Player Settings de Unity configurados para Android con IL2CPP y ARM64"><figcaption>Ajustes del reproductor para Android.</figcaption></figure>
+
+<p>Para generar las tres versiones desde el mismo proyecto creamos tres <strong>Build Profiles</strong>: <code>Nexus_PC_Windows</code>, <code>Nexus_Web</code> y <code>Nexus_Android</code>. Cada perfil guarda la configuración de su plataforma; cambiar de plataforma es activar el perfil correspondiente.</p>
+
+<figure><img src="{{img:nexus-005_build-profiles-plataformas.jpg}}" alt="Ventana Build Profiles de Unity 6 con los perfiles de Windows, Web y Android"><figcaption>Los tres perfiles de compilación.</figcaption></figure>
+
+<p>El trabajo del equipo se coordinó en un repositorio de Git en GitHub. El Nivel 2, por ejemplo, se desarrolló en una copia aparte y se integró con una <em>pull request</em>.</p>
+
+<h2 id="fase1">Fase 1: modelado del centro de datos</h2>
+
+<h3>Objetos hechos con primitivas y código</h3>
+
+<p>Todos los objetos del juego están modelados combinando primitivas de Unity (cubos, cilindros y planos) con texturas y materiales propios. La herramienta <code>ConstructorFase1</code> agrega al menú <em>Nexus → Fase 1</em> tres pasos —<em>Generar texturas</em>, <em>Crear materiales</em> y <em>Construir prefabs</em>— y cada objeto queda guardado como un prefab listo para colocarlo en los niveles.</p>
+
+<h3>Texturas procedurales</h3>
+
+<p>Las texturas se generan por código, píxel a píxel, así que son originales y no tienen problemas de licencia. Junto con cada textura de color se genera un mapa de alturas y, a partir de él, un <strong>mapa de normales</strong> que da relieve a la luz: los agujeros de los racks se ven hundidos y las asas sobresalen.</p>
+
+<table>
+<thead><tr><th>Textura</th><th>Tamaño</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td>Frente de rack</td><td>256 × 1024</td><td>Rieles con agujeros de montaje, diez servidores con malla perforada, etiquetas, huecos para LEDs, botones, asas y rejilla de ventilación</td></tr>
+<tr><td>Piso técnico</td><td>512 × 512</td><td>Baldosas de 60 cm con tornillos; una de cada cuatro perforada para la ventilación</td></tr>
+<tr><td>Pared</td><td>512 × 512</td><td>Paneles metálicos con juntas, remaches, banda horizontal y zócalo</td></tr>
+<tr><td>Franjas de peligro</td><td>256 × 256</td><td>Diagonales amarillas y negras para los marcos de las puertas</td></tr>
+<tr><td>Metal cepillado</td><td>256 × 256</td><td>Vetas horizontales para el cuerpo de los racks</td></tr>
+<tr><td>Tarjetas de acceso</td><td>256 × 160</td><td>Banda, chip dorado y logotipo, en rojo y en azul</td></tr>
+</tbody>
+</table>
+
+<h3>Un sombreador propio para cientos de LEDs</h3>
+
+<p>Un centro de datos está lleno de luces parpadeantes, y poner un script en cada LED habría hecho el juego lento en celulares y navegadores. Por eso escribimos un <strong>sombreador en HLSL para URP</strong> que calcula el parpadeo en la tarjeta gráfica a partir del tiempo, sin ningún script. Cada LED guarda en el color de sus vértices su color (verde, azul, ámbar o rojo) y un desfase, de modo que todos los LEDs de un rack forman una sola malla y aun así cada uno parpadea a su ritmo. La intensidad se multiplica por encima de 1 para que el efecto <em>Bloom</em> del posprocesado los haga brillar. El mismo sombreador, en modo de pulso suave, se usa en el neón de los discos, en los lectores de las puertas y en las pantallas de las terminales.</p>
+
+<h3>Los objetos del centro de datos</h3>
+
+<ul>
+<li><strong>Rack de servidores</strong> (0,6 × 2,0 × 1,0 m): cuerpo de metal cepillado, frente con la textura de rejilla y una malla con 80 LEDs colocados exactamente sobre los huecos de la textura. Los racks se agrupan en filas de diez combinadas en tres mallas por celda, así que un laberinto de cientos de racks se dibuja con pocas llamadas a la tarjeta gráfica.</li>
+<li><strong>Disco Duro Maestro</strong>: cubo metálico con anillo y placas de neón azul y una luz propia; gira, flota y se recoge al tocarlo.</li>
+<li><strong>Tarjetas de acceso</strong> roja y azul, que abren las puertas de su color.</li>
+<li><strong>Puerta de seguridad</strong>: marco con franjas de peligro, dos hojas que se deslizan y un lector cuya luz indica qué tarjeta se necesita. Hay variantes roja, azul, libre y sin energía.</li>
+<li><strong>Terminal</strong>: consola con teclado y monitor con texto real en la pantalla, escrito con TextMeshPro en el espacio 3D.</li>
+<li><strong>Módulos de 3 × 3 m</strong> de piso y pared, con los que se arman todos los niveles.</li>
+<li><strong>Objetos del nivel</strong>: fusible, memoria USB, bebida energética, barrita de proteína, cartucho de refrigerante, mesa con nota, panel de fusibles, terminal de respaldo, válvula de refrigeración y ascensor.</li>
+</ul>
+
+<figure><img src="{{img:nexus-014_rack-servidor-detalle.jpg}}" alt="Racks de servidores modelados en Unity con LEDs parpadeantes"><figcaption>Racks de servidores con sus LEDs, dibujados por el sombreador propio.</figcaption></figure>
+
+<figure><img src="{{img:nexus-015_disco-duro-maestro.jpg}}" alt="Disco Duro Maestro con neón azul sobre su pedestal"><figcaption>El Disco Duro Maestro, el objetivo de cada nivel.</figcaption></figure>
+
+<figure><img src="{{img:nexus-016_puerta-seguridad-roja.jpg}}" alt="Puerta de seguridad roja con franjas de peligro y lector de tarjeta"><figcaption>Puerta de seguridad roja con su lector de tarjetas.</figcaption></figure>
+
+<figure><img src="{{img:nexus-017_terminal-nexus.jpg}}" alt="Terminal del centro de datos con texto en pantalla hecho con TextMeshPro"><figcaption>Terminal con texto real en la pantalla.</figcaption></figure>
+
+<figure><img src="{{img:nexus-012_nivel1-camara-fija-alcoba-tarjeta.jpg}}" alt="Tarjeta de acceso roja brillando en su alcoba"><figcaption>La tarjeta roja tiene emisión propia y tiñe de rojo el suelo de su alcoba.</figcaption></figure>
+
+<p>Los productos de curación tienen un diseño propio, sin marcas reales: una lata de bebida energética y una barrita de proteína con envoltura de grafito, bordes plateados y una franja turquesa.</p>
+
+<figure><img src="{{img:nexus-111_bebida-energetica-y-barrita.jpg}}" alt="Bebida energética y barrita de proteína, objetos de curación del juego"><figcaption>Bebida energética (recupera una oportunidad) y barrita de proteína (recupera todas).</figcaption></figure>
+
+<h3>Utilería y decoración automática</h3>
+
+<p>Para que los escenarios se vieran como una empresa abandonada a la fuerza modelamos <strong>48 objetos de utilería</strong>, también con primitivas y texturas generadas por código: escritorios con computadores, sillas, archivadores, casilleros, una consola de cámaras de seguridad, pizarras y carteles de la empresa; máquinas expendedoras, mesas y una nevera para la cafetería; estanterías, cajas, bobinas de cable y gabinetes eléctricos para el almacén; y papeles, latas, bolsas de basura, paneles del techo caídos, manchas, charcos y conos de precaución. Agregamos polvo flotante, chispas y fluorescentes que titilan. Las piezas de cada objeto se combinan en una sola malla por material para que su costo de dibujo sea bajo.</p>
+
+<figure><img src="{{img:nexus-056_utileria-vitrina-general.jpg}}" alt="Vitrina con los 48 objetos de utilería modelados para el juego"><figcaption>Vitrina con la utilería del centro de datos.</figcaption></figure>
+
+<figure><img src="{{img:nexus-057_utileria-maquinas-y-escritorios.jpg}}" alt="Máquinas expendedoras y escritorios modelados con primitivas en Unity"><figcaption>Máquinas expendedoras y escritorios.</figcaption></figure>
+
+<p>Un <strong>decorador automático</strong> amuebla cada sala según su tema (oficina, seguridad, cafetería, almacén, servidores, eléctrico, mantenimiento o pasillo):</p>
+
+<ol>
+<li>Coloca los muebles obligatorios del tema, como los monitores de vigilancia en la sala de seguridad.</li>
+<li>Llena las paredes que ve la cámara de la sala hasta una densidad definida, con sillas frente a los escritorios y piezas pequeñas en los huecos.</li>
+<li>Cuelga carteles, pizarras y gabinetes.</li>
+<li>Riega basura por el suelo y añade polvo flotante del tamaño de la sala.</li>
+</ol>
+
+<p>Los muebles van siempre contra las paredes, para no estorbar el paso del jugador ni las rutas de los androides, y nunca junto a una cámara o una puerta. Los muebles altos bloquean la visión de los androides, así que también sirven para esconderse. La decoración usa una semilla fija: reconstruir un nivel da siempre el mismo resultado.</p>
+
+<figure><img src="{{img:nexus-063_mantenimiento-decorado.jpg}}" alt="Sala de mantenimiento decorada automáticamente con basura y mobiliario"><figcaption>Sala de mantenimiento decorada.</figcaption></figure>
+
+<figure><img src="{{img:nexus-064_oficina-seguridad-decorada.jpg}}" alt="Oficina de seguridad con consola de cámaras, escritorios y casilleros"><figcaption>Oficina de seguridad: consola de cámaras, isla de escritorios y casilleros.</figcaption></figure>
+
+<figure><img src="{{img:nexus-065_almacen-decorado.jpg}}" alt="Almacén con estanterías y cajas"><figcaption>Almacén con estanterías y cajas.</figcaption></figure>
+
+<p>Las <strong>máquinas expendedoras</strong> dan bebidas energéticas y barritas de proteína hasta agotarse, pero el producto cae con un golpe que atrae a los androides que estén a menos de 11 m. Curarse se convierte en una decisión con riesgo.</p>
+
+<h2 id="fase2">Fase 2: personajes y animación</h2>
+
+<h3>Los integrantes como personajes jugables</h3>
+
+<p>Los dos personajes jugables son nuestros propios avatares, creados con <strong>Avaturn</strong> a partir de fotografías. Los descargamos en formato GLB, que guarda en un solo archivo la malla, un esqueleto de 52 huesos con nombres estándar y las texturas. Con un script de Python para <strong>Blender</strong> los convertimos a FBX con las texturas incrustadas, sin huesos adicionales y con la escala en metros, que es el formato con el que Unity configura los avatares humanoides.</p>
+
+<figure><img src="{{img:nexus-006_avatares-integrantes-en-unity.jpg}}" alt="Avatares 3D de Neyder y Deisy creados con Avaturn e importados en Unity"><figcaption>Los avatares de Neyder y Deisy importados en Unity.</figcaption></figure>
+
+<h3>Configuración como Avatar Humanoid</h3>
+
+<p>En Unity importamos los modelos con el tipo de animación <strong>Humanoid</strong> y la definición <em>Create From This Model</em>. Unity generó un avatar válido para cada integrante, con los 52 huesos asignados al esqueleto humano estándar. El sistema Humanoid traduce el esqueleto de cada modelo a un esqueleto común: gracias a eso, <strong>una misma animación funciona en los dos personajes y en los androides</strong> aunque tengan proporciones distintas, y el selector de personajes usa un único controlador de animación.</p>
+
+<figure><img src="{{img:nexus-007_rig-humanoid-neyder.jpg}}" alt="Pestaña Rig de Unity con Animation Type Humanoid"><figcaption>Pestaña Rig del modelo de Neyder con el tipo de animación Humanoid.</figcaption></figure>
+
+<figure><img src="{{img:nexus-008_configure-avatar-mapeo-huesos-neyder.jpg}}" alt="Configure Avatar de Unity con el mapeo completo de huesos de Neyder"><figcaption>Mapeo de huesos del Avatar Humanoid de Neyder.</figcaption></figure>
+
+<figure><img src="{{img:nexus-009_configure-avatar-mapeo-huesos-deisy.jpg}}" alt="Configure Avatar de Unity con el mapeo de huesos de Deisy"><figcaption>Mapeo de huesos del Avatar Humanoid de Deisy.</figcaption></figure>
+
+<p>Las texturas se asignaron a materiales URP con mapa de color y de normales. El cabello usa recorte por transparencia (<em>alpha clipping</em>) y se dibuja por las dos caras, una solución más ligera que la transparencia real para móviles y navegadores, y la piel y la ropa usan un flujo de trabajo no metálico.</p>
+
+<h3>Animaciones de Mixamo y controlador compartido</h3>
+
+<p>De <strong>Mixamo</strong> descargamos las animaciones aplicadas sobre nuestros avatares. Elegimos once clips: reposo, caminar, correr, caminar herido, reacción a un golpe, golpe al caminar, morir, y reposo, caminar, disparar y apuñalar con arma. Cada clip se configuró como Humanoid, y el avance de la cadera se deja fuera del personaje (<em>root motion</em> descartado): la animación se reproduce en su sitio y es el componente <em>CharacterController</em> el que mueve al técnico.</p>
+
+<p>El controlador de animación <code>AC_Tecnico</code>, compartido por los dos personajes, tiene un árbol de mezcla de locomoción —reposo, caminar a 1,8 m/s y correr a 5 m/s— cuyos umbrales coinciden con la velocidad real de las animaciones, para que los pies no se deslicen sobre el suelo. También tiene una variante herida, los estados de golpe y muerte, y los parámetros de las armas. Al retroceder, la animación de caminar se reproduce en reversa.</p>
+
+<figure><img src="{{img:nexus-023_jugador-caminando-hacia-camara-fija.jpg}}" alt="El técnico caminando con la animación de Mixamo frente a una cámara fija"><figcaption>El técnico caminando hacia una cámara fija.</figcaption></figure>
+
+<h3>Personajes secundarios y cadáveres</h3>
+
+<p>De Mixamo también obtuvimos dos operadores tácticos y un empleado con casco y chaleco, que en el juego son los cuerpos de quienes entraron antes que el técnico. Un script de Blender redujo sus texturas a un máximo de 1024 píxeles, separó los canales de color, normales, rugosidad y emisión, y combinó la rugosidad en el formato que usa el material URP; los archivos pasaron de hasta 115 MB a unos 10 MB.</p>
+
+<p>Las poses de los cadáveres se describen con los <strong>músculos del sistema Humanoid</strong>, valores de −1 a 1 que funcionan con cualquier modelo. Hay una pose tendida, tomada del último cuadro de la animación de muerte, y una pose sentada contra la pared, creada músculo por músculo: piernas al frente, una rodilla doblada, torso caído y cabeza ladeada. La pose se escribe directamente en los huesos, así que el cuerpo no necesita un controlador de animación. Cada uno tiene un charco de sangre, una colisión baja que los androides rodean y una luz tenue para distinguirse en la oscuridad.</p>
+
+<figure><img src="{{img:nexus-082_cadaveres-tendidos.jpg}}" alt="Operadores tácticos y empleado en pose de cadáver tendido"><figcaption>Poses tendidas: dos operadores tácticos y un empleado.</figcaption></figure>
+
+<figure><img src="{{img:nexus-083_cadaveres-sentados-pared.jpg}}" alt="Cadáveres sentados contra la pared con pose creada con los músculos del avatar Humanoid"><figcaption>Pose sentada contra la pared, creada con los músculos del avatar.</figcaption></figure>
+
+<h3>Animaciones de la escopeta creadas por código</h3>
+
+<p>Para la escopeta de corredera no encontramos animaciones compatibles, así que las creamos. Partimos de la técnica de manejo real de este tipo de arma: culata en el hombro, mano fuerte en la empuñadura y mano de apoyo en el guardamanos; posición de listo con el cañón hacia abajo; retroceso hacia el hombro; bombeo para cargar el siguiente cartucho; y recarga a la altura de la cadera, empujando los cartuchos uno por uno.</p>
+
+<ol>
+<li>Escribimos por código, músculo por músculo, tres clips Humanoid: listo, apuntar y recargar.</li>
+<li>Agregamos al controlador una capa <em>Escopeta</em> con una máscara de brazos, manos y cabeza: las piernas siguen caminando y corriendo con la capa base.</li>
+<li>La <strong>cinemática inversa (IK)</strong> coloca el arma respecto al hombro según la pose y lleva las manos a la empuñadura y al guardamanos. El retroceso, el bombeo y el ciclo de cada cartucho se calculan con curvas en el código.</li>
+<li>La recarga cuesta tiempo real: medio segundo por cartucho.</li>
+</ol>
+
+<figure><img src="{{img:nexus-088_escopeta-listo.jpg}}" alt="Personaje sosteniendo la escopeta en posición de listo"><figcaption>Escopeta en posición de listo.</figcaption></figure>
+
+<figure><img src="{{img:nexus-089_escopeta-apuntar-derecha.jpg}}" alt="Personaje apuntando la escopeta con la mano de apoyo en el guardamanos gracias a IK"><figcaption>Apuntando: culata al hombro y mano de apoyo en el guardamanos, colocada con IK.</figcaption></figure>
+
+<figure><img src="{{img:nexus-091_escopeta-recarga.jpg}}" alt="Animación de recarga de escopeta cartucho por cartucho"><figcaption>Recarga cartucho por cartucho.</figcaption></figure>
+
+<h2 id="fase3">Fase 3: sistemas de juego</h2>
+
+<h3>Arquitectura</h3>
+
+<p>Cada sistema vive en un script con una responsabilidad. Los objetos no se conocen entre sí: se comunican con métodos estáticos del HUD (mostrar un aviso, cambiar el objetivo, abrir un diálogo) y con eventos, como el que anuncia que se recogió un objeto. Así una terminal no necesita saber cómo se dibuja un diálogo.</p>
+
+<table>
+<thead><tr><th>Script</th><th>Responsabilidad</th></tr></thead>
+<tbody>
+<tr><td>EstadoPartida</td><td>Datos que pasan de un nivel a otro: personaje, salud, discos, inventario, munición, notas y cuerpos registrados; guardado y carga</td></tr>
+<tr><td>NivelNexus</td><td>Temporizador, temperatura, objetivo inicial, Game Over, paso al nivel siguiente y Victoria</td></tr>
+<tr><td>ControladorJugador</td><td>Movimiento con controles tipo tanque mediante un CharacterController</td></tr>
+<tr><td>VidaJugador</td><td>Las tres oportunidades de evasión, el estado herido y la muerte</td></tr>
+<tr><td>InteraccionJugador</td><td>Detecta lo que está cerca, muestra la acción y la ejecuta</td></tr>
+<tr><td>GestorCamaras</td><td>Las cámaras fijas y el cambio entre ellas</td></tr>
+<tr><td>HUDNexus, PantallaInventario, PantallaFinal</td><td>Interfaz, inventario y pantallas de Game Over y Victoria</td></tr>
+<tr><td>ArmaJugador, IKTecnico</td><td>Armas, apuntado y cinemática inversa</td></tr>
+<tr><td>AndroideIA, JefeSentinel</td><td>Inteligencia artificial de los enemigos</td></tr>
+<tr><td>AudioNexus</td><td>Música por capas y efectos</td></tr>
+<tr><td>Cinematica, TransicionAscensor</td><td>Cinemáticas y transición entre niveles</td></tr>
+<tr><td>ControlesTactiles</td><td>Controles para pantallas táctiles</td></tr>
+</tbody>
+</table>
+
+<h3>Cámaras fijas que guían al jugador</h3>
+
+<p>Como en los clásicos del género, Nexus no usa una cámara que sigue al personaje: usa <strong>cámaras fijas</strong> en las salas. Eso crea tensión, porque el jugador oye a los androides pero no siempre los ve, y además reduce el costo de renderizado, porque solo una cámara está encendida a la vez. El sistema tiene cuatro partes:</p>
+
+<ul>
+<li><strong>Ángulos por sala, calculados.</strong> El constructor de niveles ubica en cada sala una cámara principal y evalúa como candidatas las esquinas y los puntos medios de las paredes largas. Después de decorar la sala, agrega uno a uno el candidato que ve más puntos del suelo que ninguna otra cámara ve, hasta cubrir la sala. Un punto solo cuenta como cubierto si la cámara ve al técnico de los pies a la cabeza, sin obstáculos y ocupando al menos el 11 % del alto de la imagen.</li>
+<li><strong>Cambio de cámara.</strong> Unas 16 veces por segundo, el gestor comprueba si el técnico sigue dentro de la imagen y si algo lo tapa. Mientras siga en cuadro, la cámara no cambia; si sale del cuadro, queda tapado más de 0,6 s o se ve más pequeño que el 9 % de la imagen, cambia al ángulo que lo encuadra mejor. Como el umbral de salida es menor que el de entrada, la imagen no salta entre dos cámaras.</li>
+<li><strong>Planos de interés.</strong> La cámara también guía: al acercarse a un objeto importante —terminales, paneles, notas, máquinas, puertas con cerradura, válvulas, objetos para recoger, cadáveres y el ascensor— corta a un plano cercano en tres cuartos que muestra el objeto y al técnico. Solo se activa si el técnico mira hacia el objeto, si está en la misma sala y si pasaron al menos 1,2 s desde el último corte.</li>
+<li><strong>Cualquier pantalla.</strong> Los encuadres están pensados para 16:9; en pantallas más estrechas el gestor abre el ángulo vertical para conservar el campo horizontal. La cobertura se verificó en 16:9, 4:3 y en la proporción de un celular (19,5:9).</li>
+</ul>
+
+<figure><img src="{{img:nexus-068_camara-alternativa-oeste.jpg}}" alt="Ángulo alternativo de cámara fija cuando el personaje sale del cuadro"><figcaption>Al salir del cuadro de la cámara principal, el juego pasa a un ángulo alternativo de la misma sala.</figcaption></figure>
+
+<figure><img src="{{img:nexus-070_plano-interes-terminal.jpg}}" alt="Plano de interés de la cámara frente a la terminal"><figcaption>Plano de interés: al acercarse a la terminal, la cámara corta a un plano cercano.</figcaption></figure>
+
+<figure><img src="{{img:nexus-072_plano-interes-puerta-roja.jpg}}" alt="Plano de interés de la puerta roja con su lector de tarjetas"><figcaption>Plano de interés de la puerta roja: se ve el lector que pide la tarjeta.</figcaption></figure>
+
+<h3>Controles tipo tanque</h3>
+
+<p>El técnico avanza y retrocede con W y S (o el stick hacia arriba y abajo) y gira sobre sí mismo con A y D; Shift lo hace correr y Shift + S da media vuelta rápida. La dirección no depende de la cámara: aunque el ángulo cambie, el personaje sigue caminando hacia donde mira, por eso este control encaja tan bien con las cámaras fijas. Al empezar aparece un recordatorio con los controles.</p>
+
+<figure><img src="{{img:nexus-067_aviso-controles-tanque.jpg}}" alt="Recordatorio de los controles tipo tanque al iniciar el nivel"><figcaption>Recordatorio de los controles tipo tanque al iniciar el nivel.</figcaption></figure>
+
+<h3>Salud, temporizador y un HUD mínimo</h3>
+
+<p>La salud son tres <strong>oportunidades de evasión</strong>. Al ser alcanzado, el técnico pierde una, recibe un empujón y queda invulnerable 2,5 s; con una sola oportunidad camina herido y los bordes de la pantalla laten en rojo; con ninguna, muere. El <strong>temporizador de refrigeración</strong> cuenta hacia atrás y la temperatura del núcleo sube hasta el 100 % cuando se agota. Los cartuchos de refrigerante son coleccionables con contador que suman 20 s cada uno.</p>
+
+<p>El HUD es solo texto pequeño con una sombra suave, sin recuadros, para no tapar el escenario: arriba a la izquierda, el objetivo actual; arriba a la derecha, la refrigeración, la temperatura, los discos recuperados (x/3), los cartuchos, la habilidad y el arma con su munición. La salud no está fija en pantalla: aparece unos segundos cada vez que cambia y siempre se puede consultar en el inventario.</p>
+
+<figure><img src="{{img:nexus-029_hud-minimo-solo-texto.jpg}}" alt="HUD del juego con objetivo, temporizador de refrigeración y contador de discos"><figcaption>HUD mínimo: objetivo, refrigeración, temperatura y contadores.</figcaption></figure>
+
+<h3>Diálogos e interacción</h3>
+
+<p>Los mensajes de las terminales, las notas y los avisos del sistema aparecen en un cuadro con estilo de terminal: el texto se escribe letra a letra y el juego se pausa mientras se lee. Todo lo que se usa con la tecla de interactuar hereda de una clase común: al acercarse aparece la acción disponible (por ejemplo, «[E] Usar terminal») y el jugador solo interactúa con objetos a menos de 4 m.</p>
+
+<figure><img src="{{img:nexus-030_dialogo-terminal-mantenimiento.jpg}}" alt="Cuadro de diálogo de la terminal de mantenimiento con alerta crítica"><figcaption>Cuadro de diálogo de la terminal de mantenimiento.</figcaption></figure>
+
+<h3>Inventario: la terminal portátil del técnico</h3>
+
+<p>El inventario se abre con Tab o I, pausa el juego y tiene un diseño propio con estética de sistema operativo en tonos cian. A la izquierda muestra el retrato del técnico, un monitor de signos vitales cuya línea de pulso cambia de velocidad y color según el estado (estable, herido o crítico) y un resumen de la misión. Tiene tres páginas: <strong>Objetos</strong> (doce casillas, vista previa y descripción; desde aquí se usan los objetos de curación y se equipan las armas), <strong>Archivo</strong> (las notas leídas) y <strong>Mapa</strong> (plano del nivel con las salas, las puertas por color y la posición del jugador).</p>
+
+<figure><img src="{{img:nexus-037_inventario-objetos.jpg}}" alt="Inventario estilo survival horror con cuadrícula de objetos y signos vitales"><figcaption>Página de objetos del inventario.</figcaption></figure>
+
+<figure><img src="{{img:nexus-038_inventario-archivo-notas.jpg}}" alt="Archivo de notas del inventario con el registro del turno nocturno"><figcaption>Archivo con las notas leídas.</figcaption></figure>
+
+<figure><img src="{{img:nexus-039_inventario-mapa-del-nivel.jpg}}" alt="Mapa del nivel en el inventario con la posición del jugador"><figcaption>Mapa del nivel generado desde su mapa de texto.</figcaption></figure>
+
+<p>Los retratos se obtuvieron fotografiando nuestros avatares 3D desde una herramienta de editor que coloca una cámara frente al hueso de la cabeza en una escena con luz de estudio; los íconos, fotografiando cada prefab con fondo transparente.</p>
+
+<figure><img src="{{img:nexus-040_retrato-neyder-renderizado.jpg}}" alt="Retrato de Neyder renderizado desde su avatar 3D"><figcaption>Retrato de Neyder generado desde su avatar.</figcaption></figure>
+
+<h3>Guardado</h3>
+
+<p>La partida se guarda en las terminales de respaldo, que consumen una memoria USB. Se guardan el nivel, la posición, el tiempo, la salud, el inventario, la munición, las notas y los cuerpos ya registrados, con el sistema <em>PlayerPrefs</em> de Unity, que funciona igual en Windows, en el navegador y en Android. Cuando hay una partida guardada, el menú muestra <em>Continuar</em>, y el Game Over permite cargarla.</p>
+
+<h3>Una habilidad para cada personaje</h3>
+
+<p>Para que elegir a Neyder o a Deisy no fuera solo un cambio de apariencia, cada uno tiene una habilidad propia que se activa con Q:</p>
+
+<ul>
+<li><strong>Neyder, técnico de redes — Señuelo de red:</strong> lanza un repetidor que vuela en arco y emite una señal falsa durante 8 s, con un anillo de pulso cian. Los androides a menos de 14 m van a revisarlo. Puede distraer a varios a la vez, pero si un androide ve al técnico, lo persigue igual. Recarga de 25 s.</li>
+<li><strong>Deisy, analista de sistemas — KILLSWITCH.exe:</strong> un haz de datos salta en zigzag hasta el androide más cercano a la vista (máximo 7 m), que se desploma con el visor y las juntas apagados durante 10 s y luego se reinicia. Es seguro, pero afecta a uno solo y obliga a acercarse. Recarga de 30 s.</li>
+</ul>
+
+<figure><img src="{{img:nexus-058_selector-ficha-con-habilidad.jpg}}" alt="Ficha del selector de personaje con la habilidad KILLSWITCH de Deisy"><figcaption>La ficha del selector explica la habilidad de cada técnico.</figcaption></figure>
+
+<figure><img src="{{img:nexus-059_senuelo-de-red-neyder.jpg}}" alt="Señuelo de red de Neyder atrayendo a un androide"><figcaption>El señuelo de red de Neyder atrae al androide.</figcaption></figure>
+
+<figure><img src="{{img:nexus-060_killswitch-deisy-rayo.jpg}}" alt="Rayo de datos del KILLSWITCH de Deisy apagando a un androide"><figcaption>El haz de datos del KILLSWITCH de Deisy.</figcaption></figure>
+
+<figure><img src="{{img:nexus-061_killswitch-androide-apagado.jpg}}" alt="Androide apagado por el KILLSWITCH con el visor sin luz"><figcaption>El androide apagado durante 10 segundos.</figcaption></figure>
+
+<h3>Armas y combate</h3>
+
+<p>El técnico puede defenderse con una bayoneta M9, una pistola Beretta M9A1 y una escopeta Remington 870, modelos de Sketchfab con licencia CC BY 4.0. Una herramienta de editor los importa reduciendo sus texturas a 1024 píxeles, crea los materiales URP, invierte el canal verde de los mapas de normales que venían en formato DirectX, mide cada modelo para dejarlo a su tamaño real y le agrega un punto de «boca» para el fogonazo, el láser y la trazadora. El arma se coloca en el hueso de la mano derecha del avatar, así que funciona igual con los dos personajes.</p>
+
+<figure><img src="{{img:nexus-074_armas-vitrina.jpg}}" alt="Bayoneta, pistola y escopeta con cajas de munición"><figcaption>Las tres armas y las cajas de munición.</figcaption></figure>
+
+<ul>
+<li><strong>Apuntado asistido:</strong> al apuntar, el técnico gira solo hacia el androide visible más cercano dentro de un cono de 50°, y un láser rojo marca el objetivo.</li>
+<li><strong>Apuntar es comprometerse:</strong> mientras apunta, el técnico no camina y gira más despacio.</li>
+<li><strong>El ruido importa:</strong> cada disparo atrae a los androides cercanos; el cuchillo es silencioso pero obliga a acercarse.</li>
+</ul>
+
+<table>
+<thead><tr><th>Arma</th><th>Daño</th><th>Alcance</th><th>Cadencia</th><th>Cargador</th><th>Ruido</th></tr></thead>
+<tbody>
+<tr><td>Bayoneta</td><td>2,5 por tajo, arco de 60°</td><td>1,9 m</td><td>0,75 s</td><td>—</td><td>Silencioso</td></tr>
+<tr><td>Pistola</td><td>2</td><td>25 m</td><td>0,32 s</td><td>15</td><td>18 m</td></tr>
+<tr><td>Escopeta</td><td>7 perdigones de 1,6</td><td>14 m</td><td>1 s</td><td>6</td><td>24 m</td></tr>
+</tbody>
+</table>
+
+<figure><img src="{{img:nexus-077_pistola-disparo.jpg}}" alt="Disparo de pistola con láser, trazadora y chispas en el androide"><figcaption>Disparo de pistola: láser, trazadora y chispas en el blindaje.</figcaption></figure>
+
+<figure><img src="{{img:nexus-079_escopeta-disparo.jpg}}" alt="Disparo de escopeta con perdigones en abanico"><figcaption>La escopeta dispara siete perdigones en abanico.</figcaption></figure>
+
+<figure><img src="{{img:nexus-080_cuchillo-ataque.jpg}}" alt="Ataque con la bayoneta a un androide"><figcaption>Tajo de bayoneta: silencioso, pero obliga a acercarse.</figcaption></figure>
+
+<p>Cada androide tiene 12 puntos de vida. Al recibir un golpe, su visor destella, se aturde un instante y persigue al técnico; uno apagado con el KILLSWITCH de Deisy recibe el doble de daño. Al quedar sin vida cae, sus luces se apagan y aparece el aviso «UNIDAD SENTINEL NEUTRALIZADA».</p>
+
+<figure><img src="{{img:nexus-081_androide-neutralizado.jpg}}" alt="Androide SENTINEL neutralizado en el suelo"><figcaption>Androide neutralizado.</figcaption></figure>
+
+<h3>Cadáveres que cuentan la historia</h3>
+
+<p>Como en los survival horror clásicos, las armas y la munición no flotan en el nivel: se obtienen al <strong>registrar los cuerpos</strong> de quienes entraron antes. Al pulsar E sobre un cuerpo, el técnico describe lo que ve, recibe lo que llevaba la víctima y lee su nota, que queda en el archivo del inventario. Un cuerpo registrado no vuelve a dar nada, tampoco al cargar la partida.</p>
+
+<table>
+<thead><tr><th>Nivel</th><th>Cuerpo</th><th>Lleva</th><th>Lo que cuenta su nota</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Mendoza, técnico</td><td>—</td><td>Sacar el disco despierta a las unidades; la salida es el ascensor de la cafetería</td></tr>
+<tr><td>1</td><td>J. Ramírez, técnico</td><td>Bayoneta M9</td><td>Los SENTINEL los encerraron; Mendoza fue por el disco</td></tr>
+<tr><td>2</td><td>Sargento Ortiz</td><td>Escopeta y 3 cartuchos</td><td>Orden de misión: Nexus Corp. lo sabía desde el día 14</td></tr>
+<tr><td>2</td><td>Operadores Castro, Vargas y Ruiz, y el guía del equipo</td><td>Pistola, balas y cartuchos</td><td>La última transmisión, el registro de la unidad y dónde están el disco y la salida</td></tr>
+<tr><td>3</td><td>Ibarra, Salgado y Medina</td><td>Balas y cartuchos</td><td>Pistas sobre las patrullas, el orden de las válvulas y la cápsula del jefe</td></tr>
+<tr><td>3</td><td>Ingeniero Ríos, jefe de sistemas</td><td>Barrita de proteína</td><td>CERBERUS 7.1 se pidió para proteger los datos «a cualquier costo»</td></tr>
+</tbody>
+</table>
+
+<figure><img src="{{img:nexus-084_cadaver-cafeteria-bayoneta.jpg}}" alt="Cadáver del técnico Ramírez en la cafetería con la bayoneta junto a la mano"><figcaption>El técnico Ramírez en la cafetería, con la bayoneta junto a la mano.</figcaption></figure>
+
+<figure><img src="{{img:nexus-085_registro-obtuviste-bayoneta.jpg}}" alt="Mensaje al registrar el cuerpo: Obtuviste Bayoneta M9"><figcaption>Al registrar el cuerpo: «Obtuviste: Bayoneta M9».</figcaption></figure>
+
+<figure><img src="{{img:nexus-087_nivel2-nota-vargas.jpg}}" alt="Nota del operador Vargas sobre los drones de vigilancia"><figcaption>La nota del operador Vargas en el Nivel 2.</figcaption></figure>
+
+<h3>Controles táctiles</h3>
+
+<p>Para la versión de Android y el navegador del celular programamos controles táctiles con el mismo estilo del HUD: anillos finos y texto. Se crean solos cuando el juego corre en un dispositivo móvil y solo se muestran mientras el jugador tiene el control. A la izquierda hay un joystick que aparece donde se apoya el pulgar, con los mismos controles tipo tanque, y los botones CORRER e INVENTARIO; a la derecha, INTERACTUAR, HABILIDAD, ARMA y, según el arma equipada, ATACAR o DISPARAR, APUNTAR y RECARGAR. Si se dispara sin estar apuntando, el técnico apunta solo al androide más cercano.</p>
+
+<figure><img src="{{img:nexus-115_controles-tactiles.jpg}}" alt="Controles táctiles del juego en Android con joystick y botones"><figcaption>Controles táctiles con la pistola equipada.</figcaption></figure>
+
+<h2 id="fase4">Fase 4: inteligencia artificial de los androides</h2>
+
+<h3>El androide SENTINEL</h3>
+
+<p>Los androides se construyeron sobre el modelo <em>Y Bot</em> de Mixamo, configurado como Avatar Humanoid; por eso usan las mismas animaciones de reposo, caminar y correr que los técnicos. Una herramienta les da su aspecto: cuerpo de metal negro pulido, juntas que brillan —en la oscuridad se ve la silueta antes que el cuerpo—, un visor rojo pegado al hueso de la cabeza y una linterna roja que marca hacia dónde miran.</p>
+
+<figure><img src="{{img:nexus-042_androide-sentinel-primer-plano.jpg}}" alt="Androide SENTINEL con visor rojo y juntas luminosas"><figcaption>Androide de seguridad SENTINEL.</figcaption></figure>
+
+<h3>Cómo ve y cómo oye</h3>
+
+<p>La <strong>visión</strong> combina dos pruebas. Un cono invisible de 9 m de alcance y 55° de apertura, hecho con un <em>Mesh Collider</em> convexo en modo <em>trigger</em>, avisa cuando el técnico entra en él. Entonces el androide lanza un rayo desde sus ojos hasta el pecho del técnico: si el rayo choca antes con un rack, una pared o un mueble alto, no lo ve. Por eso esconderse detrás de los racks funciona. A menos de 1,6 m lo percibe aunque esté a su espalda. Este es el fragmento del código que lo decide:</p>
+
+<pre><code>bool PuedeVerAlJugador()
+{
+    if (vida != null &amp;&amp; vida.Muerto) return false;
+    float d = Vector3.Distance(transform.position, jugador.position);
+    if (!JugadorEnCono &amp;&amp; d &gt; 1.6f) return false;   // muy cerca lo "siente" aunque esté detrás
+    Vector3 origen = ojos.position + transform.forward * 0.4f;
+    Vector3 objetivo = jugador.position + Vector3.up * 1.2f;
+    Vector3 dir = objetivo - origen;
+    if (Physics.Raycast(origen, dir.normalized, out RaycastHit hit, dir.magnitude + 0.5f,
+                        MascaraVision, QueryTriggerInteraction.Ignore))
+        return hit.collider.CompareTag("Player");
+    return true;
+}</code></pre>
+
+<p>El <strong>oído</strong> hace que el androide vaya a investigar si el técnico corre a menos de 5 m, si dispara cerca, si una máquina expendedora suelta un producto o si una válvula se abre fuera de orden. Caminar es la forma sigilosa de moverse.</p>
+
+<h3>Máquina de estados</h3>
+
+<p>El comportamiento está en el script <code>AndroideIA</code>, organizado como una máquina de estados. Los androides se mueven con un <em>NavMeshAgent</em> sobre una malla de navegación que se calcula al cargar cada nivel a partir del suelo, las paredes, los racks y los muebles; las puertas cerradas llevan un obstáculo que corta la malla hasta que se abren. Patrullan a 1,3 m/s y persiguen a unos 3,5 m/s, más despacio que el técnico cuando corre (5 m/s): huir siempre es posible.</p>
+
+<table>
+<thead><tr><th>Estado</th><th>Comportamiento</th><th>Pasa a…</th></tr></thead>
+<tbody>
+<tr><td>Reposo</td><td>Anclado en su estación de carga, visor casi apagado</td><td>Búsqueda con la alarma o si el técnico pasa muy cerca</td></tr>
+<tr><td>Patrulla</td><td>Recorre sus puntos de ruta a paso lento</td><td>Persecución si lo ve; Búsqueda si lo oye</td></tr>
+<tr><td>Persecución</td><td>Corre hacia el técnico; la linterna se intensifica</td><td>Recalibrando si lo alcanza; Búsqueda si lo pierde 3 s</td></tr>
+<tr><td>Búsqueda</td><td>Va al último lugar donde lo vio u oyó y mira alrededor</td><td>Persecución si lo ve; Patrulla si no</td></tr>
+<tr><td>Recalibrando</td><td>Se detiene 2,5 s tras alcanzarlo, dándole tiempo de huir</td><td>Patrulla</td></tr>
+<tr><td>Atraído</td><td>Va al señuelo o al ruido y se queda ahí</td><td>Búsqueda o Persecución</td></tr>
+<tr><td>Apagado</td><td>Desplomado por el KILLSWITCH; recibe el doble de daño</td><td>Patrulla, tras 10 s</td></tr>
+</tbody>
+</table>
+
+<figure><img src="{{img:nexus-043_androide-detecta-y-persigue.jpg}}" alt="Androide detectando y persiguiendo al técnico con la linterna roja"><figcaption>Un androide detecta al técnico y lo persigue.</figcaption></figure>
+
+<h3>Estaciones de carga y alarma</h3>
+
+<p>Algunos androides esperan en <strong>estaciones de carga</strong>: un panel, una base con luz y la unidad anclada, con el visor casi apagado y un pulso tenue. Se reactivan si el técnico pasa pegado a ellos, corre cerca o se les planta enfrente, y todos despiertan cuando se extrae el Disco Maestro de un nivel. En ese momento suena la alarma, las luces pasan a rojo y, durante 22 s, el sistema les comunica la posición del técnico aunque no lo vean. Hay que huir.</p>
+
+<figure><img src="{{img:nexus-073_androide-en-reposo.jpg}}" alt="Androide en reposo con el visor casi apagado"><figcaption>Androide en reposo, con el visor casi apagado.</figcaption></figure>
+
+<figure><img src="{{img:nexus-097_alarma-androide-se-enciende.jpg}}" alt="Androide encendiéndose en su estación de carga al sonar la alarma"><figcaption>Al sonar la alarma, las unidades se encienden en sus estaciones de carga.</figcaption></figure>
+
+<h3>El jefe final: SENTINEL-Ω</h3>
+
+<p>En el Nivel 3, al tomar el último disco, CERBERUS se descarga en una unidad prototipo que esperaba en una cápsula junto a la salida de emergencia. <strong>SENTINEL-Ω</strong> es 1,45 veces más grande, tiene juntas doradas y 60 puntos de vida, y bloquea la salida hasta ser destruido. Su script sigue un ciclo de tres fases:</p>
+
+<table>
+<thead><tr><th>Fase</th><th>Duración</th><th>Daño que recibe</th><th>Qué hacer</th></tr></thead>
+<tbody>
+<tr><td>Blindado: persigue al técnico</td><td>8 s</td><td>La mitad</td><td>Alejarse y no gastar balas</td></tr>
+<tr><td>Cargando una descarga</td><td>2,2 s</td><td>Normal</td><td>Alejarse: la descarga hiere a menos de 6,5 m</td></tr>
+<tr><td>Expuesto: sobrecalentado</td><td>2,5 s</td><td>El doble</td><td>Atacarlo, incluso con la bayoneta</td></tr>
+</tbody>
+</table>
+
+<p>A la mitad de su vida llama a dos unidades de refuerzo y carga más seguido. Una barra de vida en texto, arriba de la pantalla, muestra su estado. Al destruirlo, todos los androides se desconectan y la salida se desbloquea. El combate se puede ganar incluso sin munición, aprovechando con la bayoneta las ventanas en que queda expuesto.</p>
+
+<figure><img src="{{img:nexus-101_jefe-sentinel-omega.jpg}}" alt="Jefe final SENTINEL-Omega activándose"><figcaption>CERBERUS se descarga en SENTINEL-Ω.</figcaption></figure>
+
+<figure><img src="{{img:nexus-102_jefe-cargando-descarga.jpg}}" alt="SENTINEL-Omega cargando su descarga eléctrica"><figcaption>El jefe carga su descarga: es momento de alejarse.</figcaption></figure>
+
+<figure><img src="{{img:nexus-103_jefe-expuesto.jpg}}" alt="SENTINEL-Omega expuesto y sobrecalentado"><figcaption>Expuesto: recibe el doble de daño.</figcaption></figure>
+
+<figure><img src="{{img:nexus-105_jefe-destruido.jpg}}" alt="SENTINEL-Omega destruido"><figcaption>SENTINEL-Ω destruido: CERBERUS pierde el control.</figcaption></figure>
+
+<h2 id="fase5">Fase 5: audio</h2>
+
+<h3>Música y efectos de Pixabay</h3>
+
+<p>La música y los efectos los tomamos de <strong>Pixabay</strong>, cuya licencia permite usarlos de forma gratuita; aun así, cada autor se acredita en el juego. Buscamos una atmósfera de tensión constante, como la de los survival horror de referencia: piano de terror para el menú, <em>dark ambient</em> para explorar, una pista de suspenso que entra cuando un androide persigue al técnico, música de combate para el jefe, una pieza orquestal para la victoria, la grabación real de una sala de servidores como ambiente y una sirena de instalación. Los 30 efectos cubren disparos reales, el bombeo y los cartuchos de la escopeta, servos y pisadas de robot pesado, un golpe de terror distorsionado cuando un androide te ve, una puerta hidráulica, estática de radio para las terminales y el señuelo, vapor y metal que cruje en las válvulas, la carga eléctrica del jefe y el montacargas.</p>
+
+<h3>Preparación con FFmpeg</h3>
+
+<p>Los archivos se prepararon con <strong>FFmpeg</strong> mediante un script que se puede volver a ejecutar:</p>
+
+<ol>
+<li>Medimos en cada grabación dónde hay sonido y dónde silencio, y su volumen cada 100 ms, para elegir el tramo útil. De una grabación de 11 s con varios ciclos de escopeta tomamos un solo bombeo, y de una grabación de pasos sacamos cuatro pisadas sueltas que el juego alterna al azar.</li>
+<li>Recortamos cada efecto con fundidos de pocos milisegundos para que no hiciera clics.</li>
+<li>Nivelamos cada sonido a una sonoridad (LUFS) acorde con su papel: pasos suaves, disparos fuertes, interfaz discreta.</li>
+<li>Convertimos la música y los ambientes en bucles sin corte, fundiendo el final de la pista con su comienzo.</li>
+</ol>
+
+<figure><img src="{{img:nexus-112_audio-pixabay-recortes.jpg}}" alt="Formas de onda de las grabaciones originales y su versión recortada para el juego"><figcaption>Grabaciones originales (gris) y su versión recortada y nivelada para el juego (cian).</figcaption></figure>
+
+<h3>Mezcla por capas y oído en el personaje</h3>
+
+<p>El gestor <code>AudioNexus</code> se crea solo al iniciar el juego y pasa de una escena a otra. Mezcla la música por capas cuyos volúmenes se funden según lo que pasa: en el menú suena su tema; en los niveles, la exploración y el zumbido de los servidores; la capa de tensión entra cuando algún androide persigue al técnico; la sirena suena durante la alarma; en el combate contra el jefe entra su música y baja la de exploración; dentro del ascensor la mezcla se apaga y la alarma se oye lejos.</p>
+
+<p>Los efectos suenan en 3D desde donde ocurren, con 20 fuentes reutilizables y una leve variación de tono para que los sonidos repetidos no suenen idénticos. Un detalle importante: el <strong>oído del juego va en el técnico y no en la cámara</strong>. Con cámaras fijas que cortan de golpe, el sonido saltaría de un lado a otro con cada corte; con el oído en el personaje, un androide que se acerca por la izquierda siempre suena a su izquierda.</p>
+
+<h2 id="fase6">Fase 6: niveles, cinemáticas y menús</h2>
+
+<h3>Niveles dibujados como texto</h3>
+
+<p>Cada nivel se dibuja como un <strong>mapa de texto</strong> en el que cada carácter es una celda de 3 × 3 m. Una segunda capa de letras agrupa las celdas en salas, y para cada sala se definen su nombre, su luz, la esquina de su cámara y su tema de decoración. La herramienta <code>ConstructorNiveles</code> convierte esa descripción en el nivel 3D completo: coloca suelo, paredes, racks, puertas y objetos; reparte las luces; decora las salas; crea las cámaras, sus zonas y los planos de interés; genera el mapa del inventario; y coloca al jugador, los androides con sus rutas, los cadáveres con sus notas, las estaciones de carga y las cinemáticas. Este es el mapa del Nivel 1:</p>
+
+<pre><code>###############
+###############
+#n.k#|...|#####      n nota · k tarjeta roja · D disco · K cadáver
+#.W.#|.D.|#####      | = filas de racks
+#...#|K..|#####
+##X####R#######      X puerta sin energía · R puerta roja
+#Q.........Q###      Q estación de carga (androide en reposo)
+##L##...##L####
+#f..#.|.#u.P###      f fusible · u memoria USB · P panel de fusibles
+#mg.#...#.GQ###      G terminal de respaldo · m bebida · g refrigerante
+#####.|.#######
+#####...###V.Y#      V Y máquinas expendedoras
+###.T...n.#.ME#      T terminal · E ascensor (salida)
+##I.b.S...L..n#      I puerta de servicio (entrada) · S inicio
+###Qm...b.#KM.#
+###############</code></pre>
+
+<figure><img src="{{img:nexus-mapa_01_Mantenimiento.png}}" alt="Plano del Nivel 1 generado automáticamente desde el mapa de texto"><figcaption>El mismo nivel convertido en el plano del inventario.</figcaption></figure>
+
+<h3>Nivel 1: Cuarto de Mantenimiento</h3>
+
+<p>Es el tutorial. Enseña los controles, las cámaras, el inventario y el guardado con una cadena de objetivos:</p>
+
+<ol>
+<li>La terminal de la sala de mantenimiento da la alerta y la misión.</li>
+<li>La oficina de seguridad no tiene energía: el panel del cuarto eléctrico necesita un fusible, que está en el almacén.</li>
+<li>Con el fusible instalado se encienden las luces de la oficina y se abre su puerta; ahí está la tarjeta roja.</li>
+<li>La tarjeta abre la sala de servidores, donde está el Disco Maestro 1.</li>
+<li>Al tomarlo suena la alarma y cuatro androides salen de sus estaciones de carga. El técnico solo tiene la bayoneta de Ramírez, así que la única opción es huir hasta el ascensor, al otro lado del nivel.</li>
+</ol>
+
+<figure><img src="{{img:nexus-031_puerta-sin-energia-aviso.jpg}}" alt="Aviso de puerta sin energía en la oficina de seguridad"><figcaption>La oficina de seguridad no tiene energía.</figcaption></figure>
+
+<figure><img src="{{img:nexus-032_panel-fusibles-reparado.jpg}}" alt="Panel de fusibles reparado en el cuarto eléctrico"><figcaption>El panel de fusibles reparado restablece la energía.</figcaption></figure>
+
+<figure><img src="{{img:nexus-034_puerta-roja-acceso-concedido.jpg}}" alt="Puerta roja abierta con acceso concedido frente al Disco Maestro"><figcaption>La tarjeta roja abre la sala del Disco Maestro 1.</figcaption></figure>
+
+<h3>Nivel 2: Pasillos de Almacenamiento</h3>
+
+<p>El segundo nivel lo diseñó y construyó Deisy con la misma herramienta de mapas de texto. Es un laberinto de 21 × 18 celdas (63 × 54 m) formado por tres franjas de racks en serpentina que se conectan por lados alternos —hay que recorrerlas enteras—, con iluminación de emergencia verde y ámbar. Empieza con 8:00 de refrigeración y el núcleo al 86 %. La tarjeta roja del almacén de carga abre la oficina de control; la tarjeta azul de la oficina abre el núcleo de datos con el Disco Maestro 2; y con la alarma hay que volver por el laberinto hasta el ascensor. Aquí aparecen los cuerpos de la unidad táctica, que dan la pistola, la escopeta y la munición: siete androides suman 84 puntos de vida y la munición del nivel alcanza unos 97 de daño, así que alcanza si no se desperdicia.</p>
+
+<figure><img src="{{img:nexus-companera_constructor_nivel2.jpg}}" alt="Constructor del Nivel 2 en el editor de Unity"><figcaption>El constructor del Nivel 2 en el editor (captura de Deisy durante la construcción).</figcaption></figure>
+
+<figure><img src="{{img:nexus-mapa_02_Almacenamiento.png}}" alt="Plano del laberinto del Nivel 2 Pasillos de Almacenamiento"><figcaption>Plano del laberinto del Nivel 2.</figcaption></figure>
+
+<figure><img src="{{img:nexus-086_nivel2-sargento-escopeta.jpg}}" alt="Cadáver del sargento Ortiz con su escopeta en el Nivel 2"><figcaption>El sargento Ortiz, con su escopeta.</figcaption></figure>
+
+<figure><img src="{{img:nexus-098_nivel2-estacion-de-carga.jpg}}" alt="Estación de carga con un androide en reposo en el Nivel 2"><figcaption>Una estación de carga del Nivel 2.</figcaption></figure>
+
+<h3>Nivel 3: Núcleo de Datos y el puzzle de las válvulas</h3>
+
+<p>El último nivel es una sala central enorme y simétrica, con el núcleo rodeado por un anillo de racks, tres alas y la sala de llegada. Empieza en estado crítico: 3:00 y el núcleo al 93 %. El Disco Maestro 3 está protegido por un escudo térmico que se apaga con un <strong>puzzle</strong>: abrir las tres válvulas de refrigeración, una por ala, en orden de menor a mayor presión, como indica el manual de procedimiento de la sala de llegada.</p>
+
+<ul>
+<li>Cada válvula tiene un manómetro y las presiones <strong>cambian en cada partida</strong>, así que hay que recorrer las alas y comparar.</li>
+<li>Una válvula abierta en orden apaga un tercio del escudo y suma 60 s, una sola vez por válvula.</li>
+<li>Una válvula fuera de orden provoca una sobrepresión: chorro de vapor, todas las válvulas se cierran, el núcleo pierde 15 s y el estruendo atrae a los androides.</li>
+</ul>
+
+<figure><img src="{{img:nexus-mapa_03_Nucleo.png}}" alt="Plano del Nivel 3 Núcleo de Datos con sus tres alas"><figcaption>Plano simétrico del Nivel 3.</figcaption></figure>
+
+<figure><img src="{{img:nexus-099_nivel3-valvula-manometro.jpg}}" alt="Válvula de refrigeración con manómetro en el Nivel 3"><figcaption>Válvula del ala este con su manómetro.</figcaption></figure>
+
+<figure><img src="{{img:nexus-100_nivel3-alarma-disco.jpg}}" alt="Extracción del Disco Maestro 3 con la alarma activada"><figcaption>La extracción del Disco Maestro 3 activa al jefe final.</figcaption></figure>
+
+<h3>Cinemáticas hechas con el motor</h3>
+
+<p>El sistema de cinemáticas toma la cámara y el personaje, muestra barras negras y subtítulos, oculta el HUD y detiene el temporizador y a los androides. Cada plano define dónde empieza y termina la cámara, qué subtítulo aparece y qué ocurre en escena; los subtítulos usan el nombre del técnico elegido y cualquier cinemática se puede saltar. Hay tres: la <strong>entrada</strong> (el técnico cruza la puerta de servicio, se pregunta «¿Qué pasó aquí…?» mientras mira a su alrededor con IK de cabeza y torso, y la puerta se sella), la <strong>alarma</strong> (las luces pasan a rojo y las unidades se encienden una por una) y el <strong>final</strong> (el reinicio manual, las unidades caen y se publican los registros del día 14).</p>
+
+<figure><img src="{{img:nexus-092_intro-puerta-servicio.jpg}}" alt="Cinemática de entrada: el técnico cruza la puerta de servicio"><figcaption>Cinemática de entrada.</figcaption></figure>
+
+<figure><img src="{{img:nexus-093_intro-que-paso-aqui.jpg}}" alt="Subtítulo: ¿Qué pasó aquí? en la cinemática de entrada"><figcaption>«¿Qué pasó aquí…?»</figcaption></figure>
+
+<figure><img src="{{img:nexus-096_alarma-luces-rojas.jpg}}" alt="Cinemática de alarma con todas las luces en rojo"><figcaption>La alarma tiñe de rojo el nivel.</figcaption></figure>
+
+<figure><img src="{{img:nexus-106_final-reinicio-manual.jpg}}" alt="Cinemática final del reinicio manual del sistema"><figcaption>Cinemática final: el reinicio manual.</figcaption></figure>
+
+<h3>Transición entre niveles en el ascensor</h3>
+
+<p>El paso de un nivel a otro es una secuencia animada: las puertas del ascensor se recogen, sale la luz de la cabina y el técnico entra; el viaje transcurre dentro de una cabina de montacargas con cámara fija en una esquina del techo, que arranca con un tirón, cambia el indicador de piso, deja pasar la luz de cada piso y frena de golpe; mientras tanto, el nivel siguiente se carga detrás de una pantalla negra y aparece con un fundido.</p>
+
+<figure><img src="{{img:nexus-114_transicion-ascensor.jpg}}" alt="Las cuatro partes de la transición animada en el ascensor entre niveles"><figcaption>Las cuatro partes de la transición en el ascensor.</figcaption></figure>
+
+<h3>Menú principal, créditos y pantallas finales</h3>
+
+<p>El menú está sobre un pasillo 3D del centro de datos con los dos técnicos en plataformas de luz y un androide al fondo, con una cámara que se mueve sola. Tiene cuatro pantallas: <strong>título</strong> (logo con efecto de falla de pantalla y el logo de la Universidad Central), <strong>selector de personaje</strong> (el elegido recibe un foco, su anillo se enciende y gira; a la izquierda aparece su ficha), <strong>informe de la misión</strong> (el objetivo, las amenazas y los controles junto al retrato del técnico) y <strong>créditos</strong>, cuyos textos y logos se editan desde un archivo de datos sin tocar el código.</p>
+
+<figure><img src="{{img:nexus-051_selector-neyder.jpg}}" alt="Selector de personaje con el avatar Humanoid de Neyder"><figcaption>Selector de personaje: Neyder.</figcaption></figure>
+
+<figure><img src="{{img:nexus-052_selector-deisy.jpg}}" alt="Selector de personaje con el avatar Humanoid de Deisy"><figcaption>Selector de personaje: Deisy.</figcaption></figure>
+
+<figure><img src="{{img:nexus-053_briefing-mision.jpg}}" alt="Informe de la misión con el objetivo del juego"><figcaption>Informe de la misión: la explicación del objetivo.</figcaption></figure>
+
+<figure><img src="{{img:nexus-119_creditos-completos.jpg}}" alt="Créditos del juego con la Universidad Central y los autores de los recursos"><figcaption>Créditos de la materia, la universidad y los recursos usados.</figcaption></figure>
+
+<p>La pantalla final es una falla crítica del sistema Nexus animada paso a paso: destello y estática, anillos de radar alrededor de un núcleo que late, un título con aberración cromática, el retrato del técnico, un registro de terminal que cambia según la causa y un monitor de pulso que se apaga. La Victoria usa la misma pantalla en verde y cian, con el pulso estable. Todos sus gráficos se generan por código.</p>
+
+<figure><img src="{{img:nexus-047_game-over-anomalia-purgada.jpg}}" alt="Pantalla de Game Over animada: anomalía purgada"><figcaption>Game Over cuando un androide atrapa al técnico.</figcaption></figure>
+
+<figure><img src="{{img:nexus-049_victoria-sistema-restaurado.jpg}}" alt="Pantalla de Victoria: sistema restaurado"><figcaption>Pantalla de Victoria.</figcaption></figure>
+
+<h2 id="fase7">Fase 7: exportación a Windows, web y Android</h2>
+
+<p>Las tres versiones se compilan desde el mismo proyecto con los perfiles de la fase 0. Windows usa el entorno Mono; Android y Web usan <strong>IL2CPP</strong>, que convierte el código C# a C++ antes de compilarlo para procesadores ARM64 o para WebAssembly. Cada versión se probó al terminar: el ejecutable de Windows se abrió y su registro no mostró errores, y la versión web se recorrió en el navegador desde el menú hasta el Nivel 1 sin errores en la consola. Para jugar en este artículo, la versión web está publicada en GitHub Pages con una página propia que muestra una portada y solo descarga el juego al pulsar JUGAR.</p>
+
+<table>
+<thead><tr><th>Plataforma</th><th>Archivo</th><th>Tamaño</th></tr></thead>
+<tbody>
+<tr><td>Windows</td><td>Nexus_Windows.zip con Nexus.exe</td><td>97 MB</td></tr>
+<tr><td>Android</td><td>Nexus.apk (Android 8.0 o posterior, ARM64)</td><td>75 MB</td></tr>
+<tr><td>Web (WebGL)</td><td>Publicado en GitHub Pages</td><td>69 MB</td></tr>
+</tbody>
+</table>
+
+<figure><img src="{{img:nexus-windows_exe_menu.jpg}}" alt="Nexus ejecutándose en Windows"><figcaption>El juego ejecutándose en Windows.</figcaption></figure>
+
+<figure><img src="{{img:nexus-116_build-webgl-final-menu.jpg}}" alt="Versión WebGL de Nexus en el navegador con botón de pantalla completa"><figcaption>La versión web en el navegador.</figcaption></figure>
+
+<h2 id="dificultades">Dificultades superadas</h2>
+
+<p>Un proyecto de este tamaño no salió a la primera. Estos fueron los problemas más importantes y cómo los resolvimos:</p>
+
+<ol>
+<li><strong>El editor no abría por falta de licencia.</strong> Al crear el proyecto, Unity se cerraba con un error de licencia aunque la cuenta tenía Unity Personal activa. El editor obtiene la licencia a través del servicio de Unity Hub, que estaba cerrado: con el Hub abierto, todo funcionó.</li>
+<li><strong>Un avatar sin esqueleto y otro sin texturas.</strong> Los primeros FBX de los avatares no servían: uno no tenía huesos y el otro buscaba sus texturas en una carpeta que no existía. Los volvimos a descargar en GLB, que incluye todo, y los convertimos a FBX con Blender.</li>
+<li><strong>Todo se veía negro.</strong> Las luces de URP pierden intensidad con el cuadrado de la distancia y los materiales muy metálicos no tienen color propio, solo reflejan su entorno. Subimos la intensidad de las luces y bajamos el valor metálico de racks, paredes y suelo.</li>
+<li><strong>El personaje no respondía al teclado.</strong> Las acciones del Input System estaban deshabilitadas en esta versión del paquete; nuestras pruebas automáticas no lo detectaban porque usaban una entrada simulada. Ahora el jugador habilita sus acciones al activarse, y las pruebas envían pulsaciones reales.</li>
+<li><strong>Cámaras que saltaban demasiado.</strong> Las primeras versiones ponían cámaras en todas las esquinas y cambiaban cada vez que otro ángulo era «mejor», con varios cortes por segundo. Pasamos a calcular solo los ángulos necesarios y a cambiar solo cuando el técnico sale del cuadro, queda tapado o se ve demasiado pequeño.</li>
+<li><strong>Disparos que fallaban.</strong> Solo 2 de 7 disparos acertaban: el rayo salía del pecho, pero la dirección se calculaba desde la boca del arma. Ahora se calcula desde el mismo punto de donde sale el rayo.</li>
+<li><strong>Archivos de 115 MB.</strong> Un personaje de Mixamo superaba el límite de 100 MB por archivo de GitHub por sus texturas de 4096 píxeles. Un script de Blender redujo las texturas y separó los canales: quedó en 11 MB.</li>
+<li><strong>El arma colgaba de la mano.</strong> En las animaciones de escopeta, la diferencia entre el giro que espera la IK y el giro del hueso se midió comparando dos poses distintas. Medirla con la misma pose, con la capa ya activa, lo resolvió.</li>
+<li><strong>Errores al volver a entrar a Play.</strong> El proyecto entra a Play sin recargar el código para que sea rápido, y los datos estáticos sobrevivían de una prueba a otra (llegamos a ver «DISCOS 4/3»). Cada sistema reinicia ahora sus datos al empezar.</li>
+<li><strong>Builds que se cancelaban.</strong> Un build de WebGL se interrumpió al cerrar el proceso que consultaba su estado, y uno de Windows se descartó porque se pidió mientras Unity recompilaba tras cambiar de plataforma. Ahora esperamos a que el editor termine antes de cada build.</li>
+</ol>
+
+<h2 id="resultados">Resultados</h2>
+
+<table>
+<thead><tr><th>Requisito de la asignatura</th><th>Cómo lo cumple Nexus</th></tr></thead>
+<tbody>
+<tr><td>Tres niveles con progresión lógica</td><td>Mantenimiento → Almacenamiento → Núcleo; cada disco desbloquea el nivel siguiente</td></tr>
+<tr><td>Tres Canvas diferenciados</td><td>Menú, HUD y Game Over / Victoria, además del inventario</td></tr>
+<tr><td>Selector con Avatar Humanoid</td><td>Avatares de los dos integrantes con un único controlador de animación</td></tr>
+<tr><td>Música de fondo</td><td>Música por capas y ambiente del centro de datos</td></tr>
+<tr><td>Créditos e imagen institucional</td><td>Créditos con la Universidad Central y su logo en el título</td></tr>
+<tr><td>Explicación del objetivo</td><td>Informe de la misión y objetivo actual en el HUD</td></tr>
+<tr><td>Temporizador</td><td>Refrigeración con cuenta atrás y temperatura del núcleo</td></tr>
+<tr><td>Vidas o salud</td><td>Tres oportunidades de evasión y objetos de curación</td></tr>
+<tr><td>Coleccionables con contador</td><td>Discos Duros Maestros (x/3) y cartuchos de refrigerante</td></tr>
+<tr><td>Inteligencia artificial</td><td>Androides con patrulla, visión, oído, persecución y búsqueda, y un jefe final</td></tr>
+<tr><td>Diálogos narrativos</td><td>Terminales, notas, avisos y subtítulos de las cinemáticas</td></tr>
+<tr><td>Plataformas</td><td>Windows, WebGL con pantalla completa y Android</td></tr>
+</tbody>
+</table>
+
+<h2 id="jugar">Juega Nexus</h2>
+
+<p>Pulsa <strong>JUGAR</strong> para cargar el juego (unos 70 MB) y luego <strong>PANTALLA COMPLETA</strong>, abajo a la derecha, para jugar mejor. Se juega con teclado y ratón, con un mando o, en el celular, con los controles táctiles. Si prefieres, también puedes <a href="https://neyseb832.github.io/Nexus_videojuego_2026_2/" target="_blank" rel="noopener">abrir el juego en una pestaña nueva</a>.</p>
+
+<p>[[JUEGO]]</p>
+
+<table>
+<thead><tr><th>Acción</th><th>Teclado y ratón</th><th>Mando</th></tr></thead>
+<tbody>
+<tr><td>Avanzar / retroceder</td><td>W / S</td><td>Stick izquierdo</td></tr>
+<tr><td>Girar</td><td>A / D</td><td>Stick izquierdo</td></tr>
+<tr><td>Correr / media vuelta</td><td>Shift / Shift + S</td><td>Presionar el stick</td></tr>
+<tr><td>Interactuar</td><td>E</td><td>Botón Y</td></tr>
+<tr><td>Habilidad</td><td>Q</td><td>Botón X</td></tr>
+<tr><td>Inventario</td><td>Tab o I</td><td>Start</td></tr>
+<tr><td>Cambiar de arma</td><td>1, 2, 3 (0 guarda el arma)</td><td>Cruceta</td></tr>
+<tr><td>Apuntar / disparar</td><td>Clic derecho / clic izquierdo</td><td>Gatillos</td></tr>
+<tr><td>Recargar</td><td>R</td><td>Botón superior derecho</td></tr>
+</tbody>
+</table>
+
+<h2 id="video">Video de sustentación</h2>
+
+<p>[[VIDEO]]</p>
+
+<h2 id="conclusiones">Conclusiones</h2>
+
+<p>Trabajar por fases, con una versión jugable al final de cada una y compilaciones de prueba desde el inicio, nos permitió terminar un juego completo de tres niveles y llevarlo a tres plataformas sin sorpresas al final.</p>
+
+<p>Construir el contenido con herramientas programadas fue la decisión que más influyó en el resultado: describir los niveles como mapas de texto y generar texturas, objetos, decoración, cámaras y cinemáticas por código nos dejó producir escenarios grandes y coherentes siendo dos personas, y aplicar cualquier cambio en todo el juego con solo reconstruir.</p>
+
+<p>El sistema Avatar Humanoid de Unity fue la base de los personajes: permitió que nuestros avatares, los androides y los personajes secundarios compartieran animaciones, que el selector funcionara con un único controlador y que pudiéramos crear poses y animaciones nuevas músculo por músculo.</p>
+
+<p>Por último, llevar el juego a celulares y navegadores nos obligó a cuidar el rendimiento desde el principio —mallas combinadas, sombreadores sin scripts, una sola cámara activa— y a diseñar controles táctiles, con lo que Nexus se juega de la misma forma en las tres plataformas.</p>
+
+<h2 id="creditos">Créditos y referencias</h2>
+
+<p><strong>Desarrollo:</strong> Neyder Sebastián Orozco Villamil (Modelo A, técnico de redes) y Deisy Lorena Jiménez Martínez (Modelo B, analista de sistemas). Universidad Central, Modelado 3D y Video Juegos (43391312), Mg. Carlos Iván Pinzón Romero, 2026-2.</p>
+
+<ul>
+<li>Unity Technologies. (2026). <em>Unity</em> (Versión 6000.6.3f1) [Software de computación]. https://unity.com</li>
+<li>Blender Foundation. (2026). <em>Blender</em> (Versión 5.2) [Software de computación]. https://www.blender.org</li>
+<li>Avaturn. (2026). <em>Avaturn</em> [Software de computación]. https://avaturn.me</li>
+<li>Adobe. (2026). <em>Mixamo</em> [Software de computación]. https://www.mixamo.com</li>
+<li>Erdoğay, A. K. (s. f.). <em>M9 Bayonet</em> [Modelo 3D]. Sketchfab. Licencia CC BY 4.0.</li>
+<li>Do, H. (s. f.). <em>Beretta M9A1</em> [Modelo 3D]. Sketchfab. Licencia CC BY 4.0.</li>
+<li>Milin, A. (s. f.). <em>Remington 870 Shotgun</em> [Modelo 3D]. Sketchfab. Licencia CC BY 4.0.</li>
+<li>leberch. (s. f.). <em>Horror piano</em> y <em>Survival horror</em> [Música]. Pixabay.</li>
+<li>DELOSound. (s. f.). <em>Suspense horror tension</em> [Música]. Pixabay.</li>
+<li>Montogoronto. (s. f.). <em>Dark fight music boss III</em> [Música]. Pixabay.</li>
+<li>PaulYudin. (s. f.). <em>Victory</em> [Música]. Pixabay.</li>
+<li>Efectos de sonido: freesound_community, ALEXIS_GAMING_CAM, AudioPapkin, SoundEffectsParty, Yodguard, zehendrew, ZenoWaves, spinopel, DRAGON-STUDIO, Finntastico y u_xjrmmgxfru. Pixabay.</li>
+<li>FFmpeg Developers. (2026). <em>FFmpeg</em> (Versión 9.0.2) [Software de computación]. https://ffmpeg.org</li>
+<li>Capcom. (1996). <em>Resident Evil</em> [Videojuego]. · Capcom. (1999). <em>Dino Crisis</em> [Videojuego]. · Square. (1998). <em>Parasite Eve</em> [Videojuego].</li>
+<li>Anthropic. (2026). <em>Claude Code</em> [Software de computación]: asistencia de programación.</li>
+<li>Orozco Villamil, N. S., &amp; Jiménez Martínez, D. L. (2026). <em>Nexus_videojuego_2026_2</em> [Repositorio de código fuente]. GitHub. https://github.com/NeySeb832/Nexus_videojuego_2026_2</li>
+</ul>

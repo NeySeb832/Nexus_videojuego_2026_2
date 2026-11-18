@@ -24,14 +24,14 @@ Estado: ⬜ pendiente · 🟨 en curso · ✅ cumplido (con evidencia en la bit�
 | # | Plataforma | Entregable | Fase | Estado |
 |---|---|---|---|---|
 | 2.1 | Windows | Ejecutable `.exe` en carpeta comprimida | 7 | ✅ build final `Builds/Entrega/Nexus_Windows.zip`, probado (bitácora 7.5) |
-| 2.2 | Web (WebGL) | Build publicado en línea, embebido en el artículo, con botón de pantalla completa | 7 | 🟨 build final probado en el navegador, con botón de pantalla completa (7.5); falta publicarlo en línea |
+| 2.2 | Web (WebGL) | Build publicado en línea, embebido en el artículo, con botón de pantalla completa | 7 | ✅ publicado en https://neyseb832.github.io/Nexus_videojuego_2026_2/ y embebido en el artículo de Niixer; se juega dentro del artículo (bitácora 8.2). Falta probar la pantalla completa con un clic real |
 | 2.3 | Android | Archivo `.apk` instalable | 7 | 🟨 APK final con controles táctiles `Builds/Entrega/Nexus.apk` (3.16, 7.5); falta probarlo en un celular |
 
 ## 3. Entregables de producción y documentación
 
 | # | Entregable | Qué incluye | Estado |
 |---|---|---|---|
-| 3.1 | Artículo en Niixer | Nombres completos de los integrantes; bitácora paso a paso (diseño, programación, arte, dificultades superadas); juego WebGL embebido con pantalla completa; video de gameplay embebido | ⬜ |
+| 3.1 | Artículo en Niixer | Nombres completos de los integrantes; bitácora paso a paso (diseño, programación, arte, dificultades superadas); juego WebGL embebido con pantalla completa; video de gameplay embebido | 🟨 borrador en Niixer con todo el desarrollo, 81 imágenes y el juego embebido (bitácora 8.2); falta el video y publicarlo |
 | 3.2 | Video "Cómo lo hicimos" | Construcción de niveles en Unity, configuración del Avatar y del selector, scripts clave, juego funcionando en tiempo real | ⬜ |
 | 3.3 | Manual de instalación Windows | Paso a paso con capturas | ✅ `Documentacion/manual_windows` (APA 7, bitácora 8.1) |
 | 3.4 | Manual de instalación APK Android | Paso a paso con capturas (orígenes desconocidos, instalación, ejecución) | 🟨 `Documentacion/manual_android` (APA 7); pasos del teléfono como ilustraciones, faltan capturas reales de un celular |

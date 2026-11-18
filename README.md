@@ -10,6 +10,8 @@ los dos personajes jugables.
 **Universidad Central** · Modelado 3D y Video Juegos (43391312) · Docente: Mg. Carlos Iván Pinzón
 Romero · Semestre 2026-2.
 
+**Jugar en el navegador:** https://neyseb832.github.io/Nexus_videojuego_2026_2/
+
 ## Características
 
 - Cámaras fijas al estilo *survival horror* clásico con **controles tipo tanque**; cada sala tiene
