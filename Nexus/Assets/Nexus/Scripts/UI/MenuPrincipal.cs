@@ -82,6 +82,10 @@ namespace Nexus
             botonVolverBriefing.onClick.AddListener(() => Mostrar(Pantalla.Selector));
             botonVolverCreditos.onClick.AddListener(() => Mostrar(Pantalla.Titulo));
 
+            foreach (var b in new[] { botonNueva, botonContinuar, botonCreditos, botonSalir, botonIzquierda, botonDerecha,
+                          botonConfirmar, botonVolverSelector, botonIniciar, botonVolverBriefing, botonVolverCreditos })
+                b.onClick.AddListener(() => GestorAudio.Sfx("ui_clic"));
+
             botonContinuar.gameObject.SetActive(EstadoPartida.HayGuardado);
             botonSalir.gameObject.SetActive(Application.platform != RuntimePlatform.WebGLPlayer);   // en el navegador no se "sale"
             // Reacomoda las opciones visibles para que no queden huecos

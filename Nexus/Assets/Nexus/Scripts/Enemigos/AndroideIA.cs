@@ -155,7 +155,7 @@ namespace Nexus
         }
 
         void OnEnable() { Coleccionable.AlRecoger += AlRecogerObjeto; Todos.Add(this); }
-        void OnDisable() { Coleccionable.AlRecoger -= AlRecogerObjeto; Todos.Remove(this); }
+        void OnDisable() { Coleccionable.AlRecoger -= AlRecogerObjeto; Todos.Remove(this); GestorAudio.Perseguir(this, false); }
 
         // ======================= Habilidades y ruidos =======================
 
@@ -465,6 +465,7 @@ namespace Nexus
 
         void CambiarEstado(Estado nuevo)
         {
+            GestorAudio.Perseguir(this, nuevo == Estado.Persecucion);
             estado = nuevo;
             agente.speed = nuevo == Estado.Persecucion ? velocidadPersecucion
                          : nuevo == Estado.Busqueda ? velocidadPatrulla * 1.6f

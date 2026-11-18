@@ -42,6 +42,7 @@ namespace Nexus
             EstadoPartida.Salud = Mathf.Max(0, EstadoPartida.Salud - 1);
             EstadoPartida.Notificar();
             invulnerableHasta = Time.time + segundosInvulnerable;
+            GestorAudio.Sfx("golpe");
 
             if (EstadoPartida.Salud <= 0)
             {

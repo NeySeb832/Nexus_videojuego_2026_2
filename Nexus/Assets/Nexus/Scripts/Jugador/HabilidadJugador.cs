@@ -120,6 +120,7 @@ namespace Nexus
                 return false;
             }
             mejor.Apagar(duracionApagado);
+            GestorAudio.Sfx("senuelo");
             StartCoroutine(Rayo(mejor.transform));
             HUDNexus.Aviso($"KILLSWITCH.exe ejecutado: SENTINEL fuera de línea {duracionApagado:0} s");
             return true;
@@ -173,6 +174,7 @@ namespace Nexus
             var s = Instantiate(prefabSenuelo, desde, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
             var senuelo = s.GetComponent<SenueloRed>();
             if (senuelo != null) senuelo.Lanzar(desde, hasta);
+            GestorAudio.Sfx("senuelo");
             HUDNexus.Aviso("Señuelo de red desplegado: atrae a los androides cercanos");
             return true;
         }
