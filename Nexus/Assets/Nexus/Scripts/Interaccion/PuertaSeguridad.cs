@@ -107,6 +107,7 @@ namespace Nexus
             ActualizarLuz();
             if (bloqueoNavegacion != null) bloqueoNavegacion.enabled = false;
             if (audioPuerta != null) audioPuerta.Play();
+            AudioNexus.Efecto(Sfx.Puerta, transform.position + Vector3.up * 1.5f, 0.9f);
             StartCoroutine(Deslizar());
         }
 
@@ -125,6 +126,7 @@ namespace Nexus
             ActualizarLuz();
             if (bloqueoNavegacion != null) bloqueoNavegacion.enabled = true;
             if (audioPuerta != null) audioPuerta.Play();
+            AudioNexus.Efecto(Sfx.Puerta, transform.position + Vector3.up * 1.5f, 1f, 0f);
             StopAllCoroutines();
             StartCoroutine(Deslizar(1f, 0f));
         }

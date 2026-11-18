@@ -44,6 +44,7 @@ namespace Nexus
                 return;
             }
             existencias--;
+            AudioNexus.Efecto(Sfx.Expendedora, transform.position + Vector3.up * 0.6f, 1f);
             if (jugador.Inventario != null) jugador.Inventario.Agregar(producto);
             HUDNexus.Aviso($"La máquina soltó un {NombreProducto}… y el golpe se oyó por todo el pasillo");
             foreach (var a in AndroideIA.Todos)

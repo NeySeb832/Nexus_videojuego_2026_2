@@ -156,7 +156,11 @@ namespace Nexus
             if (animator != null) animator.SetBool(ParamArmaFuego, a == TipoArma.Pistola || a == TipoArma.Escopeta);
             // Primera vez con un arma de fuego: el cargador viene lleno si hay munición
             if ((a == TipoArma.Pistola || a == TipoArma.Escopeta) && Cargador == 0 && Reserva > 0) CompletarRecarga();
-            if (!silencioso && a != TipoArma.Ninguna) HUDNexus.Aviso($"Equipaste: {DatosObjetos.Nombre(ObjetoDe(a))}");
+            if (!silencioso && a != TipoArma.Ninguna)
+            {
+                HUDNexus.Aviso($"Equipaste: {DatosObjetos.Nombre(ObjetoDe(a))}");
+                AudioNexus.Efecto(Sfx.CartuchoCarga, transform.position + Vector3.up * 1.2f, 0.6f);
+            }
             ActualizarHUD();
         }
 
@@ -290,6 +294,7 @@ namespace Nexus
             var st = De(Equipada);
             if (Cargador <= 0)
             {
+                AudioNexus.Efecto(Sfx.SinMunicion, transform.position + Vector3.up * 1.2f, 0.8f);
                 if (Reserva > 0) Recargar();
                 else HUDNexus.Aviso("Sin munición");
                 proximoAtaque = Time.time + 0.4f;
@@ -301,6 +306,9 @@ namespace Nexus
             if (animator != null) animator.SetTrigger(ParamDisparo);
 
             Vector3 origen = OrigenDisparo;
+            bool escopeta = Equipada == TipoArma.Escopeta;
+            AudioNexus.Efecto(escopeta ? Sfx.DisparoEscopeta : Sfx.DisparoPistola, origen, 1f, 0.04f);
+            if (escopeta) AudioNexus.EfectoRetrasado(Sfx.EscopetaBombeo, 0.32f, transform, 0.85f);
             // El rayo sale desde el pecho (no atraviesa paredes por estar el cañón dentro de una) y la
             // dirección se calcula desde ahí mismo: si se calculara desde el cañón, que está a un lado,
             // el rayo pasaría paralelo junto al androide sin tocarlo
@@ -356,6 +364,7 @@ namespace Nexus
                 transform.rotation = Quaternion.LookRotation(h);
             }
             if (animator != null) animator.SetTrigger(ParamAcuchillar);
+            AudioNexus.EfectoRetrasado(Sfx.Cuchillo, 0.18f, transform, 0.8f);
             StartCoroutine(GolpeCuchillo(st));
         }
 
@@ -386,6 +395,10 @@ namespace Nexus
             // La escopeta de corredera se carga cartucho a cartucho por la ventana inferior
             float duracion = Equipada == TipoArma.Escopeta ? 0.3f + SegundosPorCartucho * CartuchosARecargar : st.recarga;
             finRecarga = Time.time + duracion;
+            // Sonido: el cargador de la pistola, o cada cartucho que entra en el tubo de la escopeta
+            if (Equipada == TipoArma.Escopeta)
+                for (int i = 0; i < CartuchosARecargar; i++) AudioNexus.EfectoRetrasado(Sfx.CartuchoCarga, 0.3f + SegundosPorCartucho * i + 0.35f, transform, 0.8f);
+            else AudioNexus.Efecto(Sfx.Recarga, transform.position + Vector3.up * 1.2f, 0.9f);
             ActualizarHUD();
         }
 
@@ -402,6 +415,7 @@ namespace Nexus
         // ======================= Efectos =======================
         void Impacto(Vector3 punto, Vector3 normal)
         {
+            AudioNexus.Efecto(Sfx.ImpactoMetal, punto, 0.55f, 0.12f);
             if (datos == null || datos.impacto == null) return;
             var fx = Instantiate(datos.impacto, punto + normal * 0.03f, Quaternion.LookRotation(normal));
             fx.transform.localScale = Vector3.one * 0.6f;

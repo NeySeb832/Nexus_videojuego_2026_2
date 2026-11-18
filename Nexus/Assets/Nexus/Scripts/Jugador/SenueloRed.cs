@@ -50,6 +50,7 @@ namespace Nexus
                 if (Time.time >= proximoLlamado)
                 {
                     proximoLlamado = Time.time + 0.5f;
+                    AudioNexus.Efecto(Sfx.Senuelo, transform.position, 0.6f, 0.02f);   // la señal falsa "llama" a los androides
                     foreach (var a in AndroideIA.Todos)
                         if (a != null && (a.transform.position - transform.position).sqrMagnitude < radio * radio)
                             a.Atraer(transform.position, fin - Time.time + 1.5f);

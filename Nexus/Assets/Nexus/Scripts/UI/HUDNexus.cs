@@ -117,6 +117,7 @@ namespace Nexus
 
         public static void MostrarFinal(bool victoria, string titulo, string motivo)
         {
+            AudioNexus.Final(victoria);
             if (inst != null) inst.Final(victoria, titulo, motivo);
         }
 
@@ -270,6 +271,7 @@ namespace Nexus
             Time.timeScale = 0f;                       // el juego se pausa mientras se lee
             panelDialogo.SetActive(true);
             Prompt(null);
+            AudioNexus.Interfaz(Sfx.TerminalBeep, 0.5f);
             yield return null;                          // ignora la pulsación que abrió el diálogo
 
             while (colaDialogos.Count > 0)
@@ -298,6 +300,7 @@ namespace Nexus
                         pistaDialogo.alpha = 0.4f + 0.6f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 3f));
                         yield return null;
                     }
+                    AudioNexus.Interfaz(Sfx.UIBlip, 0.35f);
                     yield return null;
                 }
                 fin?.Invoke();

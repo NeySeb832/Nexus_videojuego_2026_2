@@ -85,6 +85,8 @@ namespace Nexus
                 extra = $": el núcleo se enfría +{segundos:0} s";
             }
             int n = EscudoTermico.ValvulaAbierta();
+            AudioNexus.Efecto(Sfx.ValvulaGiro, transform.position + Vector3.up * 1.2f, 1f);
+            AudioNexus.Efecto(Sfx.Vapor, transform.position + Vector3.up * 1.2f, 0.35f);
             HUDNexus.Aviso($"Válvula {nombre} abierta ({n}/{EscudoTermico.Total}){extra}");
             if (n >= EscudoTermico.Total) CompletarObjetivo();
             StartCoroutine(Girar(1f));
@@ -95,6 +97,8 @@ namespace Nexus
         {
             foreach (var v in Todas) v.Cerrar();
             EscudoTermico.Restablecer();
+            AudioNexus.Efecto(Sfx.Vapor, transform.position + Vector3.up * 1.2f, 1f, 0f);
+            AudioNexus.Efecto(Sfx.ImpactoMetal, transform.position + Vector3.up * 1.2f, 1f, 0.2f);
             if (NivelNexus.Instancia != null) NivelNexus.Instancia.SumarTiempo(-penalizacion);
             HUDNexus.MostrarDialogo("ALERTA DEL SISTEMA", new[]
             {

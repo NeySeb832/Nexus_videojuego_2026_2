@@ -106,6 +106,7 @@ namespace Nexus
                 if (arma != null) arma.AlRecoger(objeto);
             }
             OcultarObjetos();
+            if (daObjeto) AudioNexus.Interfaz(Sfx.Recoger);
             EstadoPartida.Notificar();
         }
 

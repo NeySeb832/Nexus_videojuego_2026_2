@@ -43,7 +43,7 @@ namespace Nexus
 
         CharacterController cc;
         InputAction accionMover, accionCorrer;
-        float velocidadVertical;
+        float velocidadVertical, proximoPaso;
         bool tieneMultiplicador;
 
         // Modo tanque
@@ -149,6 +149,14 @@ namespace Nexus
             float velocidadAnimacion, sentido = 1f;
             if (controlTanque) movimiento = MovimientoTanque(entrada, corriendo, out velocidadAnimacion, out sentido);
             else movimiento = MovimientoRelativoCamara(entrada, corriendo, out velocidadAnimacion);
+
+            // Pasos: más seguidos y fuertes al correr
+            if (VelocidadActual > 0.5f && Time.time >= proximoPaso)
+            {
+                bool corre = VelocidadActual > 3f;
+                proximoPaso = Time.time + (corre ? 0.3f : 0.52f);
+                AudioNexus.Efecto(Sfx.JugadorPaso, transform.position, corre ? 0.6f : 0.35f, 0.1f);
+            }
 
             if (cc.isGrounded && velocidadVertical < 0f) velocidadVertical = -2f;
             velocidadVertical += gravedad * Time.deltaTime;

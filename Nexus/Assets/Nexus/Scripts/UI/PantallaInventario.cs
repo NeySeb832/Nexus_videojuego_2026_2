@@ -115,6 +115,7 @@ namespace Nexus
         void Abrir()
         {
             Abierta = true;
+            AudioNexus.Interfaz(Sfx.TerminalBeep, 0.35f);
             escalaPrevia = Time.timeScale;
             Time.timeScale = 0f;
             raizCanvas.SetActive(true);
@@ -128,6 +129,7 @@ namespace Nexus
         {
             if (!Abierta) return;
             Abierta = false;
+            AudioNexus.Interfaz(Sfx.UIBlip, 0.4f);
             raizCanvas.SetActive(false);
             if (canvasHud != null) canvasHud.SetActive(true);
             if (NivelNexus.Instancia == null || !NivelNexus.Instancia.Terminado) Time.timeScale = escalaPrevia > 0f ? escalaPrevia : 1f;

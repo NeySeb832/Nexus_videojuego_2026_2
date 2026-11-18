@@ -131,7 +131,7 @@ namespace Nexus
             enEstacion = estacion;
         }
 
-        float cazarHasta;
+        float cazarHasta, proximoPaso;
         bool enPausa, detenidoAntes;
 
         [Tooltip("Unidad de reserva del jefe final: no despierta con la alarma, solo cuando el jefe la llama")]
@@ -226,6 +226,7 @@ namespace Nexus
             // Queda en el suelo: sin colisión que estorbe ni cono de visión
             foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false;
             Todos.Remove(this);
+            AudioNexus.Efecto(Sfx.AndroideDestruido, Pecho);
             HUDNexus.Aviso("UNIDAD SENTINEL NEUTRALIZADA");
         }
 
@@ -236,6 +237,7 @@ namespace Nexus
             CambiarEstado(Estado.Apagado);
             finApagado = Time.time + segundos;
             visto = false;
+            AudioNexus.Efecto(Sfx.AndroideDestruido, Pecho, 0.55f);   // KILLSWITCH: se apaga con un zumbido descendente
             agente.ResetPath();
             if (animator != null) animator.SetBool(ParamMuerto, true);
             Brillo(0f);
@@ -295,6 +297,7 @@ namespace Nexus
         {
             if (despertarEn > 0f) return;
             despertarEn = Time.time + segundos;
+            AudioNexus.Efecto(Sfx.AndroideDespierta, Pecho, transform.localScale.x > 1.2f ? 1f : 0.7f);
             perseguirAlDespertar = perseguir;
             destinoAlDespertar = jugador != null ? jugador.position : transform.position;
         }
@@ -367,6 +370,13 @@ namespace Nexus
             }
             if (detenidoAntes) { detenidoAntes = false; agente.isStopped = estado == Estado.Recalibrando; }
             if (animator != null) animator.SetFloat(ParamVelocidad, agente.velocity.magnitude, 0.1f, Time.deltaTime);
+            // Pisadas metálicas: más seguidas cuanto más rápido camina (el jefe, más fuertes)
+            float rapidez = agente.velocity.magnitude;
+            if (rapidez > 0.4f && Time.time >= proximoPaso)
+            {
+                proximoPaso = Time.time + Mathf.Clamp(1.1f / rapidez, 0.28f, 0.8f);
+                AudioNexus.Efecto(Sfx.AndroidePaso, transform.position, transform.localScale.x > 1.2f ? 1f : Mathf.Clamp01(0.35f + rapidez * 0.12f));
+            }
 
             // Impacto reciente: el visor destella y el androide se frena un instante
             if (destelloHasta > 0f)
@@ -471,6 +481,7 @@ namespace Nexus
             ultimaPosicion = jugador.position;
             if (nuevo)
             {
+                AudioNexus.Efecto(Sfx.AndroideDetecta, Pecho);
                 AlDetectar?.Invoke(this);
                 if (audioAlarma != null && audioAlarma.clip != null) audioAlarma.Play();
                 if (Time.time - ultimoAvisoDeteccion > 6f)

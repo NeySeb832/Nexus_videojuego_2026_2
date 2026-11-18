@@ -101,6 +101,7 @@ namespace Nexus
             cargando = true;
             ia.Detenido = true;
             ia.MultiplicadorDanio = 1f;     // mientras carga pierde el blindaje (daño normal), pero acercarse es peligroso
+            AudioNexus.Efecto(Sfx.JefeCarga, transform.position + Vector3.up * 1.5f, 1f, 0f);
             HUDNexus.Aviso($"¡{nombre} carga una descarga! ¡Aléjate! Al descargar quedará expuesto.");
             for (float t = 0f; t < 2.2f; t += Time.deltaTime)
             {
@@ -112,6 +113,7 @@ namespace Nexus
             }
             // La descarga: onda expansiva que hiere al técnico si está cerca
             StartCoroutine(Onda());
+            AudioNexus.Efecto(Sfx.JefeDescarga, transform.position + Vector3.up, 1f, 0.03f);
             if (vida != null && Vector3.Distance(jugador.position, transform.position) < radioDescarga)
                 vida.RecibirDanio(transform.position);
             // Sobrecalentado: quieto y expuesto (doble daño) — el momento de castigarlo
@@ -160,6 +162,7 @@ namespace Nexus
             if (lienzo != null) lienzo.enabled = false;
             // Sin la unidad que lo aloja, CERBERUS pierde el control de las demás
             AndroideIA.DesconectarTodos();
+            AudioNexus.Efecto(Sfx.JefeDescarga, transform.position + Vector3.up, 0.7f, 0f);
             HUDNexus.Aviso($"{nombre} DESTRUIDA. CERBERUS perdió el control: unidades desconectadas.");
             if (!string.IsNullOrEmpty(objetivoAlDerrotar)) HUDNexus.Objetivo(objetivoAlDerrotar);
         }

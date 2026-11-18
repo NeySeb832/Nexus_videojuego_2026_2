@@ -2009,3 +2009,86 @@ aparece la pantalla de **Victoria**.
 "montacargas" sino **ascensor**: cartel, "Usar el ascensor", objetivos y notas (el prefab ahora es
 `Ascensor_Salida`). En el Nivel 3 el cartel dice "SALIDA DE EMERGENCIA", porque ahí se fuerza el
 reinicio.
+
+---
+
+## Fase 5 — Audio
+
+### 5.1 Música y efectos creados por síntesis de sonido — 17/11/2026 · [Arte] · [Programación] · [Dificultad superada]
+
+**Requisito 1.4:** música de fondo con componentes de audio. Como las texturas y los shaders, todo
+el sonido se **genera por código** (`ConstructorAudio.cs`, menú *Nexus → Audio → Generar sonidos*),
+sin descargar audios de terceros ni depender de licencias.
+
+**Cómo se sintetiza** (muestra por muestra, como un sintetizador):
+
+| Pieza | Para qué se usa |
+|---|---|
+| Osciladores: seno, diente de sierra, cuadrada, triángulo | Bordones, bajos, sirenas, pitidos |
+| Ruido blanco y "marrón" | Disparos, vapor, pasos, rumor del edificio y ventiladores |
+| Filtros: paso bajo / paso alto de un polo y pasa banda biquad (Bristow-Johnson) | Dar "cuerpo" o "brillo"; el filtro del bordón "respira" lentamente |
+| Envolventes: ataque y caída exponencial; barridos de frecuencia | Golpes que caen, encendidos que suben, apagados que bajan |
+| Parciales inarmónicos (1 · 2,76 · 5,4 · 8,93 × la frecuencia) | Campanas lejanas y golpes en metal |
+| Eco (repeticiones con retardo) | Sensación de sala grande vacía |
+
+Las pistas en bucle se generan unos segundos más largas y esa cola se **funde sobre el inicio**,
+para que al repetirse no se oiga el corte. Se guardan como WAV de 16 bits (13,9 MB en total) y
+Unity las comprime en Vorbis: las pistas largas se leen en *streaming* y los efectos se cargan
+descomprimidos.
+
+**Lo que se creó:**
+
+| Pista o efecto | Diseño |
+|---|---|
+| Música del menú (48 s) | Bordón en La, acorde de La menor y un motivo tipo piano con eco |
+| Música de exploración (64 s) | Bordón grave, sierras desafinadas con filtro que respira, una segunda menor que "late" y campanas metálicas lejanas |
+| Tensión (30 s, capa) | Latido de corazón a 100 pulsaciones por minuto y cuerdas en trémolo |
+| Jefe (30,7 s, capa) | Bombo a 125 pulsaciones por minuto, bajo en corcheas, golpes disonantes y un arpegio en la segunda mitad |
+| Ventiladores (12 s) | Ruido grave con modulación de aspas y zumbido eléctrico de 60 Hz |
+| Sirena (2 s) | Barrido de 450 a 1100 Hz cada segundo |
+| 26 efectos | Disparos de pistola y escopeta, bombeo, recarga, cartucho, gatillo sin balas, tajo, impacto metálico, androide que detecta / camina / se enciende / se apaga, pasos, golpe recibido, puerta, objeto recogido, pitidos de terminal e interfaz, válvula, vapor, carga y descarga del jefe, máquina expendedora, señuelo, victoria y game over |
+
+![Formas de onda: exploración, jefe, sirena, escopeta, encendido de androide, puerta, carga del jefe y objeto recogido](capturas/109_audio-formas-de-onda.png)
+
+**Gestor de audio** (`AudioNexus.cs`): se crea solo al arrancar y pasa de una escena a otra.
+
+- **Música por capas** que se funden según el juego:
+  - en el menú, su tema;
+  - en los niveles, exploración + ventiladores;
+  - la **tensión** entra cuando algún androide persigue al técnico;
+  - la **sirena**, mientras dura la alarma;
+  - en el combate contra el jefe, su música (y baja la de exploración);
+  - al final suena el remate de victoria o de game over y la música se apaga.
+- **Efectos en 3D** desde donde ocurren, con un grupo de 20 fuentes reutilizables y una leve
+  variación de tono para que los sonidos repetidos (pasos, disparos) no suenen idénticos.
+- **El "oído" (AudioListener) va en el técnico, no en la cámara.** Con cámaras fijas que cortan de
+  golpe, el sonido saltaría de un lado al otro con cada corte. Con el oído en el personaje, un
+  androide que se acerca por la izquierda siempre suena a su izquierda.
+- **Conectados en el juego:**
+  - armas: disparo, bombeo, recarga, cuchillo e impacto;
+  - androides: detección, pisadas, encendido, apagado y destrucción;
+  - el técnico: pasos y golpe recibido;
+  - interfaz: puertas, objetos recogidos y registro de cadáveres, diálogos e inventario;
+  - Nivel 3: válvulas, sobrepresión y el jefe;
+  - además: máquinas expendedoras, señuelo, navegación de menús y pantalla final.
+
+**Prueba en modo Play** (como no se pueden "escuchar" desde las herramientas, se midió el
+volumen de cada capa):
+
+| Situación | Música | Tensión | Jefe | Sirena | Ventiladores |
+|---|---|---|---|---|---|
+| Exploración (Nivel 1) | 0,42 | 0 | 0 | 0 | 0,32 |
+| 4 androides cazando | 0,42 | **0,50** | 0 | 0 | 0,32 |
+| Alarma | 0,42 | 0 | 0 | **0,22** | 0,32 |
+| Combate contra el jefe (Nivel 3) | **0,12** | 0 | **0,60** | 0,22 | 0,32 |
+| Game Over | 0 | 0 | 0 | 0 | 0 |
+
+Hay un solo oído activo (en el técnico), y el disparo de prueba sonó en su fuente 3D a 3 m.
+
+**Dificultad superada — revisar audio sin escucharlo:** cada WAV se analizó con un script
+(`Evidencias/herramientas/ondas.cs`): pico, volumen medio (RMS), valores inválidos y la diferencia
+entre el final y el inicio de los bucles, que si es grande se oye como un clic al repetir.
+- La música y los ventiladores empalman sin salto.
+- La sirena sí lo tenía: su filtro arrancaba "en frío". Ahora se generan 3 s y se usan los 2
+  últimos, con el filtro en marcha y la fase completa en cada ciclo.
+- También se bajó el rumor de fondo de la música de exploración, que tapaba el bordón y las campanas.

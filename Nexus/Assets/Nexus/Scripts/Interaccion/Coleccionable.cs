@@ -85,6 +85,7 @@ namespace Nexus
             EstadoPartida.Notificar();
 
             if (sonidoRecoger != null) AudioSource.PlayClipAtPoint(sonidoRecoger, transform.position);
+            else AudioNexus.Interfaz(Sfx.Recoger);
             if (!string.IsNullOrEmpty(objetivoAlRecoger)) HUDNexus.Objetivo(objetivoAlRecoger);
             if (dialogoAlRecoger != null && dialogoAlRecoger.Length > 0)
                 HUDNexus.MostrarDialogo("ALERTA DEL SISTEMA", dialogoAlRecoger, null);

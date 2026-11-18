@@ -41,6 +41,7 @@ namespace Nexus
 
             EstadoPartida.Salud = Mathf.Max(0, EstadoPartida.Salud - 1);
             EstadoPartida.Notificar();
+            AudioNexus.Efecto(Sfx.JugadorHerido, transform.position + Vector3.up, 1f, 0.03f);
             invulnerableHasta = Time.time + segundosInvulnerable;
 
             if (EstadoPartida.Salud <= 0)
